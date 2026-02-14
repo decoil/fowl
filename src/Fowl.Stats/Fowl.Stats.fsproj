@@ -11,6 +11,8 @@
     <Compile Include="StudentTDistribution.fs" />
     <Compile Include="ChiSquareDistribution.fs" />
     <Compile Include="FDistribution.fs" />
+    <Compile Include="BinomialDistribution.fs" />
+    <Compile Include="PoissonDistribution.fs" />
     <Compile Include="Descriptive.fs" />
     <Compile Include="Distributions.fs" />
     <Compile Include="Correlation.fs" />
