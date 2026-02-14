@@ -559,7 +559,9 @@ let geomPmf = GeometricDistribution.pmf 0.3 2 |> Result.get  // P(X = 2 failures
 | **Documentation** | 10+ comprehensive guides |
 | **Performance** | 20-50x optimized vs baseline |
 | **Distributions** | 11 total (7 new + 4 existing) |
-| **Neural Network** | Phases 1-4 COMPLETE (Full working implementation) |
+| **Neural Network** | Phases 1-5 COMPLETE (Full working implementation) |
+
+**URL**: https://github.com/decoil/fowl
 
 **URL**: https://github.com/decoil/fowl
 
