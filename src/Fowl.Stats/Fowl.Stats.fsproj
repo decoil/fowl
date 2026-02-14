@@ -22,6 +22,8 @@
     <Compile Include="Correlation.fs" />
     <Compile Include="HypothesisTests.fs" />
     <Compile Include="NormalityTests.fs" />
+    <Compile Include="Anova.fs" />
+    <Compile Include="NonParametricTests.fs" />
     <Compile Include="Stats.fs" />
   </ItemGroup>
 
