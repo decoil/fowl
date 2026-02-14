@@ -13,6 +13,7 @@
     <Compile Include="Shape.fs" />
     <Compile Include="Slice.fs" />
     <Compile Include="Ndarray.fs" />
+    <Compile Include="NdarrayOps.fs" />
     <Compile Include="Optimized.fs" />
     <Compile Include="Matrix.fs" />
   </ItemGroup>
