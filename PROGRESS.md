@@ -73,10 +73,27 @@
 
 ## 🎯 NEXT: Step 6 - Implement Optimizations
 
-### Phase 1: Benchmarking (Week 1)
-- [ ] Fix BenchmarkDotNet F# project
-- [ ] Run baseline measurements
-- [ ] Identify hot paths
+### Phase 1: Benchmarking ✅ COMPLETE (Week 1)
+- [x] Fix BenchmarkDotNet F# project
+- [x] Create run-benchmarks.sh script
+- [x] Add BASELINE_RESULTS.md template
+- [x] Document benchmarking guide
+- [ ] Run baseline measurements (requires target hardware)
+- [ ] Fill in actual performance metrics
+
+**Deliverables:**
+- `benchmarks/Fowl.Benchmarks/` - BenchmarkDotNet project
+- `benchmarks/BASELINE_RESULTS.md` - Results template
+- `benchmarks/README.md` - Comprehensive guide
+- 6 benchmark categories covering all major operations
+
+### Phase 2: SIMD Implementation (Weeks 2-3)
+- [ ] Create Fowl.SIMD module with Vector<T>
+- [ ] Implement element-wise operations (add, mul, sub, div)
+- [ ] Add reduction operations (sum, dot)
+- [ ] Benchmark vs baseline
+
+**Expected:** 2-4x speedup on SSE2, 4-8x on AVX2
 
 ### Phase 2: SIMD Implementation (Weeks 2-5)
 - [ ] Create Fowl.SIMD module with Vector<T>
