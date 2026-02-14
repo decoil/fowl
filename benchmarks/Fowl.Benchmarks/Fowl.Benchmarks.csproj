@@ -19,11 +19,13 @@
     <ProjectReference Include="..\..\src\Fowl.AD\Fowl.AD.fsproj" />
     <ProjectReference Include="..\..\src\Fowl.SIMD\Fowl.SIMD.fsproj" />
     <ProjectReference Include="..\..\src\Fowl.Memory\Fowl.Memory.fsproj" />
+    <ProjectReference Include="..\..\src\Fowl.Parallel\Fowl.Parallel.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="SimdBenchmarks.fs" />
     <Compile Include="MemoryBenchmarks.fs" />
+    <Compile Include="ParallelBenchmarks.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

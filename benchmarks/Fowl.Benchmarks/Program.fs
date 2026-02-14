@@ -271,6 +271,12 @@ let main argv =
         typeof<NdarrayViewBenchmarks>
         typeof<InPlaceBenchmarks>
         typeof<PooledBufferBenchmarks>
+        typeof<ParallelElementWiseBenchmarks>
+        typeof<ParallelReductionBenchmarks>
+        typeof<ParallelMapBenchmarks>
+        typeof<ThreadSafeRandomBenchmarks>
+        typeof<ParallelMatrixBenchmarks>
+        typeof<ThresholdBenchmarks>
     |]
     
     BenchmarkRunner.Run(benchmarks, config) |> ignore
