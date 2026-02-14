@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Regression.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fowl.Core\Fowl.Core.fsproj" />
+    <ProjectReference Include="..\Fowl.Linalg\Fowl.Linalg.fsproj" />
+    <ProjectReference Include="..\Fowl.Stats\Fowl.Stats.fsproj" />
+  </ItemGroup>
+
+</Project>
