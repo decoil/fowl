@@ -157,3 +157,80 @@ open Fowl.Core.Types
                 // Reset gradient
                 Array.fill grad 0 grad.Length 0.0
                 | _ -> ()
+
+/// <summary>Adam optimizer state.
+/// </summary>type Adam = {
+    LearningRate: float
+    Beta1: float
+    Beta2: float
+    Epsilon: float
+    mutable T: int  // Time step
+    mutable FirstMoments: Map<int, float[]>  // Node ID -> m
+    mutable SecondMoments: Map<int, float[]>  // Node ID -> v
+}
+
+/// <summary>Create Adam optimizer.
+/// </summary>/// <param name="learningRate">Learning rate (default: 0.001).</param>/// <param name="beta1">Exponential decay rate for first moment (default: 0.9).</param>/// <param name="beta2">Exponential decay rate for second moment (default: 0.999).</param>/// <param name="epsilon">Small constant for numerical stability (default: 1e-8).</param>let adam (learningRate: float) (beta1: float) (beta2: float) (epsilon: float) : Adam =
+    if learningRate <= 0.0 then
+        invalidArg "learningRate" "Learning rate must be positive"
+    if beta1 < 0.0 || beta1 >= 1.0 then
+        invalidArg "beta1" "Beta1 must be in [0, 1)"
+    if beta2 < 0.0 || beta2 >= 1.0 then
+        invalidArg "beta2" "Beta2 must be in [0, 1)"
+    
+    {
+        LearningRate = learningRate
+        Beta1 = beta1
+        Beta2 = beta2
+        Epsilon = epsilon
+        T = 0
+        FirstMoments = Map.empty
+        SecondMoments = Map.empty
+    }
+
+/// <summary>Update parameters using Adam.
+/// </summary>/// <param name="optimizer">Adam optimizer state.</param>/// <param name="parameters">Parameters to update.</param>let updateAdam (optimizer: Adam) (parameters: Node list) : unit =
+    optimizer.T <- optimizer.T + 1
+    let t = float optimizer.T
+    
+    for param in parameters do
+        match param.Op, param.Value, param.Grad with
+        | Parameter _, Some value, Some grad ->
+            // Get or initialize first moment
+            let m = 
+                match optimizer.FirstMoments.TryFind param.Id with
+                | Some m -> m
+                | None ->
+                    let newM = Array.zeroCreate grad.Length
+                    optimizer.FirstMoments <- optimizer.FirstMoments.Add(param.Id, newM)
+                    newM
+            
+            // Get or initialize second moment
+            let v = 
+                match optimizer.SecondMoments.TryFind param.Id with
+                | Some v -> v
+                | None ->
+                    let newV = Array.zeroCreate grad.Length
+                    optimizer.SecondMoments <- optimizer.SecondMoments.Add(param.Id, newV)
+                    newV
+            
+            // Update biased first moment: m = beta1 * m + (1 - beta1) * grad
+            for i = 0 to grad.Length - 1 do
+                m.[i] <- optimizer.Beta1 * m.[i] + (1.0 - optimizer.Beta1) * grad.[i]
+            
+            // Update biased second moment: v = beta2 * v + (1 - beta2) * grad^2
+            for i = 0 to grad.Length - 1 do
+                v.[i] <- optimizer.Beta2 * v.[i] + (1.0 - optimizer.Beta2) * grad.[i] * grad.[i]
+            
+            // Compute bias-corrected moments
+            let mHat = Array.map (fun mi -> mi / (1.0 - optimizer.Beta1 ** t)) m
+            let vHat = Array.map (fun vi -> vi / (1.0 - optimizer.Beta2 ** t)) v
+            
+            // Update parameters: param = param - lr * mHat / (sqrt(vHat) + epsilon)
+            for i = 0 to value.Length - 1 do
+                value.[i] <- value.[i] - optimizer.LearningRate * mHat.[i] / (sqrt vHat.[i] + optimizer.Epsilon)
+            
+            // Reset gradient for next iteration
+            Array.fill grad 0 grad.Length 0.0
+            
+        | _ -> ()
