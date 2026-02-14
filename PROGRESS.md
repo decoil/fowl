@@ -445,8 +445,104 @@ let eigenvals, eigenvecs = eigSymmetric symMatrix |> Result.get
 **Commits**: 33 total (+2 for Linalg expansion)
 **Lines Added**: ~500 (factorizations + tests)
 
-### Next Steps
-- Expand Stats module with more distributions
-- Add neural network foundation
-- Implement type providers for data loading
-- Add property-based testing with FsCheck
+---
+
+## 🚀 NEW: Stats Module Expansion (2026-02-14 Late Evening)
+
+### Major Distribution Additions
+
+Following Owl's `{dist}_{func}` pattern and Staff+ engineering standards:
+
+#### Beta Distribution ✅
+- **File**: `src/Fowl.Stats/BetaDistribution.fs` (219 lines)
+- **Functions**: pdf, cdf, ppf, rvs, mean, var, std, mode
+- **Special Functions Added**: beta, logBeta, incompleteBeta (Lentz's algorithm)
+- **Implementation**: Marsaglia-Tsang Gamma sampler for rvs
+
+#### Student's t-Distribution ✅
+- **File**: `src/Fowl.Stats/StudentTDistribution.fs` (251 lines)
+- **Functions**: pdf, cdf, ppf, rvs, mean, var, std, entropy
+- **Key Algorithms**:
+  - CDF via incomplete beta symmetry relationship
+  - PPF via Cornish-Fisher expansion + Newton-Raphson
+  - RVS via Z/√(Chi2/ν) method
+
+#### Chi-square Distribution ✅
+- **File**: `src/Fowl.Stats/ChiSquareDistribution.fs` (242 lines)
+- **Functions**: pdf, cdf, ppf, rvs, mean, var, std, mode, skewness, kurtosis, entropy
+- **Key Algorithms**:
+  - Wilson-Hilferty approximation for large df CDF
+  - Direct Gamma relationship for rvs
+
+#### F-Distribution ✅
+- **File**: `src/Fowl.Stats/FDistribution.fs` (219 lines)
+- **Functions**: pdf, cdf, ppf, rvs, mean, var, std, mode
+- **Key Algorithms**:
+  - CDF via incomplete beta I_{d1*x/(d2+d1*x)}(d1/2, d2/2)
+  - PPF via Beta inverse relationship
+  - Log-beta for numerical stability in PDF
+
+### Distribution Summary
+
+| Distribution | PDF | CDF | PPF | RVS | Moments | Lines |
+|--------------|-----|-----|-----|-----|---------|-------|
+| Beta | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode | 219 |
+| StudentT | ✅ | ✅ | ✅ | ✅ | mean,var,std,entropy | 251 |
+| ChiSquare | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode,skew,kurt,entropy | 242 |
+| F | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode | 219 |
+
+### Implementation Standards Applied
+
+1. **Owl Pattern Compliance**: `{dist}_{func}` naming (e.g., `Beta.pdf`, `StudentT.cdf`)
+2. **Result Type Safety**: All functions return `FowlResult<'T>`
+3. **Comprehensive Documentation**: XML docs with examples, remarks, references
+4. **Numerical Stability**: Log-space computations where appropriate
+5. **Parameter Validation**: Proper error handling for invalid inputs
+6. **Self-Contained**: Inline Gamma sampling (Marsaglia-Tsang) - no external deps
+
+### Usage Examples
+
+```fsharp
+// Beta distribution
+let betaPdf = BetaDistribution.pdf 2.0 3.0 0.5 |> Result.get  // Mode at ~0.33
+
+// Student's t
+let tPpf = StudentTDistribution.ppf 10.0 0.95 |> Result.get   // 95th percentile
+
+// Chi-square
+let chi2Cdf = ChiSquareDistribution.cdf 3.0 2.0 |> Result.get  // P(X <= 2)
+
+// F-distribution
+let fPdf = FDistribution.pdf 5.0 10.0 1.0 |> Result.get
+```
+
+### References Used
+- Owl Tutorial: Statistical Functions chapter
+- Cephes Mathematical Library
+- Numerical Recipes (Press et al.)
+- Abramowitz & Stegun: Handbook of Mathematical Functions
+- Marsaglia & Tsang (2000): A simple method for generating gamma variables
+
+**Commits**: 35 total (+2 for Stats distributions)
+**Lines Added**: ~931 (4 distributions + special functions)
+
+### Next Priorities
+1. **Discrete Distributions**: Binomial, Poisson, Geometric
+2. **Neural Network Foundation**: Layer types, activations, backprop
+3. **Type Providers**: CSV/HDF5 data loading
+4. **Property-Based Testing**: FsCheck integration
+
+---
+
+## 📊 Current Repository Status
+
+| Metric | Value |
+|--------|-------|
+| **Commits** | 35 |
+| **Lines of Code** | ~8,500 (F#/C#) |
+| **Modules** | 9 (Core, Linalg, Stats, AD, SIMD, Memory, Parallel, Cache, Native) |
+| **Tests** | 72+ |
+| **Documentation** | 10+ comprehensive guides |
+| **Performance** | 20-50x optimized vs baseline |
+
+**URL**: https://github.com/decoil/fowl
