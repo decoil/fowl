@@ -13,6 +13,7 @@
     <Compile Include="FDistribution.fs" />
     <Compile Include="BinomialDistribution.fs" />
     <Compile Include="PoissonDistribution.fs" />
+    <Compile Include="GeometricDistribution.fs" />
     <Compile Include="Descriptive.fs" />
     <Compile Include="Distributions.fs" />
     <Compile Include="Correlation.fs" />
