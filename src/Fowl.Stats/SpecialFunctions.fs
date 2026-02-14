@@ -92,3 +92,85 @@ let randn (rng: Random) : float =
     let u1 = rng.NextDouble()
     let u2 = rng.NextDouble()
     sqrt (-2.0 * log u1) * cos (2.0 * Math.PI * u2)
+
+// ============================================================================
+// Beta Functions (for Beta distribution)
+// ============================================================================
+
+/// Beta function B(a,b) = Γ(a)Γ(b)/Γ(a+b)
+let beta (a: float) (b: float) : FowlResult<float> =
+    if a <= 0.0 || b <= 0.0 then
+        Error.invalidArgument "Beta function requires a > 0 and b > 0"
+    else
+        result {
+            let! ga = gamma a
+            let! gb = gamma b
+            let! gab = gamma (a + b)
+            return ga * gb / gab
+        }
+
+/// Log beta function - more numerically stable
+let logBeta (a: float) (b: float) : FowlResult<float> =
+    if a <= 0.0 || b <= 0.0 then
+        Error.invalidArgument "Log beta function requires a > 0 and b > 0"
+    else
+        result {
+            let! lga = logGamma a |> Ok
+            let! lgb = logGamma b |> Ok
+            let! lgab = logGamma (a + b) |> Ok
+            return lga + lgb - lgab
+        }
+
+/// Incomplete beta function I_x(a,b) using continued fraction
+/// This is the regularized incomplete beta function
+let incompleteBeta (a: float) (b: float) (x: float) : FowlResult<float> =
+    if a <= 0.0 || b <= 0.0 then
+        Error.invalidArgument "Incomplete beta requires a > 0 and b > 0"
+    elif x < 0.0 || x > 1.0 then
+        Error.invalidArgument "x must be in [0, 1]"
+    elif x = 0.0 then
+        Ok 0.0
+    elif x = 1.0 then
+        Ok 1.0
+    else
+        // Use symmetry relation if x > (a+1)/(a+b+2)
+        let x', a', b' = 
+            if x > (a + 1.0) / (a + b + 2.0) then
+                (1.0 - x, b, a)
+            else
+                (x, a, b)
+        
+        // Lentz's algorithm for continued fraction
+        let maxIterations = 200
+        let epsilon = 1e-14
+        
+        let getA n = 
+            if n = 0 then 1.0
+            elif n % 2 = 1 then float (n + 1) / 2.0 * (b' - float n) / ((a' + float n - 1.0) * (a' + float n))
+            else float n / 2.0 * (a' + b' - float n) / ((a' + float n - 1.0) * (a' + float n))
+        
+        let getB n = 1.0
+        
+        let rec lentz f0 c d n =
+            if n > maxIterations then
+                f0
+            else
+                let an = getA n
+                let bn = getB n
+                let dn = bn + an / d
+                let dn' = if abs dn < epsilon then epsilon else dn
+                let cn = bn + an / c
+                let cn' = if abs cn < epsilon then epsilon else cn
+                let delta = cn' / dn'
+                let fn = f0 * delta
+                if abs (delta - 1.0) < epsilon then
+                    fn
+                else
+                    lentz fn cn' dn' (n + 1)
+        
+        result {
+            let! lbeta = logBeta a' b'
+            let front = exp (a' * log x' + b' * log (1.0 - x') - lbeta) / a'
+            let cf = lentz 1.0 1.0 1.0 1
+            return front * cf
+        }
