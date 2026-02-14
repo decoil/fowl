@@ -277,6 +277,11 @@ let main argv =
         typeof<ThreadSafeRandomBenchmarks>
         typeof<ParallelMatrixBenchmarks>
         typeof<ThresholdBenchmarks>
+        typeof<CacheMatrixBenchmarks>
+        typeof<CacheLocalityBenchmarks>
+        typeof<CacheVsParallelBenchmarks>
+        typeof<SpatialLocalityBenchmarks>
+        typeof<BlockSizeBenchmarks>
     |]
     
     BenchmarkRunner.Run(benchmarks, config) |> ignore

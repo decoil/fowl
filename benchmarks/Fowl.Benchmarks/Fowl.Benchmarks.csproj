@@ -20,12 +20,14 @@
     <ProjectReference Include="..\..\src\Fowl.SIMD\Fowl.SIMD.fsproj" />
     <ProjectReference Include="..\..\src\Fowl.Memory\Fowl.Memory.fsproj" />
     <ProjectReference Include="..\..\src\Fowl.Parallel\Fowl.Parallel.fsproj" />
+    <ProjectReference Include="..\..\src\Fowl.Cache\Fowl.Cache.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Compile Include="SimdBenchmarks.fs" />
     <Compile Include="MemoryBenchmarks.fs" />
     <Compile Include="ParallelBenchmarks.fs" />
+    <Compile Include="CacheBenchmarks.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
