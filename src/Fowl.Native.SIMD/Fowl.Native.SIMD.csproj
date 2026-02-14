@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Avx2Kernels.cs" />
+    <Compile Include="Sse2Kernels.cs" />
+    <Compile Include="KernelSelector.cs" />
+  </ItemGroup>
+
+</Project>

@@ -262,6 +262,7 @@ let main argv =
         typeof<MatrixBenchmarks>
         typeof<StatsBenchmarks>
         typeof<ADBenchmarks>
+        typeof<Avx2Benchmarks>
         typeof<SimdElementWiseBenchmarks>
         typeof<SimdReductionBenchmarks>
         typeof<SimdScalarBenchmarks>

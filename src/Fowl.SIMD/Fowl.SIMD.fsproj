@@ -9,11 +9,13 @@
     <Compile Include="Core.fs" />
     <Compile Include="ElementWise.fs" />
     <Compile Include="Reductions.fs" />
+    <Compile Include="Hardware.fs" />
     <Compile Include="SIMD.fs" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Fowl.Core\Fowl.Core.fsproj" />
+    <ProjectReference Include="..\Fowl.Native.SIMD\Fowl.Native.SIMD.csproj" />
   </ItemGroup>
 
 </Project>
