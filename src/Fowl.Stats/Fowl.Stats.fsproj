@@ -17,6 +17,7 @@
     <Compile Include="Descriptive.fs" />
     <Compile Include="Distributions.fs" />
     <Compile Include="Correlation.fs" />
+    <Compile Include="HypothesisTests.fs" />
     <Compile Include="Stats.fs" />
   </ItemGroup>
 
