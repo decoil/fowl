@@ -17,6 +17,9 @@ let validateShape (shape: Shape) : FowlResult<Shape> =
         Ok shape
 
 /// Calculate strides from shape (C-layout / row-major)
+///
+/// Uses mutable state for performance; this is acceptable since
+/// the function has no side effects (pure from caller perspective).
 let stridesC (shape: Shape) : int array =
     let n = shape.Length
     let s = Array.zeroCreate n
@@ -27,6 +30,9 @@ let stridesC (shape: Shape) : int array =
     s
 
 /// Calculate strides from shape (Fortran-layout / column-major)
+///
+/// Uses mutable state for performance; this is acceptable since
+/// the function has no side effects (pure from caller perspective).
 let stridesF (shape: Shape) : int array =
     let n = shape.Length
     let s = Array.zeroCreate n
