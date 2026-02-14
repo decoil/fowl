@@ -266,6 +266,11 @@ let main argv =
         typeof<SimdElementWiseBenchmarks>
         typeof<SimdReductionBenchmarks>
         typeof<SimdScalarBenchmarks>
+        typeof<MemoryAllocationBenchmarks>
+        typeof<ZeroCopyBenchmarks>
+        typeof<NdarrayViewBenchmarks>
+        typeof<InPlaceBenchmarks>
+        typeof<PooledBufferBenchmarks>
     |]
     
     BenchmarkRunner.Run(benchmarks, config) |> ignore
