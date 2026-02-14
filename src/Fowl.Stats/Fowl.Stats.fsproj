@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="SpecialFunctions.fs" />
+    <Compile Include="Descriptive.fs" />
+    <Compile Include="Distributions.fs" />
+    <Compile Include="Correlation.fs" />
+    <Compile Include="Stats.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fowl.Core\Fowl.Core.fsproj" />
+  </ItemGroup>
+
+</Project>
