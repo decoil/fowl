@@ -559,5 +559,110 @@ let geomPmf = GeometricDistribution.pmf 0.3 2 |> Result.get  // P(X = 2 failures
 | **Documentation** | 10+ comprehensive guides |
 | **Performance** | 20-50x optimized vs baseline |
 | **Distributions** | 11 total (7 new + 4 existing) |
+| **Neural Network** | Phase 1 complete (Graph + Forward) |
 
 **URL**: https://github.com/decoil/fowl
+
+---
+
+## 🧠 NEW: Neural Network Foundation (2026-02-14 Night)
+
+### Phase 1: Core Graph ✅ COMPLETE
+
+Following Architecture book Chapter 4 and Owl patterns:
+
+#### Graph.fs (818 lines)
+**Node Type:**
+- `Id`: Unique identifier
+- `Shape`: Tensor shape
+- `Op`: Operation type
+- `Parents`: Input nodes
+- `Value`: Cached output (mutable ref)
+- `Grad`: Accumulated gradient (mutable ref)
+- `Children`: Nodes using this output
+
+**Operations Supported:**
+- `Input`: Named input nodes
+- `Const/ConstArray`: Constant values
+- `Parameter`: Trainable weights
+- `Add/Sub/Mul/Div`: Element-wise arithmetic
+- `MatMul`: Matrix multiplication
+- `Activation`: ReLU, Sigmoid, Tanh, Softmax, LeakyReLU, ELU
+- `Sum/Mean`: Reduction operations
+
+**Graph Module Functions:**
+```fsharp
+Graph.input "x" [|784|]           // Create input node
+Graph.parameter "W" [|784; 256|] init  // Create parameter
+Graph.add a b                      // Addition node
+Graph.matmul a b                   // Matrix multiplication
+Graph.activate ReLU x              // Apply activation
+Graph.topologicalSort [output]     // Execution order
+```
+
+#### Forward.fs (526 lines)
+**Forward Pass Execution:**
+- `Forward.run`: Execute all nodes in topological order
+- `Forward.runWithInputs`: Execute with input values
+- Element-wise operations with broadcasting
+- Matrix multiplication (naive implementation)
+- All activation functions implemented
+
+**Usage Example:**
+```fsharp
+// Define computation graph
+let x = Graph.input "x" [|2|]
+let W = Graph.parameter "W" [|2; 3|] [|1.0; 2.0; 3.0; 4.0; 5.0; 6.0|]
+let b = Graph.constantArray [|0.1; 0.2; 0.3|] [|3|]
+let h = Graph.matmul x W |> Result.get
+let y = Graph.add h b
+let z = Graph.activate ReLU y
+
+// Execute
+let inputs = Map ["x", [|1.0; 2.0|]]
+let output = Forward.runWithInputs z inputs |> Result.get
+```
+
+### Design Decisions Applied
+
+From research (NEURAL_RESEARCH.md):
+1. ✅ **Mutable refs** for lazy Value/Grad evaluation
+2. ✅ **Topological sort** for correct execution order
+3. ✅ **Result types** for error handling
+4. ✅ **Shape inference** during graph construction
+5. ✅ **Reference cell pattern** matching Owl's design
+
+### Implementation Stats
+
+| File | Lines | Purpose |
+|------|-------|---------|
+| Graph.fs | 818 | Node types, operations, graph construction |
+| Forward.fs | 526 | Forward pass execution engine |
+| **Total** | **1,344** | Phase 1 complete |
+
+### Next Phases
+
+**Phase 2**: Backward Pass + AD Integration
+- Reverse-mode automatic differentiation
+- Gradient computation through graph
+- Integration with existing Fowl.AD module
+
+**Phase 3**: Layer Implementations
+- Dense (fully connected)
+- Conv2D
+- Pooling layers
+- Dropout
+
+**Phase 4**: Training Infrastructure
+- Optimizers (SGD, Adam)
+- Loss functions
+- Training loop
+
+**Phase 5**: Advanced Features
+- Model serialization
+- Pre-trained weights
+- Data loaders
+
+---
+
+## 📊 Current Repository Status
