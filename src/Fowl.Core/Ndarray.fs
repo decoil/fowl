@@ -3,7 +3,10 @@ module Fowl.Core.Ndarray
 open Fowl.Core.Types
 open Fowl.Core.Shape
 
-/// Create empty ndarray
+/// <summary>Create empty ndarray with given shape.</summary>
+/// <typeparam name="K">The element type phantom (Float32, Float64, etc).</typeparam>
+/// <param name="shape">The shape of the array.</param>
+/// <returns>Result containing empty array or error.</returns>
 let empty<'K> (shape: Shape) : FowlResult<Ndarray<'K, 'T>> =
     validateShape shape
     |> Result.map (fun validShape ->
@@ -17,7 +20,16 @@ let empty<'K> (shape: Shape) : FowlResult<Ndarray<'K, 'T>> =
             Layout = CLayout
         })
 
-/// Create ndarray filled with zeros
+/// <summary>Create ndarray filled with zeros.</summary>
+/// <typeparam name="K">The element type phantom.</typeparam>
+/// <param name="shape">The shape of the array.</param>
+/// <returns>Result containing zero array or error.</returns>
+/// <example>
+/// <code>
+/// let arr = Ndarray.zeros<Float64> [|3; 4|]
+/// // Creates a 3x4 matrix of zeros
+/// </code>
+/// </example>
 let zeros<'K> (shape: Shape) : FowlResult<Ndarray<'K, float>> =
     empty<'K> shape
     |> Result.map (fun arr ->
@@ -25,7 +37,10 @@ let zeros<'K> (shape: Shape) : FowlResult<Ndarray<'K, float>> =
         | Dense d -> Dense { d with Data = Array.zeroCreate (Array.length d.Data) }
         | Sparse _ -> arr)  // Shouldn't happen from empty
 
-/// Create ndarray filled with ones
+/// <summary>Create ndarray filled with ones.</summary>
+/// <typeparam name="K">The element type phantom.</typeparam>
+/// <param name="shape">The shape of the array.</param>
+/// <returns>Result containing ones array or error.</returns>
 let ones<'K> (shape: Shape) : FowlResult<Ndarray<'K, float>> =
     validateShape shape
     |> Result.map (fun validShape ->
@@ -39,7 +54,11 @@ let ones<'K> (shape: Shape) : FowlResult<Ndarray<'K, float>> =
             Layout = CLayout
         })
 
-/// Create ndarray filled with specific value
+/// <summary>Create ndarray filled with a specific value.</summary>
+/// <typeparam name="K">The element type phantom.</typeparam>
+/// <param name="shape">The shape of the array.</param>
+/// <param name="value">The fill value.</param>
+/// <returns>Result containing filled array or error.</returns>
 let create<'K> (shape: Shape) (value: 'T) : FowlResult<Ndarray<'K, 'T>> =
     validateShape shape
     |> Result.map (fun validShape ->
