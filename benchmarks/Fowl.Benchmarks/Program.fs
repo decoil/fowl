@@ -262,6 +262,9 @@ let main argv =
         typeof<MatrixBenchmarks>
         typeof<StatsBenchmarks>
         typeof<ADBenchmarks>
+        typeof<SimdElementWiseBenchmarks>
+        typeof<SimdReductionBenchmarks>
+        typeof<SimdScalarBenchmarks>
     |]
     
     BenchmarkRunner.Run(benchmarks, config) |> ignore

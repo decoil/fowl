@@ -17,9 +17,11 @@
     <ProjectReference Include="..\..\src\Fowl.Linalg\Fowl.Linalg.fsproj" />
     <ProjectReference Include="..\..\src\Fowl.Stats\Fowl.Stats.fsproj" />
     <ProjectReference Include="..\..\src\Fowl.AD\Fowl.AD.fsproj" />
+    <ProjectReference Include="..\..\src\Fowl.SIMD\Fowl.SIMD.fsproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="SimdBenchmarks.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
