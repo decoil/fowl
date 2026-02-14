@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fowl.Core", "src\Fowl.Core\Fowl.Core.fsproj", "{CORE-PROJ-GUID}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fowl.Repl", "src\Fowl.Repl\Fowl.Repl.fsproj", "{REPL-PROJ-GUID}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Fowl.Core.Tests", "tests\Fowl.Core.Tests\Fowl.Core.Tests.fsproj", "{TEST-PROJ-GUID}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CORE-PROJ-GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CORE-PROJ-GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CORE-PROJ-GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CORE-PROJ-GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{REPL-PROJ-GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{REPL-PROJ-GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{REPL-PROJ-GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{REPL-PROJ-GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+		{TEST-PROJ-GUID}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{TEST-PROJ-GUID}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{TEST-PROJ-GUID}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{TEST-PROJ-GUID}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
