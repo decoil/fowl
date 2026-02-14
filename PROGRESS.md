@@ -124,12 +124,34 @@
 
 **Expected:** 6-8x speedup on AVX2 vs scalar
 
-### Phase 4: Memory Optimization (Weeks 6-7)
-- [ ] Span<T> integration
-- [ ] Zero-copy slicing with NdarrayView
-- [ ] ArrayPool for temporaries
+### Phase 4: Memory Optimization ✅ COMPLETE (Weeks 6-7)
+- [x] Span<T> integration for zero-copy operations
+- [x] NdarrayView for slicing without copying
+- [x] ArrayPool<T> for temporary buffers
+- [x] In-place operations to avoid allocations
+- [x] Memory benchmarks for allocation patterns
 
-**Expected:** 30% memory reduction
+**Deliverables:**
+- `src/Fowl.Memory/` - Memory optimization module
+- `Memory.fs`: Span ops, ArrayPool, stackalloc, diagnostics
+- `NdarrayView.fs`: Zero-copy views into Ndarray
+- Memory benchmarks: allocation, zero-copy, in-place, pooled
+
+**Features:**
+- Span slice: No allocation, view into array
+- NdarrayView.row/col/subMatrix: Zero-copy slicing
+- ArrayPool: Reusable buffers with auto-dispose
+- In-place ops: Modify without allocation
+- Stack allocation: Small buffers on stack
+
+**Expected:** 30% memory reduction, zero-copy slicing
+
+### Phase 5: Parallelization (Weeks 8-9)
+- [ ] Parallel.For for large arrays
+- [ ] SIMD + Parallel combination
+- [ ] Thread-safe random state
+
+**Expected:** 2-4x speedup on multi-core
 
 ### Phase 3: Memory Optimization (Weeks 6-7)
 - [ ] Span<T> integration
