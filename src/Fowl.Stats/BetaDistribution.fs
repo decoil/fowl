@@ -50,6 +50,7 @@ let pdf (alpha: float) (beta: float) (x: float) : FowlResult<float> =
 
 /// <summary>Percent point function (inverse CDF) for Beta distribution.</summary>/// <param name="alpha">Shape parameter α > 0.</param>/// <param name="beta">Shape parameter β > 0.</param>/// <param name="p">Probability (0 <= p <= 1).</param>/// <returns>Value x such that CDF(x) = p.</returns>/// <remarks>
 /// Uses Newton-Raphson iteration to find the inverse.
+/// Initial guess uses Cornish-Fisher expansion approximation.
 /// </remarks>let ppf (alpha: float) (beta: float) (p: float) : FowlResult<float> =
     validateParams alpha beta
     |> Result.bind (fun () ->
@@ -101,16 +102,47 @@ let pdf (alpha: float) (beta: float) (x: float) : FowlResult<float> =
         let n = Shape.numel shape
         let rng = Random()
         
-        // Generate Gamma samples using shape-scale parameterization
-        // For Beta, we use Gamma(alpha, 1) and Gamma(beta, 1)
+        // Generate Gamma samples using Marsaglia-Tsang method
         let result = Array.zeroCreate n
         
+        let sampleGamma (shape: float) (scale: float) : float =
+            if shape >= 1.0 then
+                let d = shape - 1.0 / 3.0
+                let c = 1.0 / sqrt (9.0 * d)
+                
+                let rec loop () =
+                    let z = SpecialFunctions.randn rng
+                    let u = rng.NextDouble()
+                    let v = (1.0 + c * z) ** 3.0
+                    
+                    if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                        d * v * scale
+                    else
+                        loop ()
+                
+                loop ()
+            else
+                // Use shape+1 and transform for shape < 1
+                let rec loop () =
+                    let d = (shape + 1.0) - 1.0 / 3.0
+                    let c = 1.0 / sqrt (9.0 * d)
+                    let z = SpecialFunctions.randn rng
+                    let u = rng.NextDouble()
+                    let v = (1.0 + c * z) ** 3.0
+                    
+                    if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                        let sample = d * v
+                        let u' = rng.NextDouble()
+                        sample * (u' ** (1.0 / shape)) * scale
+                    else
+                        loop ()
+                loop ()
+        
         for i = 0 to n - 1 do
-            // Use Gamma distribution rvs via relationship
             // X ~ Gamma(alpha, 1), Y ~ Gamma(beta, 1)
             // X/(X+Y) ~ Beta(alpha, beta)
-            let x = GammaDistribution.rvsWithState alpha 1.0 [|1|] (GammaDistribution.init()) |> fst |> Ndarray.toArray |> Array.head
-            let y = GammaDistribution.rvsWithState beta 1.0 [|1|] (GammaDistribution.init()) |> fst |> Ndarray.toArray |> Array.head
+            let x = sampleGamma alpha 1.0
+            let y = sampleGamma beta 1.0
             result.[i] <- x / (x + y)
         
         Ndarray.ofArray result shape)

@@ -7,6 +7,10 @@
 
   <ItemGroup>
     <Compile Include="SpecialFunctions.fs" />
+    <Compile Include="BetaDistribution.fs" />
+    <Compile Include="StudentTDistribution.fs" />
+    <Compile Include="ChiSquareDistribution.fs" />
+    <Compile Include="FDistribution.fs" />
     <Compile Include="Descriptive.fs" />
     <Compile Include="Distributions.fs" />
     <Compile Include="Correlation.fs" />

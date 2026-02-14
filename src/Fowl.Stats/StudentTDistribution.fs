@@ -15,6 +15,25 @@ open Fowl.Stats.SpecialFunctions
 /// As ν → ∞, t-distribution approaches standard normal.
 /// </remarks>
 
+/// <summary>Inverse standard normal CDF approximation (Abramowitz & Stegun).</summary>let private inverseNormalCdf (p: float) : float =
+    if p <= 0.0 then -infinity
+    elif p >= 1.0 then infinity
+    elif p = 0.5 then 0.0
+    else
+        let pp = if p < 0.5 then p else 1.0 - p
+        let t = sqrt (-2.0 * log pp)
+        
+        // Polynomial approximation coefficients
+        let c0 = 2.515517
+        let c1 = 0.802853
+        let c2 = 0.010328
+        let d1 = 1.432788
+        let d2 = 0.189269
+        let d3 = 0.001308
+        
+        let x = t - (c0 + c1 * t + c2 * t * t) / (1.0 + d1 * t + d2 * t * t + d3 * t * t * t)
+        if p < 0.5 then -x else x
+
 /// <summary>Validate degrees of freedom parameter.</summary>let validateParams (df: float) : FowlResult<unit> =
     if df <= 0.0 then
         Error.invalidArgument "degrees of freedom must be positive"
@@ -80,8 +99,7 @@ let pdf (df: float) (x: float) : FowlResult<float> =
             Ok 0.0
         else
             // Initial guess using Cornish-Fisher expansion
-            let z = GaussianDistribution.ppf 0.0 1.0 p
-            let zVal = match z with Ok v -> v | Error _ -> 0.0
+            let zVal = inverseNormalCdf p
             
             let h = 1.0 / df
             let a = ((3.0 * h + 4.0) * h + 6.0) / 12.0
@@ -115,12 +133,44 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Random variate sampling from Student's t-distribution.</summary>/// <param name="df">Degrees of freedom ν > 0.</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses the relationship: if Z ~ N(0,1) and V ~ χ²(ν) are independent,
 /// then Z / √(V/ν) ~ t(ν).
-/// Alternatively: t(ν) = N(0,1) / √(Gamma(ν/2, 2)/ν)
 /// </remarks>let rvs (df: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams df
     |> Result.bind (fun () ->
         let n = Shape.numel shape
         let rng = Random()
+        
+        // Inline Gamma sampler for Chi-square generation
+        let sampleGamma (shape: float) (scale: float) : float =
+            if shape >= 1.0 then
+                let d = shape - 1.0 / 3.0
+                let c = 1.0 / sqrt (9.0 * d)
+                
+                let rec loop () =
+                    let z = SpecialFunctions.randn rng
+                    let u = rng.NextDouble()
+                    let v = (1.0 + c * z) ** 3.0
+                    
+                    if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                        d * v * scale
+                    else
+                        loop ()
+                
+                loop ()
+            else
+                let rec loop () =
+                    let d = (shape + 1.0) - 1.0 / 3.0
+                    let c = 1.0 / sqrt (9.0 * d)
+                    let z = SpecialFunctions.randn rng
+                    let u = rng.NextDouble()
+                    let v = (1.0 + c * z) ** 3.0
+                    
+                    if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                        let sample = d * v
+                        let u' = rng.NextDouble()
+                        sample * (u' ** (1.0 / shape)) * scale
+                    else
+                        loop ()
+                loop ()
         
         let result = Array.zeroCreate n
         
@@ -129,11 +179,7 @@ let pdf (df: float) (x: float) : FowlResult<float> =
             let z = randn rng
             
             // Generate chi-squared via Gamma(ν/2, 2)
-            // Chi-squared(ν) = Gamma(ν/2, 2)
-            let chi2 = GammaDistribution.rvsWithState (df / 2.0) 2.0 [|1|] (GammaDistribution.init()) 
-                        |> fst 
-                        |> Ndarray.toArray 
-                        |> Array.head
+            let chi2 = sampleGamma (df / 2.0) 2.0
             
             // t = Z / sqrt(Chi2 / ν)
             result.[i] <- z / sqrt (chi2 / df)

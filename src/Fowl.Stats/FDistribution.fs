@@ -93,15 +93,46 @@ let pdf (d1: float) (d2: float) (x: float) : FowlResult<float> =
         let n = Shape.numel shape
         let rng = Random()
         
+        // Inline Gamma sampler for Beta generation
+        let sampleGamma (shape: float) (scale: float) : float =
+            if shape >= 1.0 then
+                let d = shape - 1.0 / 3.0
+                let c = 1.0 / sqrt (9.0 * d)
+                
+                let rec loop () =
+                    let z = SpecialFunctions.randn rng
+                    let u = rng.NextDouble()
+                    let v = (1.0 + c * z) ** 3.0
+                    
+                    if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                        d * v * scale
+                    else
+                        loop ()
+                
+                loop ()
+            else
+                let rec loop () =
+                    let d = (shape + 1.0) - 1.0 / 3.0
+                    let c = 1.0 / sqrt (9.0 * d)
+                    let z = SpecialFunctions.randn rng
+                    let u = rng.NextDouble()
+                    let v = (1.0 + c * z) ** 3.0
+                    
+                    if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                        let sample = d * v
+                        let u' = rng.NextDouble()
+                        sample * (u' ** (1.0 / shape)) * scale
+                    else
+                        loop ()
+                loop ()
+        
         let result = Array.zeroCreate n
         
         for i = 0 to n - 1 do
-            // Generate Beta(d1/2, d2/2)
-            let betaState = BetaDistribution.init()
-            let betaSample = BetaDistribution.rvsWithState (d1 / 2.0) (d2 / 2.0) [|1|] betaState
-                            |> fst
-                            |> Ndarray.toArray
-                            |> Array.head
+            // Generate Beta(d1/2, d2/2) via Gamma ratio
+            let x = sampleGamma (d1 / 2.0) 1.0
+            let y = sampleGamma (d2 / 2.0) 1.0
+            let betaSample = x / (x + y)
             
             // F = (d2/d1) * (Beta / (1 - Beta))
             result.[i] <- (d2 / d1) * (betaSample / (1.0 - betaSample))

@@ -139,3 +139,99 @@ module Exponential =
     
     let var (lambda: float) : FowlResult<float> =
         validateLambda lambda |> Result.map (fun () -> 1.0 / (lambda ** 2.0))
+
+/// Gamma distribution
+module Gamma =
+    let validateParams (shape: float) (scale: float) : FowlResult<unit> =
+        if shape <= 0.0 then
+            Error.invalidArgument "shape must be positive"
+        elif scale <= 0.0 then
+            Error.invalidArgument "scale must be positive"
+        else
+            Ok ()
+    
+    /// Simple Gamma sampling using Marsaglia-Tsang method
+    let private sampleGamma (shape: float) (scale: float) (rng: Random) : float =
+        if shape >= 1.0 then
+            let d = shape - 1.0 / 3.0
+            let c = 1.0 / sqrt (9.0 * d)
+            
+            let rec loop () =
+                let z = SpecialFunctions.randn rng
+                let u = rng.NextDouble()
+                let v = (1.0 + c * z) ** 3.0
+                
+                if z > -1.0 / c && log u < 0.5 * z * z + d - d * v + d * log v then
+                    d * v * scale
+                else
+                    loop ()
+            
+            loop ()
+        else
+            // Use shape+1 and transform for shape < 1
+            let sample = sampleGamma (shape + 1.0) 1.0 rng
+            let u = rng.NextDouble()
+            scale * sample * (u ** (1.0 / shape))
+    
+    let pdf (shape: float) (scale: float) (x: float) : FowlResult<float> =
+        validateParams shape scale
+        |> Result.bind (fun () ->
+            if x < 0.0 then
+                Ok 0.0
+            else
+                result {
+                    let! gammaShape = SpecialFunctions.gamma shape
+                    let coeff = 1.0 / (gammaShape * (scale ** shape))
+                    return coeff * (x ** (shape - 1.0)) * exp (-x / scale)
+                })
+    
+    let cdf (shape: float) (scale: float) (x: float) : FowlResult<float> =
+        validateParams shape scale
+        |> Result.bind (fun () ->
+            if x <= 0.0 then
+                Ok 0.0
+            else
+                // Use relationship to incomplete gamma
+                // Would need incomplete gamma implementation
+                // Approximation for now
+                Ok (1.0 - exp (-x / (scale * shape))))
+    
+    let ppf (shape: float) (scale: float) (p: float) : FowlResult<float> =
+        validateParams shape scale
+        |> Result.bind (fun () ->
+            if p < 0.0 || p > 1.0 then
+                Error.invalidArgument "p must be in [0, 1]"
+            elif p = 0.0 then
+                Ok 0.0
+            elif p = 1.0 then
+                Ok infinity
+            else
+                // Approximate using mean and variance
+                let mean = shape * scale
+                let std = sqrt (shape * scale * scale)
+                // Rough approximation using normal for large shape
+                if shape > 10.0 then
+                    Gaussian.ppf mean std p |> Result.map (max 0.0)
+                else
+                    // For small shape, use median approximation
+                    Ok (mean * (p ** (1.0 / shape))))
+    
+    let rvsWithState (shape: float) (scale: float) (arrShape: Shape) (state: RandomState) : FowlResult<Ndarray<Float64, float> * RandomState> =
+        result {
+            let! _ = validateParams shape scale
+            let n = Shape.numel arrShape
+            let rng = match state with RandomState r -> r
+            
+            let samples = Array.init n (fun _ -> sampleGamma shape scale rng)
+            let! arr = Ndarray.ofArray samples arrShape
+            return arr, state
+        }
+    
+    let rvs (shape: float) (scale: float) (arrShape: Shape) : FowlResult<Ndarray<Float64, float>> =
+        rvsWithState shape scale arrShape (init()) |> Result.map fst
+    
+    let mean (shape: float) (scale: float) : FowlResult<float> =
+        validateParams shape scale |> Result.map (fun () -> shape * scale)
+    
+    let var (shape: float) (scale: float) : FowlResult<float> =
+        validateParams shape scale |> Result.map (fun () -> shape * scale * scale)
