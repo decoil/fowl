@@ -490,6 +490,11 @@ Following Owl's `{dist}_{func}` pattern and Staff+ engineering standards:
 | StudentT | ✅ | ✅ | ✅ | ✅ | mean,var,std,entropy | 251 |
 | ChiSquare | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode,skew,kurt,entropy | 242 |
 | F | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode | 219 |
+| Binomial | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode,skew,kurt | 278 |
+| Poisson | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode,skew,kurt,entropy | 315 |
+| Geometric | ✅ | ✅ | ✅ | ✅ | mean,var,std,mode,median,skew,kurt,entropy | 224 |
+
+**Total: 7 distributions, ~1,748 lines**
 
 ### Implementation Standards Applied
 
@@ -514,6 +519,15 @@ let chi2Cdf = ChiSquareDistribution.cdf 3.0 2.0 |> Result.get  // P(X <= 2)
 
 // F-distribution
 let fPdf = FDistribution.pdf 5.0 10.0 1.0 |> Result.get
+
+// Binomial (discrete)
+let binomPmf = BinomialDistribution.pmf 10 0.3 3 |> Result.get  // P(X = 3)
+
+// Poisson (discrete)
+let poisPmf = PoissonDistribution.pmf 2.5 3 |> Result.get  // P(X = 3)
+
+// Geometric (discrete)
+let geomPmf = GeometricDistribution.pmf 0.3 2 |> Result.get  // P(X = 2 failures)
 ```
 
 ### References Used
@@ -538,11 +552,12 @@ let fPdf = FDistribution.pdf 5.0 10.0 1.0 |> Result.get
 
 | Metric | Value |
 |--------|-------|
-| **Commits** | 35 |
-| **Lines of Code** | ~8,500 (F#/C#) |
+| **Commits** | 38 |
+| **Lines of Code** | ~9,700 (F#/C#) |
 | **Modules** | 9 (Core, Linalg, Stats, AD, SIMD, Memory, Parallel, Cache, Native) |
 | **Tests** | 72+ |
 | **Documentation** | 10+ comprehensive guides |
 | **Performance** | 20-50x optimized vs baseline |
+| **Distributions** | 11 total (7 new + 4 existing) |
 
 **URL**: https://github.com/decoil/fowl
