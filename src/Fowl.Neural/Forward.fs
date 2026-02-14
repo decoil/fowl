@@ -69,6 +69,13 @@ open Fowl.Core.Types
         | Sum _, [a] -> Ok [|Array.sum a|]
         | Mean _, [a] -> Ok [|Array.average a|]
         | Activation fn, [a] -> Ok (applyActivation fn a)
+        | Dropout rate, [a] ->
+            // During training: randomly zero out elements with probability 'rate'
+            // Scale remaining elements by 1/(1-rate)
+            let rng = Random()
+            let scale = 1.0 / (1.0 - rate)
+            let result = Array.map (fun x -> if rng.NextDouble() < rate then 0.0 else x * scale) a
+            Ok result
         | _ -> Error.notImplemented (sprintf "Operation not yet implemented: %A" op)
     
     /// <summary>Execute forward pass starting from given nodes.

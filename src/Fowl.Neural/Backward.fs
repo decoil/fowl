@@ -178,6 +178,12 @@ open Fowl.Core.Types
             match node.Grad with
             | Some grad -> Ok [gradMean x.Shape grad]
             | None -> Error.invalidState "No gradient for Mean node"
+        | Dropout rate, [x] ->
+            // During backprop: gradient flows through non-dropped units
+            // We approximate by passing gradient through (the scaling was done in forward)
+            match node.Grad, x.Value with
+            | Some grad, Some _ -> Ok [grad]
+            | _ -> Error.invalidState "Missing value or gradient for Dropout node"
         | _ ->
             Error.notImplemented (sprintf "Gradient not implemented for %A" node.Op)
     

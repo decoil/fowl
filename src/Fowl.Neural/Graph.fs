@@ -40,6 +40,7 @@ open Fowl.Core.Types
     | Activation of ActivationFn         // Activation function
     | Loss of LossFn * Node option       // Loss function with optional target
     | Parameter of string                // Trainable parameter
+    | Dropout of float                   // Dropout with rate (e.g., 0.5)
     | Custom of string * (float[] -> float[] -> float[])  // Name * gradient function
 
 /// <summary>A node in the computation graph.
@@ -173,6 +174,16 @@ open Fowl.Core.Types
     /// <summary>Compute the mean of all elements.
     /// </summary>let mean (x: Node) : Node =
         let node = { Id = nextId(); Shape = [||]; Op = Mean None
+                     Parents = [x]; Value = None; Grad = None; Children = [] }
+        x.Children <- node :: x.Children
+        node
+    
+    /// <summary>Apply dropout regularization.
+    /// </summary>/// <param name="rate">Dropout rate (0.0 to 1.0). Probability of dropping a unit.</param>/// <param name="x">Input node.</param>/// <returns>Output node with dropout applied during training.</returns>let dropout (rate: float) (x: Node) : Node =
+        if rate < 0.0 || rate >= 1.0 then
+            invalidArg "rate" "Dropout rate must be in [0, 1)"
+        
+        let node = { Id = nextId(); Shape = x.Shape; Op = Dropout rate
                      Parents = [x]; Value = None; Grad = None; Children = [] }
         x.Children <- node :: x.Children
         node
