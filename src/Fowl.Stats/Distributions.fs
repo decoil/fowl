@@ -38,16 +38,19 @@ module Gaussian =
                 Ok (mu + sigma * sqrt 2.0 * SpecialFunctions.erfcinv (2.0 * (1.0 - p))))
     
     /// Random variate sampling with explicit random state
-    let rvsWithState (mu: float) (sigma: float) (shape: Shape) (state: RandomState) : Ndarray<Float64, float> * RandomState =
-        let n = Shape.numel shape
-        let data, newState = nextStandardNormals n state
-        let scaledData = data |> Array.map (fun z -> mu + sigma * z)
-        Ndarray.ofArray scaledData shape |> function Ok arr -> arr, newState | Error _ -> failwith "Invalid shape", newState
+    let rvsWithState (mu: float) (sigma: float) (shape: Shape) (state: RandomState) : FowlResult<Ndarray<Float64, float> * RandomState> =
+        result {
+            let! _ = validateParams mu sigma
+            let n = Shape.numel shape
+            let! data, newState = nextStandardNormals n state |> Ok
+            let scaledData = data |> Array.map (fun z -> mu + sigma * z)
+            let! arr = Ndarray.ofArray scaledData shape
+            return arr, newState
+        }
     
     /// Random variate sampling with default random state
-    let rvs (mu: float) (sigma: float) (shape: Shape) : Ndarray<Float64, float> =
-        let state = init()
-        rvsWithState mu sigma shape state |> fst
+    let rvs (mu: float) (sigma: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+        rvsWithState mu sigma shape (init()) |> Result.map fst
 
 /// Uniform distribution
 module Uniform =
@@ -77,14 +80,18 @@ module Uniform =
             else
                 Ok (a + p * (b - a)))
     
-    let rvsWithState (a: float) (b: float) (shape: Shape) (state: RandomState) : Ndarray<Float64, float> * RandomState =
-        let n = Shape.numel shape
-        let values, newState = nextFloats n state
-        let scaled = values |> Array.map (fun u -> a + u * (b - a))
-        Ndarray.ofArray scaled shape |> function Ok arr -> arr, newState | Error _ -> failwith "Invalid shape", newState
-    
-    let rvs (a: float) (b: float) (shape: Shape) : Ndarray<Float64, float> =
-        rvsWithState a b shape (init()) |> fst
+    let rvsWithState (a: float) (b: float) (shape: Shape) (state: RandomState) : FowlResult<Ndarray<Float64, float> * RandomState> =
+        result {
+            let! _ = validateParams a b
+            let n = Shape.numel shape
+            let! values, newState = nextFloats n state |> Ok
+            let scaled = values |> Array.map (fun u -> a + u * (b - a))
+            let! arr = Ndarray.ofArray scaled shape
+            return arr, newState
+        }
+
+    let rvs (a: float) (b: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+        rvsWithState a b shape (init()) |> Result.map fst
 
 /// Exponential distribution
 module Exponential =
@@ -114,14 +121,18 @@ module Exponential =
             else
                 Ok (-log (1.0 - p) / lambda))
     
-    let rvsWithState (lambda: float) (shape: Shape) (state: RandomState) : Ndarray<Float64, float> * RandomState =
-        let n = Shape.numel shape
-        let values, newState = nextFloats n state
-        let expSamples = values |> Array.map (fun u -> -log (1.0 - u) / lambda)
-        Ndarray.ofArray expSamples shape |> function Ok arr -> arr, newState | Error _ -> failwith "Invalid shape", newState
-    
-    let rvs (lambda: float) (shape: Shape) : Ndarray<Float64, float> =
-        rvsWithState lambda shape (init()) |> fst
+    let rvsWithState (lambda: float) (shape: Shape) (state: RandomState) : FowlResult<Ndarray<Float64, float> * RandomState> =
+        result {
+            let! _ = validateLambda lambda
+            let n = Shape.numel shape
+            let! values, newState = nextFloats n state |> Ok
+            let expSamples = values |> Array.map (fun u -> -log (1.0 - u) / lambda)
+            let! arr = Ndarray.ofArray expSamples shape
+            return arr, newState
+        }
+
+    let rvs (lambda: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+        rvsWithState lambda shape (init()) |> Result.map fst
 
     let mean (lambda: float) : FowlResult<float> =
         validateLambda lambda |> Result.map (fun () -> 1.0 / lambda)

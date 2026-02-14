@@ -34,19 +34,20 @@ let median (arr: Ndarray<'K, float>) : float =
         (data.[n / 2 - 1] + data.[n / 2]) / 2.0
 
 /// Calculate p-th percentile (0 <= p <= 100)
-let percentile (p: float) (arr: Ndarray<'K, float>) : float =
+let percentile (p: float) (arr: Ndarray<'K, float>) : FowlResult<float> =
     if p < 0.0 || p > 100.0 then
-        failwith "Percentile must be between 0 and 100"
-    let data = arr |> Ndarray.toArray |> Array.sort
-    let n = float data.Length
-    let idx = (p / 100.0) * (n - 1.0)
-    let lower = int (floor idx)
-    let upper = int (ceil idx)
-    let frac = idx - float lower
-    if lower = upper then
-        data.[lower]
+        Error.invalidArgument "Percentile must be between 0 and 100"
     else
-        data.[lower] * (1.0 - frac) + data.[upper] * frac
+        let data = arr |> Ndarray.toArray |> Array.sort
+        let n = float data.Length
+        let idx = (p / 100.0) * (n - 1.0)
+        let lower = int (floor idx)
+        let upper = int (ceil idx)
+        let frac = idx - float lower
+        if lower = upper then
+            Ok data.[lower]
+        else
+            Ok (data.[lower] * (1.0 - frac) + data.[upper] * frac)
 
 /// Calculate skewness (measure of asymmetry)
 let skewness (arr: Ndarray<'K, float>) : float =
@@ -67,11 +68,13 @@ let kurtosis (arr: Ndarray<'K, float>) : float =
     m4 / (sigma ** 4.0) - 3.0  // Excess kurtosis (Fisher definition)
 
 /// Calculate n-th central moment
-let moment (n: int) (arr: Ndarray<'K, float>) : float =
-    if n < 0 then failwith "Moment order must be non-negative"
-    let data = Ndarray.toArray arr
-    let mu = mean arr
-    data |> Array.sumBy (fun x -> (x - mu) ** float n) / float data.Length
+let moment (n: int) (arr: Ndarray<'K, float>) : FowlResult<float> =
+    if n < 0 then
+        Error.invalidArgument "Moment order must be non-negative"
+    else
+        let data = Ndarray.toArray arr
+        let mu = mean arr
+        Ok (data |> Array.sumBy (fun x -> (x - mu) ** float n) / float data.Length)
 
 /// Minimum value
 let min (arr: Ndarray<'K, float>) : float =

@@ -24,56 +24,64 @@ let erf (x: float) : float =
 let erfc (x: float) : float = 1.0 - erf x
 
 /// Inverse complementary error function (approximation)
-let erfcinv (p: float) : float =
-    if p < 0.0 || p > 2.0 then failwith "p must be in [0, 2]"
-    
-    // Handle edge cases
-    if p = 0.0 then infinity
-    elif p = 2.0 then -infinity
-    elif p = 1.0 then 0.0
+let erfcinv (p: float) : FowlResult<float> =
+    if p < 0.0 || p > 2.0 then
+        Error.invalidArgument "p must be in [0, 2]"
     else
-        // Approximation for inverse erfc
-        let pp = if p <= 1.0 then p else 2.0 - p
-        let t = sqrt (-2.0 * log (pp / 2.0))
-        
-        let c0 = 2.515517
-        let c1 = 0.802853
-        let c2 = 0.010328
-        let d1 = 1.432788
-        let d2 = 0.189269
-        let d3 = 0.001308
-        
-        let x = t - (c0 + c1 * t + c2 * t * t) / (1.0 + d1 * t + d2 * t * t + d3 * t * t * t)
-        if p <= 1.0 then x else -x
+        // Handle edge cases
+        if p = 0.0 then
+            Ok infinity
+        elif p = 2.0 then
+            Ok -infinity
+        elif p = 1.0 then
+            Ok 0.0
+        else
+            // Approximation for inverse erfc
+            let pp = if p <= 1.0 then p else 2.0 - p
+            let t = sqrt (-2.0 * log (pp / 2.0))
+
+            let c0 = 2.515517
+            let c1 = 0.802853
+            let c2 = 0.010328
+            let d1 = 1.432788
+            let d2 = 0.189269
+            let d3 = 0.001308
+
+            let x = t - (c0 + c1 * t + c2 * t * t) / (1.0 + d1 * t + d2 * t * t + d3 * t * t * t)
+            Ok (if p <= 1.0 then x else -x)
 
 /// Gamma function approximation (Lanczos approximation)
-let gamma (z: float) : float =
-    if z <= 0.0 then failwith "gamma not defined for non-positive integers"
-    
-    // Use reflection formula for small values
-    if z < 0.5 then
-        Math.PI / (sin (Math.PI * z) * gamma (1.0 - z))
+let gamma (z: float) : FowlResult<float> =
+    if z <= 0.0 then
+        Error.invalidArgument "gamma not defined for non-positive integers"
     else
-        let g = 7.0
-        let coefficients = [|
-            0.99999999999980993
-            676.5203681218851
-            -1259.1392167224028
-            771.32342877765313
-            -176.61502916214059
-            12.507343278686905
-            -0.13857109526572012
-            9.9843695780195716e-6
-            1.5056327351493116e-7
-        |]
-        
-        let z = z - 1.0
-        let x = ref coefficients.[0]
-        for i = 1 to 8 do
-            x := !x + coefficients.[i] / (z + float i)
-        
-        let t = z + g + 0.5
-        sqrt (2.0 * Math.PI) * (t ** (z + 0.5)) * exp (-t) * !x
+        // Use reflection formula for small values
+        if z < 0.5 then
+            result {
+                let! gammaInv = gamma (1.0 - z)
+                return Math.PI / (sin (Math.PI * z) * gammaInv)
+            }
+        else
+            let g = 7.0
+            let coefficients = [|
+                0.99999999999980993
+                676.5203681218851
+                -1259.1392167224028
+                771.32342877765313
+                -176.61502916214059
+                12.507343278686905
+                -0.13857109526572012
+                9.9843695780195716e-6
+                1.5056327351493116e-7
+            |]
+
+            let z = z - 1.0
+            let x = ref coefficients.[0]
+            for i = 1 to 8 do
+                x := !x + coefficients.[i] / (z + float i)
+
+            let t = z + g + 0.5
+            Ok (sqrt (2.0 * Math.PI) * (t ** (z + 0.5)) * exp (-t) * !x)
 
 /// Log gamma function
 let logGamma (z: float) : float =
