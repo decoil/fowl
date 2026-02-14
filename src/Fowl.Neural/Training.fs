@@ -178,3 +178,54 @@ open Fowl.Core.Types
                 printfn "✓ Linear regression test PASSED"
             else
                 printfn "✗ Linear regression test FAILED"
+
+/// <summary>Model serialization utilities.
+/// </summary>module Serialization =
+    open System.IO
+    open System.Text.Json
+    
+    /// <summary>Save a dense layer to a file.
+    /// </summary>/// <param name="path">File path to save to.</param>/// <param name="model">Dense layer model.</param>let saveDense (path: string) (model: DenseLayer) : FowlResult<unit> =
+        try
+            let weights = model.Weights.Value |> Option.defaultValue [||]
+            let bias = model.Bias.Value |> Option.defaultValue [||]
+            
+            let data = {
+                InputDim = model.InputDim
+                OutputDim = model.OutputDim
+                Weights = weights
+                Bias = bias
+                Activation = model.Activation.ToString()
+            }
+            
+            let json = JsonSerializer.Serialize(data)
+            File.WriteAllText(path, json)
+            Ok ()
+        with
+        | ex -> Error.ioError (sprintf "Failed to save model: %s" ex.Message)
+    
+    /// <summary>Load a dense layer from a file.
+    /// </summary>/// <param name="path">File path to load from.</param>/// <returns>Loaded dense layer.</returns>let loadDense (path: string) : FowlResult<DenseLayer> =
+        try
+            let json = File.ReadAllText(path)
+            let data = JsonSerializer.Deserialize<{| InputDim: int; OutputDim: int; Weights: float[]; Bias: float[]; Activation: string |}>(json)
+            
+            let activation = 
+                match data.Activation with
+                | "ReLU" -> Some ReLU
+                | "Sigmoid" -> Some Sigmoid
+                | "Tanh" -> Some Tanh
+                | "Softmax" -> Some Softmax
+                | _ -> None
+            
+            let model = {
+                Weights = Graph.parameter "W" [|data.InputDim; data.OutputDim|] data.Weights
+                Bias = Graph.parameter "b" [|data.OutputDim|] data.Bias
+                Activation = activation
+                InputDim = data.InputDim
+                OutputDim = data.OutputDim
+            }
+            
+            Ok model
+        with
+        | ex -> Error.ioError (sprintf "Failed to load model: %s" ex.Message)
