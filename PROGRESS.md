@@ -387,3 +387,66 @@ These can be addressed during ongoing development:
 ---
 
 _Last updated: 2026-02-14 17:30_
+
+---
+
+## 🚀 NEW: Linear Algebra Expansion (2026-02-14 Evening)
+
+### Major Feature Additions
+
+#### QR Decomposition ✅
+- **Function**: `qr : Ndarray<'K,float> -> Result<Ndarray<'K,float> * Ndarray<'K,float>>`
+- **LAPACK**: dgeqrf (factorization) + dorgqr (generate Q)
+- **Returns**: (Q, R) where A = QR, Q orthogonal, R upper triangular
+- **Tests**: 2 comprehensive tests verifying correctness
+
+#### SVD Decomposition ✅
+- **Function**: `svd : Ndarray<'K,float> -> Result<Ndarray<'K,float> * Ndarray<'K,float> * Ndarray<'K,float>>`
+- **LAPACK**: dgesvd
+- **Returns**: (U, S, Vt) where A = U * diag(S) * Vt
+- **Tests**: 2 tests including singular value verification
+
+#### Cholesky Decomposition ✅
+- **Function**: `cholesky : Ndarray<'K,float> -> Result<Ndarray<'K,float>>`
+- **LAPACK**: dpotrf
+- **Returns**: L where A = L * L^T (for positive definite matrices)
+- **Tests**: 3 tests including positive-definite verification
+
+#### Eigenvalue Decomposition ✅
+- **Function**: `eigSymmetric : Ndarray<'K,float> -> Result<Ndarray<'K,float> * Ndarray<'K,float>>`
+- **LAPACK**: dsyev
+- **Returns**: (eigenvalues, eigenvectors) for symmetric matrices
+- **Tests**: 2 tests with eigenvalue accuracy checks
+
+### Test Coverage
+
+**New Test File**: `tests/Fowl.Linalg.Tests/FactorizationTests.fs`
+- 16 total tests
+- Coverage: LU, QR, SVD, Cholesky, Eigenvalue, Solve, Inv, Det
+- Error handling validation
+- Numerical accuracy verification
+
+### Implementation Highlights
+
+```fsharp
+// QR decomposition
+let q, r = qr matrix |> Result.get
+
+// SVD decomposition  
+let u, s, vt = svd matrix |> Result.get
+
+// Cholesky (for positive definite)
+let l = cholesky pdMatrix |> Result.get
+
+// Eigenvalue decomposition
+let eigenvals, eigenvecs = eigSymmetric symMatrix |> Result.get
+```
+
+**Commits**: 33 total (+2 for Linalg expansion)
+**Lines Added**: ~500 (factorizations + tests)
+
+### Next Steps
+- Expand Stats module with more distributions
+- Add neural network foundation
+- Implement type providers for data loading
+- Add property-based testing with FsCheck
