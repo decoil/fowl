@@ -10,6 +10,7 @@
   <ItemGroup>
     <Compile Include="Types.fs" />
     <Compile Include="Config.fs" />
+    <Compile Include="Library.fs" />
     <Compile Include="Shape.fs" />
     <Compile Include="Slice.fs" />
     <Compile Include="Ndarray.fs" />

@@ -1,62 +1,24 @@
+/// <summary>Fowl Library - Core ndarray operations.</summary>
+/// <remarks>
+/// Provides fundamental ndarray creation and manipulation functions.
+/// All functions work with the Ndarray types defined in Fowl.Core.Types.
+/// </remarks>
 namespace Fowl
 
 open System
+open Fowl.Core.Types
 
-/// Phantom types for ndarray kind
-type Float32 = class end
-type Float64 = class end
-type Complex32 = class end
-type Complex64 = class end
-
-/// Shape is an array of dimension sizes
-type Shape = int array
-
-/// Layout for memory ordering
-type Layout =
-    | CLayout       // Row-major (C-style)
-    | FortranLayout // Column-major (Fortran-style)
-
-/// Dense n-dimensional array
-type DenseArray<'T> = {
-    Data: 'T array
-    Shape: Shape
-    Strides: int array
-    Offset: int
-    Layout: Layout
-}
-
-/// Sparse array formats
-type SparseFormat =
-    | CSR // Compressed Sparse Row
-    | CSC // Compressed Sparse Column
-    | COO // Coordinate format
-
-/// Sparse n-dimensional array
-type SparseArray<'T> = {
-    Indices: int array array
-    Values: 'T array
-    Shape: Shape
-    Format: SparseFormat
-}
-
-/// Ndarray discriminated union
-type Ndarray<'K, 'T> =
-    | Dense of DenseArray<'T>
-    | Sparse of SparseArray<'T>
-
-/// Slice specification for indexing
-type SliceSpec =
-    | All                    // Take all elements in this dimension
-    | Index of int           // Single index
-    | Range of (int option * int option * int option)  // (start, stop, step)
-    | IndexArray of int array  // Array of indices
-
+/// <summary>Module for shape-related operations.</summary>
 module Shape =
-    /// Calculate total number of elements from shape
+    /// <summary>Calculate total number of elements from shape.</summary>
+    /// <param name="shape">The shape array.</param>
+    /// <returns>Total number of elements.</returns>
     let numel (shape: Shape) =
         shape |> Array.fold (*) 1
-    
-    /// Calculate strides from shape (C-layout)
+
+    /// <summary>Calculate strides from shape (C-layout/row-major).</summary>
+    /// <param name="shape">The shape array.</param>
+    /// <returns>Strides array for C-layout.</returns>
     let stridesC (shape: Shape) =
         let n = shape.Length
         let s = Array.zeroCreate n
@@ -65,8 +27,10 @@ module Shape =
             s.[i] <- stride
             stride <- stride * shape.[i]
         s
-    
-    /// Calculate strides from shape (Fortran-layout)
+
+    /// <summary>Calculate strides from shape (Fortran-layout/column-major).</summary>
+    /// <param name="shape">The shape array.</param>
+    /// <returns>Strides array for Fortran-layout.</returns>
     let stridesF (shape: Shape) =
         let n = shape.Length
         let s = Array.zeroCreate n
@@ -76,10 +40,14 @@ module Shape =
             stride <- stride * shape.[i]
         s
 
+/// <summary>Module for ndarray operations.</summary>
 module Ndarray =
     open Shape
-    
-    /// Create empty ndarray
+
+    /// <summary>Create empty ndarray with given shape.</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <param name="shape">The shape of the array.</param>
+    /// <returns>Empty ndarray.</returns>
     let empty<'K> (shape: Shape) : Ndarray<'K, 'T> =
         let n = numel shape
         let data = Array.zeroCreate n
@@ -90,8 +58,11 @@ module Ndarray =
             Offset = 0
             Layout = CLayout
         }
-    
-    /// Create ndarray filled with zeros
+
+    /// <summary>Create ndarray filled with zeros.</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <param name="shape">The shape of the array.</param>
+    /// <returns>Ndarray filled with zeros.</returns>
     let zeros<'K> (shape: Shape) : Ndarray<'K, float> =
         let n = numel shape
         let data = Array.zeroCreate n
@@ -102,8 +73,11 @@ module Ndarray =
             Offset = 0
             Layout = CLayout
         }
-    
-    /// Create ndarray filled with ones
+
+    /// <summary>Create ndarray filled with ones.</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <param name="shape">The shape of the array.</param>
+    /// <returns>Ndarray filled with ones.</returns>
     let ones<'K> (shape: Shape) : Ndarray<'K, float> =
         let n = numel shape
         let data = Array.create n 1.0
@@ -114,9 +88,13 @@ module Ndarray =
             Offset = 0
             Layout = CLayout
         }
-    
-    /// Create ndarray filled with specific value
-    let create<'K> (shape: Shape) (value: 'T) : Ndarray<'K, 'T> =
+
+    /// <summary>Create ndarray filled with specific value.</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <param name="shape">The shape of the array.</param>
+    /// <param name="value">The fill value.</param>
+    /// <returns>Ndarray filled with value.</returns>
+    let create<'K, 'T> (shape: Shape) (value: 'T) : Ndarray<'K, 'T> =
         let n = numel shape
         let data = Array.create n value
         Dense {
@@ -126,94 +104,46 @@ module Ndarray =
             Offset = 0
             Layout = CLayout
         }
-    
-    /// Get shape of ndarray
-    let shape = function
+
+    /// <summary>Get shape of ndarray.</summary>
+    /// <param name="arr">The input array.</param>
+    /// <returns>Shape array.</returns>
+    let shape arr =
+        match arr with
         | Dense d -> d.Shape
         | Sparse s -> s.Shape
-    
-    /// Get number of dimensions
+
+    /// <summary>Get number of dimensions.</summary>
+    /// <param name="arr">The input array.</param>
+    /// <returns>Number of dimensions.</returns>
     let ndim arr =
         (shape arr).Length
-    
-    /// Get total number of elements
+
+    /// <summary>Get total number of elements.</summary>
+    /// <param name="arr">The input array.</param>
+    /// <returns>Total element count.</returns>
     let numel arr =
         shape arr |> Shape.numel
-    
-    /// Get element at flat index
-    let getFlat (arr: Ndarray<'K, 'T>) (idx: int) : 'T =
-        match arr with
-        | Dense d -> d.Data.[d.Offset + idx]
-        | Sparse _ -> failwith "getFlat not implemented for sparse arrays"
-    
-    /// Set element at flat index
-    let setFlat (arr: Ndarray<'K, 'T>) (idx: int) (value: 'T) : unit =
-        match arr with
-        | Dense d -> d.Data.[d.Offset + idx] <- value
-        | Sparse _ -> failwith "setFlat not implemented for sparse arrays"
-    
-    /// Calculate flat index from multi-dimensional indices
+
+    /// <summary>Calculate flat index from multi-dimensional indices.</summary>
+    /// <param name="strides">The strides array.</param>
+    /// <param name="indices">The multi-dimensional indices.</param>
+    /// <param name="offset">The offset.</param>
+    /// <returns>Flat index.</returns>
     let flatIndex (strides: int array) (indices: int array) (offset: int) =
         let mutable idx = offset
         for i = 0 to indices.Length - 1 do
             idx <- idx + indices.[i] * strides.[i]
         idx
-    
-    /// Get element at multi-dimensional indices
-    let get (arr: Ndarray<'K, 'T>) (indices: int array) : 'T =
-        match arr with
-        | Dense d -> 
-            let flatIdx = flatIndex d.Strides indices d.Offset
-            d.Data.[flatIdx]
-        | Sparse _ -> failwith "get not implemented for sparse arrays"
-    
-    /// Set element at multi-dimensional indices
-    let set (arr: Ndarray<'K, 'T>) (indices: int array) (value: 'T) : unit =
-        match arr with
-        | Dense d ->
-            let flatIdx = flatIndex d.Strides indices d.Offset
-            d.Data.[flatIdx] <- value
-        | Sparse _ -> failwith "set not implemented for sparse arrays"
-    
-    /// Map function over all elements
-    let map (f: 'T -> 'U) (arr: Ndarray<'K, 'T>) : Ndarray<'K, 'U> =
-        match arr with
-        | Dense d ->
-            let newData = Array.map f d.Data
-            Dense { d with Data = newData }
-        | Sparse _ -> failwith "map not implemented for sparse arrays"
-    
-    /// Fold over all elements
-    let fold (f: 'State -> 'T -> 'State) (init: 'State) (arr: Ndarray<'K, 'T>) : 'State =
-        match arr with
-        | Dense d -> Array.fold f init d.Data
-        | Sparse _ -> failwith "fold not implemented for sparse arrays"
-    
-    /// Apply function to each element (in-place)
-    let apply (f: 'T -> 'T) (arr: Ndarray<'K, 'T>) : unit =
-        match arr with
-        | Dense d ->
-            for i = 0 to d.Data.Length - 1 do
-                d.Data.[i] <- f d.Data.[i]
-        | Sparse _ -> failwith "apply not implemented for sparse arrays"
-    
-    /// Reshape array (returns view if possible, copy otherwise)
-    let reshape (newShape: Shape) (arr: Ndarray<'K, 'T>) : Ndarray<'K, 'T> =
-        match arr with
-        | Dense d ->
-            if Shape.numel newShape <> Shape.numel d.Shape then
-                failwith "Cannot reshape: different number of elements"
-            Dense { d with Shape = newShape; Strides = stridesC newShape }
-        | Sparse _ -> failwith "reshape not implemented for sparse arrays"
-    
-    /// Convert to flat array (copy)
-    let toArray (arr: Ndarray<'K, 'T>) : 'T array =
-        match arr with
-        | Dense d -> Array.copy d.Data
-        | Sparse _ -> failwith "toArray not implemented for sparse arrays"
-    
-    /// Create from flat array
-    let ofArray (data: 'T array) (shape: Shape) : Ndarray<'K, 'T> =
+
+    /// <summary>Create ndarray from flat array.</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <typeparam name="'T">The element type.</typeparam>
+    /// <param name="data">The flat data array.</param>
+    /// <param name="shape">The target shape.</param>
+    /// <returns>Ndarray.</returns>
+    /// <exception cref="System.Exception">Thrown when data length doesn't match shape.</exception>
+    let ofArray<'K, 'T> (data: 'T array) (shape: Shape) : Ndarray<'K, 'T> =
         if data.Length <> Shape.numel shape then
             failwith "Data length does not match shape"
         Dense {
@@ -223,68 +153,49 @@ module Ndarray =
             Offset = 0
             Layout = CLayout
         }
-    
-    /// Generate linearly spaced values
+
+    /// <summary>Convert ndarray to flat array (copy).</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <typeparam name="'T">The element type.</typeparam>
+    /// <param name="arr">The input array.</param>
+    /// <returns>Flat array copy.</returns>
+    let toArray<'K, 'T> (arr: Ndarray<'K, 'T>) : 'T array =
+        match arr with
+        | Dense d -> Array.copy d.Data
+        | Sparse _ -> failwith "toArray not implemented for sparse arrays"
+
+    /// <summary>Map function over all elements.</summary>
+    /// <typeparam name="'K">The phantom type for element kind.</typeparam>
+    /// <typeparam name="'T">The input element type.</typeparam>
+    /// <typeparam name="'U">The output element type.</typeparam>
+    /// <param name="f">Mapping function.</param>
+    /// <param name="arr">Input array.</param>
+    /// <returns>Mapped array.</returns>
+    let map<'K, 'T, 'U> (f: 'T -> 'U) (arr: Ndarray<'K, 'T>) : Ndarray<'K, 'U> =
+        match arr with
+        | Dense d ->
+            let newData = Array.map f d.Data
+            Dense { d with Data = newData }
+        | Sparse _ -> failwith "map not implemented for sparse arrays"
+
+    /// <summary>Generate linearly spaced values.</summary>
+    /// <param name="start">Start value.</param>
+    /// <param name="stop">Stop value.</param>
+    /// <param name="num">Number of points.</param>
+    /// <returns>1D array with linearly spaced values.</returns>
     let linspace (start: float) (stop: float) (num: int) : Ndarray<Float64, float> =
         if num < 2 then failwith "linspace requires num >= 2"
         let step = (stop - start) / float (num - 1)
         let data = Array.init num (fun i -> start + float i * step)
         ofArray data [|num|]
-    
-    /// Generate values with given step
+
+    /// <summary>Generate values with given step.</summary>
+    /// <param name="start">Start value.</param>
+    /// <param name="stop">Stop value (exclusive).</param>
+    /// <param name="step">Step size.</param>
+    /// <returns>1D array with values from start to stop.</returns>
     let arange (start: float) (stop: float) (step: float) : Ndarray<Float64, float> =
         if step = 0.0 then failwith "arange: step cannot be zero"
         let n = int ((stop - start) / step)
         let data = Array.init n (fun i -> start + float i * step)
         ofArray data [|n|]
-    
-    /// Create array with random values (uniform [0, 1))
-    let random (shape: Shape) : Ndarray<Float64, float> =
-        let rng = System.Random()
-        let n = numel shape
-        let data = Array.init n (fun _ -> rng.NextDouble())
-        ofArray data shape
-    
-    /// Element-wise addition
-    let add (a: Ndarray<'K, float>) (b: Ndarray<'K, float>) : Ndarray<'K, float> =
-        match a, b with
-        | Dense da, Dense db ->
-            if da.Shape <> db.Shape then failwith "Shape mismatch in add"
-            let newData = Array.map2 (+) da.Data db.Data
-            Dense { da with Data = newData }
-        | _ -> failwith "add not implemented for sparse arrays"
-    
-    /// Element-wise subtraction
-    let sub (a: Ndarray<'K, float>) (b: Ndarray<'K, float>) : Ndarray<'K, float> =
-        match a, b with
-        | Dense da, Dense db ->
-            if da.Shape <> db.Shape then failwith "Shape mismatch in sub"
-            let newData = Array.map2 (-) da.Data db.Data
-            Dense { da with Data = newData }
-        | _ -> failwith "sub not implemented for sparse arrays"
-    
-    /// Element-wise multiplication
-    let mul (a: Ndarray<'K, float>) (b: Ndarray<'K, float>) : Ndarray<'K, float> =
-        match a, b with
-        | Dense da, Dense db ->
-            if da.Shape <> db.Shape then failwith "Shape mismatch in mul"
-            let newData = Array.map2 (*) da.Data db.Data
-            Dense { da with Data = newData }
-        | _ -> failwith "mul not implemented for sparse arrays"
-    
-    /// Element-wise division
-    let div (a: Ndarray<'K, float>) (b: Ndarray<'K, float>) : Ndarray<'K, float> =
-        match a, b with
-        | Dense da, Dense db ->
-            if da.Shape <> db.Shape then failwith "Shape mismatch in div"
-            let newData = Array.map2 (/) da.Data db.Data
-            Dense { da with Data = newData }
-        | _ -> failwith "div not implemented for sparse arrays"
-    
-    /// Scalar addition
-    let addScalar (a: Ndarray<'K, float>) (s: float) : Ndarray<'K, float> =
-        map (fun x -> x + s) a
-    
-    /// Scalar multiplication
-    let mulScalar (a: Ndarray<'K, float>) (s: float) : Ndarray<'K, float> =
-        map (fun x -> x * s) a
