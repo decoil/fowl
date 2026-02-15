@@ -63,8 +63,8 @@ type SparseArray<'T> = {
     Format: SparseFormat
 }
 
-/// <summary>N-dimensional array with phantom type for kind.</summary>
-/// <typeparam name="'K">Phantom type for element kind (Float32, Float64, etc.).</typeparam>
+/// <summary>N-dimensional array with phantom type for kind.
+/// </typeparam name="'K">Phantom type for element kind (Float32, Float64, etc.).</typeparam>
 /// <typeparam name="'T">Actual element type (float32, float, Complex, etc.).</typeparam>
 type Ndarray<'K, 'T> =
     | Dense of DenseArray<'T>
@@ -121,10 +121,6 @@ type ResultBuilder() =
             else Ok ()
         loop()
 
-/// <summary>Global result computation expression.
-/// </summary>
-let result = ResultBuilder()
-
 // ============================================================================
 // Shape Operations
 // ============================================================================
@@ -175,7 +171,8 @@ module Shape =
 /// <summary>Core operations on N-dimensional arrays.
 /// </summary>
 module Ndarray =
-    open Shape
+    /// Result computation expression instance for this module
+    let private result = ResultBuilder()
     
     /// <summary>Get the shape of an array.
     /// </summary>
@@ -205,7 +202,7 @@ module Ndarray =
             return Dense {
                 Data = data
                 Shape = validShape
-                Strides = stridesC validShape
+                Strides = Shape.stridesC validShape
                 Offset = 0
                 Layout = CLayout
             }
@@ -241,7 +238,7 @@ module Ndarray =
             return Dense {
                 Data = Array.copy data
                 Shape = validShape
-                Strides = stridesC validShape
+                Strides = Shape.stridesC validShape
                 Offset = 0
                 Layout = CLayout
             }
@@ -321,6 +318,9 @@ module Ndarray =
 module Matrix =
     open Ndarray
     
+    /// Result computation expression instance for this module
+    let private result = ResultBuilder()
+    
     /// <summary>Matrix multiplication.
     /// </summary>
     let matmul (a: Float64Ndarray) (b: Float64Ndarray) : FowlResult<Float64Ndarray> =
@@ -379,6 +379,9 @@ module Matrix =
 /// <summary>Array generation functions.
 /// </summary>
 module Generate =
+    /// Result computation expression instance for this module
+    let private result = ResultBuilder()
+    
     /// <summary>Generate linearly spaced values.
     /// </summary>
     let linspace (start: float) (stop: float) (num: int) : FowlResult<Float64Ndarray> =
