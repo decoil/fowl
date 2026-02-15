@@ -26,6 +26,10 @@
 /// </remarks>
 module Fowl.SIMD
 
+open Fowl.SIMD.Core
+open Fowl.SIMD.ElementWise
+open Fowl.SIMD.Reductions
+
 // Re-export Core module values
 let isHardwareAccelerated = Core.isHardwareAccelerated
 let vectorCountDouble = Core.vectorCountDouble

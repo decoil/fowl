@@ -448,7 +448,7 @@ module ParallelReductions =
                 partialMins.[chunkIdx] <- m
             ) |> ignore
             
-            Array.min partialMins
+            Microsoft.FSharp.Collections.Array.min partialMins
     
     /// <summary>
     /// Find maximum in parallel.
@@ -460,7 +460,7 @@ module ParallelReductions =
             invalidArg "a" "Cannot find max of empty array"
         
         if a.Length < parallelThreshold then
-            Array.max a
+            Microsoft.FSharp.Collections.Array.max a
         else
             let numChunks = min processorCount 8
             let chunkSize = calculateChunkSize a.Length numChunks
@@ -475,7 +475,7 @@ module ParallelReductions =
                 partialMaxs.[chunkIdx] <- m
             ) |> ignore
             
-            Array.max partialMaxs
+            Microsoft.FSharp.Collections.Array.max partialMaxs
 
 // ============================================================================
 // Matrix Operations
