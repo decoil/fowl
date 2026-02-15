@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="ThreadSafeRandom.fs" />
     <Compile Include="Parallel.fs" />
+    <Compile Include="ThreadSafeRandom.fs" />
   </ItemGroup>
 
   <ItemGroup>
