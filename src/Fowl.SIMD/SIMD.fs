@@ -1,4 +1,6 @@
-/// <summary>Fowl SIMD Module - Hardware-Accelerated Numerical Operations</summary>
+/// <summary>
+/// Fowl SIMD Module - Hardware-Accelerated Numerical Operations
+/// </summary>
 /// <remarks>
 /// Provides portable SIMD operations using System.Numerics.Vector.
 /// Automatically uses hardware acceleration when available, falls back to scalar otherwise.
@@ -65,14 +67,24 @@ let sumSingle = Reductions.sumSingle
 let meanSingle = Reductions.meanSingle
 let dotSingle = Reductions.dotSingle
 
-/// <summary>SIMD information record.</summary>type SimdInfo = Core.SimdInfo
+/// <summary>
+/// SIMD information record.
+/// </summary>
+type SimdInfo = Core.SimdInfo
 
-/// <summary>Print SIMD capabilities to console.</summary>let printSimdInfo () : unit =
+/// <summary>
+/// Print SIMD capabilities to console.
+/// </summary>
+let printSimdInfo () : unit =
     getSimdInfo ()
     |> formatSimdInfo
     |> printfn "%s"
 
-/// <summary>Quick performance test comparing SIMD vs scalar.</summary>/// <param name="size">Array size for test.</param>let performanceTest (size: int) : unit =
+/// <summary>
+/// Quick performance test comparing SIMD vs scalar.
+/// </summary>
+/// <param name="size">Array size for test.</param>
+let performanceTest (size: int) : unit =
     printfn "\n=== SIMD Performance Test ==="
     printfn "Array size: %d elements" size
     printSimdInfo ()
