@@ -215,6 +215,7 @@ Status: ⏳ Pending comprehensive review
 
 | Commit | Description |
 |--------|-------------|
+| 09835b2 | fix: Library.fs map function record creation; Slice.fs wrap results; NdarrayOps.fs remove Result.ofOption |
 | 5afdce5 | fix: rewrite Library.fs to remove duplicate type defs, use Types.fs; add back to fsproj |
 | a4bd499 | fix: add For method to ResultBuilder; escape XML tags; fix Slice.fs type errors and opens |
 | 787956c | fix: correct OCaml-style ~axis syntax to proper F# optional parameter syntax |
