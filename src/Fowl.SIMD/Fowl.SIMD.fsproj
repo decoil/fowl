@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,10 +10,6 @@
     <Compile Include="Reductions.fs" />
     <Compile Include="Hardware.fs" />
     <Compile Include="SIMD.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Fowl.Native.SIMD\Fowl.Native.SIMD.csproj" />
   </ItemGroup>
 
 </Project>
