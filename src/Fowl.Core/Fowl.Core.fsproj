@@ -3,27 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarnOn>3390;$(WarnOn)</WarnOn>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Types.fs" />
-    <Compile Include="Config.fs" />
-    <Compile Include="Library.fs" />
-    <Compile Include="Shape.fs" />
-    <Compile Include="Slice.fs" />
-    <Compile Include="Ndarray.fs" />
-    <Compile Include="NdarrayOps.fs" />
-    <Compile Include="Optimized.fs" />
-    <Compile Include="Matrix.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Fowl.Native.SIMD\Fowl.Native.SIMD.csproj" />
-    <ProjectReference Include="..\Fowl.SIMD\Fowl.SIMD.fsproj" />
-    <ProjectReference Include="..\Fowl.Parallel\Fowl.Parallel.fsproj" />
-    <ProjectReference Include="..\Fowl.Cache\Fowl.Cache.fsproj" />
+    <Compile Include="Core.fs" />
   </ItemGroup>
 
 </Project>
