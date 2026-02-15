@@ -1,4 +1,7 @@
-/// <summary>Fowl Parallel Module - Multi-Core Parallelization</summary>/// <remarks>
+/// <summary>
+/// Fowl Parallel Module - Multi-Core Parallelization
+/// </summary>
+/// <remarks>
 /// Provides parallel operations for multi-core speedup on large arrays.
 /// 
 /// Automatically selects parallel vs sequential based on array size threshold.
@@ -24,7 +27,9 @@ open System.Threading.Tasks
 // Configuration
 // ============================================================================
 
-/// <summary>Minimum array size to benefit from parallelization.</summary>
+/// <summary>
+/// Minimum array size to benefit from parallelization.
+/// </summary>
 /// <remarks>
 /// Arrays smaller than this use sequential processing because
 /// parallel overhead dominates for small arrays.
@@ -32,30 +37,50 @@ open System.Threading.Tasks
 /// </remarks>
 let mutable parallelThreshold = 10000
 
-/// <summary>Get current parallel threshold.</summary>
+/// <summary>
+/// Get current parallel threshold.
+/// </summary>
 let getParallelThreshold () = parallelThreshold
 
-/// <summary>Set parallel threshold.</summary>
+/// <summary>
+/// Set parallel threshold.
+/// </summary>
 /// <param name="threshold">New threshold value.</param>
 let setParallelThreshold (threshold: int) =
     parallelThreshold <- max 1000 threshold  // Minimum 1000 to avoid overhead
 
-/// <summary>Check if array is large enough for parallel processing.</summary>/// <param name="length">Array length.</param>/// <returns>true if parallel should be used.</returns>let shouldParallelize (length: int) =
+/// <summary>
+/// Check if array is large enough for parallel processing.
+/// </summary>
+/// <param name="length">Array length.</param>
+/// <returns>true if parallel should be used.</returns>
+let shouldParallelize (length: int) =
     length >= parallelThreshold
 
-/// <summary>Get number of logical processors.</summary>/// <returns>Processor count.</returns>
+/// <summary>
+/// Get number of logical processors.
+/// </summary>
+/// <returns>Processor count.</returns>
 let processorCount = Environment.ProcessorCount
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-/// <summary>Calculate chunk size for parallel processing.</summary>/// <param name="totalLength">Total array length.</param>/// <param name="numChunks">Number of chunks (typically processor count).</param>
+/// <summary>
+/// Calculate chunk size for parallel processing.
+/// </summary>
+/// <param name="totalLength">Total array length.</param>
+/// <param name="numChunks">Number of chunks (typically processor count).</param>
 /// <returns>Chunk size.</returns>
 let private calculateChunkSize (totalLength: int) (numChunks: int) =
     (totalLength + numChunks - 1) / numChunks  // Ceiling division
 
-/// <summary>Execute action in parallel over array range.</summary>/// <param name="length">Array length.</param>/// <param name="action">Action to execute for each index.</param>
+/// <summary>
+/// Execute action in parallel over array range.
+/// </summary>
+/// <param name="length">Array length.</param>
+/// <param name="action">Action to execute for each index.</param>
 let private parallelFor (length: int) (action: int -> unit) =
     if shouldParallelize length then
         let numChunks = min processorCount 8  // Max 8 chunks to reduce overhead
@@ -63,8 +88,8 @@ let private parallelFor (length: int) (action: int -> unit) =
         
         Parallel.For(0, numChunks, fun chunkIdx ->
             let start = chunkIdx * chunkSize
-            let end = min (start + chunkSize) length
-            for i = start to end - 1 do
+            let end' = min (start + chunkSize) length
+            for i = start to end' - 1 do
                 action i
         ) |> ignore
     else
@@ -72,7 +97,11 @@ let private parallelFor (length: int) (action: int -> unit) =
         for i = 0 to length - 1 do
             action i
 
-/// <summary>Execute action in parallel with SIMD per chunk.</summary>/// <param name="length">Array length.</param>/// <param name="simdAction">SIMD-optimized action for chunk.</param>
+/// <summary>
+/// Execute action in parallel with SIMD per chunk.
+/// </summary>
+/// <param name="length">Array length.</param>
+/// <param name="simdAction">SIMD-optimized action for chunk.</param>
 /// <param name="scalarAction">Scalar action for remainder.</param>
 let private parallelSimd (length: int) 
                          (simdAction: int -> int -> unit)  // start, end
@@ -83,8 +112,8 @@ let private parallelSimd (length: int)
         
         Parallel.For(0, numChunks, fun chunkIdx ->
             let start = chunkIdx * chunkSize
-            let end = min (start + chunkSize) length
-            simdAction start end
+            let end' = min (start + chunkSize) length
+            simdAction start end'
         ) |> ignore
         
         // Handle remainder sequentially (usually small)
@@ -98,8 +127,17 @@ let private parallelSimd (length: int)
 // Element-wise Parallel Operations
 // ============================================================================
 
-/// <summary>Module for parallel element-wise operations.</summary>module ParallelOps =
-    /// <summary>Add two arrays in parallel.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise sum.</returns>    let add (a: double[]) (b: double[]) : double[] =
+/// <summary>
+/// Module for parallel element-wise operations.
+/// </summary>
+module ParallelOps =
+    /// <summary>
+    /// Add two arrays in parallel.
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise sum.</returns>
+    let add (a: double[]) (b: double[]) : double[] =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -111,7 +149,14 @@ let private parallelSimd (length: int)
         
         result
     
-    /// <summary>Add two arrays with custom threshold.</summary>    /// <param name="threshold">Custom parallel threshold.</param>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise sum.</returns>    let addWithThreshold (threshold: int) (a: double[]) (b: double[]) : double[] =
+    /// <summary>
+    /// Add two arrays with custom threshold.
+    /// </summary>
+    /// <param name="threshold">Custom parallel threshold.</param>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise sum.</returns>
+    let addWithThreshold (threshold: int) (a: double[]) (b: double[]) : double[] =
         let oldThreshold = parallelThreshold
         parallelThreshold <- threshold
         try
@@ -119,7 +164,13 @@ let private parallelSimd (length: int)
         finally
             parallelThreshold <- oldThreshold
     
-    /// <summary>Subtract two arrays in parallel.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise difference.</returns>    let sub (a: double[]) (b: double[]) : double[] =
+    /// <summary>
+    /// Subtract two arrays in parallel.
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise difference.</returns>
+    let sub (a: double[]) (b: double[]) : double[] =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -131,7 +182,13 @@ let private parallelSimd (length: int)
         
         result
     
-    /// <summary>Multiply two arrays in parallel.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise product.</returns>    let mul (a: double[]) (b: double[]) : double[] =
+    /// <summary>
+    /// Multiply two arrays in parallel.
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise product.</returns>
+    let mul (a: double[]) (b: double[]) : double[] =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -143,7 +200,13 @@ let private parallelSimd (length: int)
         
         result
     
-    /// <summary>Multiply array by scalar in parallel.</summary>    /// <param name="a">Input array.</param>    /// <param name="scalar">Scalar value.</param>    /// <returns>New array with multiplied values.</returns>    let mulScalar (a: double[]) (scalar: double) : double[] =
+    /// <summary>
+    /// Multiply array by scalar in parallel.
+    /// </summary>
+    /// <param name="a">Input array.</param>
+    /// <param name="scalar">Scalar value.</param>
+    /// <returns>New array with multiplied values.</returns>
+    let mulScalar (a: double[]) (scalar: double) : double[] =
         let result = Array.zeroCreate a.Length
         
         parallelFor a.Length (fun i ->
@@ -152,7 +215,13 @@ let private parallelSimd (length: int)
         
         result
     
-    /// <summary>Apply function to each element in parallel.</summary>    /// <param name="mapping">Mapping function.</param>    /// <param name="a">Input array.</param>    /// <returns>New array with mapped values.</returns>    let map (mapping: double -> double) (a: double[]) : double[] =
+    /// <summary>
+    /// Apply function to each element in parallel.
+    /// </summary>
+    /// <param name="mapping">Mapping function.</param>
+    /// <param name="a">Input array.</param>
+    /// <returns>New array with mapped values.</returns>
+    let map (mapping: double -> double) (a: double[]) : double[] =
         let result = Array.zeroCreate a.Length
         
         parallelFor a.Length (fun i ->
@@ -165,14 +234,22 @@ let private parallelSimd (length: int)
 // Parallel + SIMD Operations
 // ============================================================================
 
-/// <summary>Module for combined Parallel + SIMD operations.</summary>
+/// <summary>
+/// Module for combined Parallel + SIMD operations.
+/// </summary>
 /// <remarks>
 /// Maximum performance: uses multiple cores with SIMD per core.
 /// </remarks>
 module ParallelSimdOps =
     open System.Numerics
     
-    /// <summary>Add two arrays using Parallel + Vector<T> SIMD.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise sum.</returns>    let add (a: double[]) (b: double[]) : double[] =
+    /// <summary>
+    /// Add two arrays using Parallel + Vector<T> SIMD.
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise sum.</returns>
+    let add (a: double[]) (b: double[]) : double[] =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -201,7 +278,13 @@ module ParallelSimdOps =
         
         result
     
-    /// <summary>Multiply two arrays using Parallel + Vector<T> SIMD.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise product.</returns>    let mul (a: double[]) (b: double[]) : double[] =
+    /// <summary>
+    /// Multiply two arrays using Parallel + Vector<T> SIMD.
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise product.</returns>
+    let mul (a: double[]) (b: double[]) : double[] =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -228,7 +311,13 @@ module ParallelSimdOps =
         
         result
     
-    /// <summary>Add two arrays using Parallel + AVX2 (hardware SIMD).</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise sum.</returns>    let addAvx2 (a: double[]) (b: double[]) : double[] =
+    /// <summary>
+    /// Add two arrays using Parallel + AVX2 (hardware SIMD).
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>New array with element-wise sum.</returns>
+    let addAvx2 (a: double[]) (b: double[]) : double[] =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -262,12 +351,19 @@ module ParallelSimdOps =
 // Parallel Reductions
 // ============================================================================
 
-/// <summary>Module for parallel reduction operations.</summary>
+/// <summary>
+/// Module for parallel reduction operations.
+/// </summary>
 /// <remarks>
 /// Parallel reductions use tree-based aggregation for better performance.
 /// </remarks>
 module ParallelReductions =
-    /// <summary>Sum all elements in parallel.</summary>    /// <param name="a">Input array.</param>    /// <returns>Sum of all elements.</returns>    let sum (a: double[]) : double =
+    /// <summary>
+    /// Sum all elements in parallel.
+    /// </summary>
+    /// <param name="a">Input array.</param>
+    /// <returns>Sum of all elements.</returns>
+    let sum (a: double[]) : double =
         if a.Length < parallelThreshold then
             Array.sum a
         else
@@ -286,12 +382,23 @@ module ParallelReductions =
             
             Array.sum partialSums
     
-    /// <summary>Calculate mean in parallel.</summary>    /// <param name="a">Input array.</param>    /// <returns>Mean of all elements.</returns>    let mean (a: double[]) : double =
+    /// <summary>
+    /// Calculate mean in parallel.
+    /// </summary>
+    /// <param name="a">Input array.</param>
+    /// <returns>Mean of all elements.</returns>
+    let mean (a: double[]) : double =
         if a.Length = 0 then
             invalidArg "a" "Cannot compute mean of empty array"
         sum a / double a.Length
     
-    /// <summary>Dot product in parallel.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>Dot product of a and b.</returns>    let dot (a: double[]) (b: double[]) : double =
+    /// <summary>
+    /// Dot product in parallel.
+    /// </summary>
+    /// <param name="a">First array.</param>
+    /// <param name="b">Second array.</param>
+    /// <returns>Dot product of a and b.</returns>
+    let dot (a: double[]) (b: double[]) : double =
         if a.Length <> b.Length then
             invalidArg "b" "Arrays must have same length"
         
@@ -316,7 +423,12 @@ module ParallelReductions =
             
             Array.sum partialSums
     
-    /// <summary>Find minimum in parallel.</summary>    /// <param name="a">Input array.</param>    /// <returns>Minimum value.</returns>    let min (a: double[]) : double =
+    /// <summary>
+    /// Find minimum in parallel.
+    /// </summary>
+    /// <param name="a">Input array.</param>
+    /// <returns>Minimum value.</returns>
+    let min (a: double[]) : double =
         if a.Length = 0 then
             invalidArg "a" "Cannot find min of empty array"
         
@@ -338,7 +450,12 @@ module ParallelReductions =
             
             Array.min partialMins
     
-    /// <summary>Find maximum in parallel.</summary>    /// <param name="a">Input array.</param>    /// <returns>Maximum value.</returns>    let max (a: double[]) : double =
+    /// <summary>
+    /// Find maximum in parallel.
+    /// </summary>
+    /// <param name="a">Input array.</param>
+    /// <returns>Maximum value.</returns>
+    let max (a: double[]) : double =
         if a.Length = 0 then
             invalidArg "a" "Cannot find max of empty array"
         
@@ -364,11 +481,21 @@ module ParallelReductions =
 // Matrix Operations
 // ============================================================================
 
-/// <summary>Module for parallel matrix operations.</summary>module ParallelMatrixOps =
-    /// <summary>Matrix multiplication with parallel outer loops.</summary>    /// <param name="a">Left matrix (m x n).</param>    /// <param name="b">Right matrix (n x p).</param>    /// <returns>Result matrix (m x p).</returns>    /// <remarks>
+/// <summary>
+/// Module for parallel matrix operations.
+/// </summary>
+module ParallelMatrixOps =
+    /// <summary>
+    /// Matrix multiplication with parallel outer loops.
+    /// </summary>
+    /// <param name="a">Left matrix (m x n).</param>
+    /// <param name="b">Right matrix (n x p).</param>
+    /// <returns>Result matrix (m x p).</returns>
+    /// <remarks>
     /// Parallelizes over rows of result matrix.
     /// Inner loop is sequential for cache efficiency.
-    /// </remarks>    let matmul (a: double[,]) (b: double[,]) : double[,] =
+    /// </remarks>
+    let matmul (a: double[,]) (b: double[,]) : double[,] =
         let m = a.GetLength(0)
         let n = a.GetLength(1)
         let p = b.GetLength(1)
@@ -401,14 +528,21 @@ module ParallelReductions =
 // Diagnostics
 // ============================================================================
 
-/// <summary>Print parallelization configuration.</summary>let printParallelInfo () : unit =
+/// <summary>
+/// Print parallelization configuration.
+/// </summary>
+let printParallelInfo () : unit =
     printfn "\n=== Parallel Configuration ==="
     printfn "Processor Count: %d" processorCount
     printfn "Parallel Threshold: %d elements" parallelThreshold
     printfn "Parallel Enabled: %b" (parallelThreshold < Int32.MaxValue)
     printfn ""
 
-/// <summary>Test parallel vs sequential performance.</summary>/// <param name="size">Array size for test.</param>let performanceTest (size: int) : unit =
+/// <summary>
+/// Test parallel vs sequential performance.
+/// </summary>
+/// <param name="size">Array size for test.</param>
+let performanceTest (size: int) : unit =
     printfn "\n=== Parallel Performance Test ==="
     printfn "Array size: %d elements" size
     printParallelInfo()
