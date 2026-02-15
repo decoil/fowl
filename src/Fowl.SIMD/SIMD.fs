@@ -4,29 +4,29 @@
 /// <remarks>
 /// Provides portable SIMD operations using System.Numerics.Vector.
 /// Automatically uses hardware acceleration when available, falls back to scalar otherwise.
-/// 
+///
 /// Supports both double (Float64) and single (Float32) precision operations.
-/// 
+///
 /// Example usage:
 /// <code>
 /// open Fowl.SIMD
-/// 
+///
 /// let a = [|1.0; 2.0; 3.0; 4.0|]
 /// let b = [|5.0; 6.0; 7.0; 8.0|]
-/// 
+///
 /// // SIMD-accelerated addition
 /// let sum = ElementWise.add a b
-/// 
+///
 /// // SIMD-accelerated dot product
 /// let dot = Reductions.dot a b
-/// 
+///
 /// // Check SIMD capabilities
-/// printfn "%s" (formatSimdInfo (getSimdInfo()))
+/// printfn "%s" (Core.formatSimdInfo (Core.getSimdInfo()))
 /// </code>
 /// </remarks>
 module Fowl.SIMD
 
-// Re-export Core module
+// Re-export Core module values
 let isHardwareAccelerated = Core.isHardwareAccelerated
 let vectorCountDouble = Core.vectorCountDouble
 let vectorCountSingle = Core.vectorCountSingle
@@ -76,8 +76,8 @@ type SimdInfo = Core.SimdInfo
 /// Print SIMD capabilities to console.
 /// </summary>
 let printSimdInfo () : unit =
-    getSimdInfo ()
-    |> formatSimdInfo
+    Core.getSimdInfo ()
+    |> Core.formatSimdInfo
     |> printfn "%s"
 
 /// <summary>
@@ -88,14 +88,14 @@ let performanceTest (size: int) : unit =
     printfn "\n=== SIMD Performance Test ==="
     printfn "Array size: %d elements" size
     printSimdInfo ()
-    
+
     let rng = System.Random()
     let a = Array.init size (fun _ -> rng.NextDouble())
     let b = Array.init size (fun _ -> rng.NextDouble())
-    
+
     // Warmup
     ElementWise.add a b |> ignore
-    
+
     // SIMD version
     let stopwatch = System.Diagnostics.Stopwatch()
     stopwatch.Start()
@@ -103,7 +103,7 @@ let performanceTest (size: int) : unit =
         ElementWise.add a b |> ignore
     stopwatch.Stop()
     let simdTime = stopwatch.ElapsedMilliseconds
-    
+
     // Scalar version (force by using small array threshold)
     let result = Array.zeroCreate size
     stopwatch.Restart()
@@ -111,19 +111,19 @@ let performanceTest (size: int) : unit =
         Core.addScalar a b result
     stopwatch.Stop()
     let scalarTime = stopwatch.ElapsedMilliseconds
-    
+
     printfn "\nAddition:"
     printfn "  SIMD:   %d ms" simdTime
     printfn "  Scalar: %d ms" scalarTime
     printfn "  Speedup: %.2fx" (float scalarTime / float simdTime)
-    
+
     // Dot product test
     stopwatch.Restart()
     for _ = 1 to 100 do
         Reductions.dot a b |> ignore
     stopwatch.Stop()
     let dotSimdTime = stopwatch.ElapsedMilliseconds
-    
+
     let mutable s = 0.0
     stopwatch.Restart()
     for _ = 1 to 100 do
@@ -131,7 +131,7 @@ let performanceTest (size: int) : unit =
             s <- s + a.[i] * b.[i]
     stopwatch.Stop()
     let dotScalarTime = stopwatch.ElapsedMilliseconds
-    
+
     printfn "\nDot Product:"
     printfn "  SIMD:   %d ms" dotSimdTime
     printfn "  Scalar: %d ms" dotScalarTime

@@ -333,9 +333,9 @@ module ParallelSimdOps =
                 let len = min chunkSize (a.Length - start)
                 if len > 0 then
                     // Use AVX2 for this chunk
-                    let chunkA = Array.zeroCreate len
-                    let chunkB = Array.zeroCreate len
-                    let chunkResult = Array.zeroCreate len
+                    let chunkA: double[] = Array.zeroCreate len
+                    let chunkB: double[] = Array.zeroCreate len
+                    let chunkResult: double[] = Array.zeroCreate len
                     Array.Copy(a, start, chunkA, 0, len)
                     Array.Copy(b, start, chunkB, 0, len)
                     Fowl.Native.SIMD.Avx2Kernels.Add(chunkA, chunkB, chunkResult)
