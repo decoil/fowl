@@ -22,7 +22,9 @@ open System.Threading
 // Thread-Local Random Instances
 // ============================================================================
 
-/// <summary>Thread-local Random instances.</summary>
+/// <summary>
+/// Thread-local Random instances.
+/// </summary>
 /// <remarks>
 /// Each thread gets its own Random instance seeded uniquely.
 /// This avoids:
@@ -30,24 +32,30 @@ open System.Threading
 /// 2. Correlation (different seeds per thread)
 /// 3. Global state mutation
 /// </remarks>
-private let threadRandom = new ThreadLocal<Random>(fun () ->
+let private threadRandom = new ThreadLocal<Random>(fun () ->
     // Seed with thread-specific value + current time
     let seed = Thread.CurrentThread.ManagedThreadId + int (DateTime.Now.Ticks &&& 0xFFFFFFFFL)
     Random(seed))
 
-/// <summary>Get thread-local Random instance.</summary>
+/// <summary>
+/// Get thread-local Random instance.
+/// </summary>
 let private getRandom () = threadRandom.Value
 
 // ============================================================================
 // Double Generation
 // ============================================================================
 
-/// <summary>Generate random double in [0.0, 1.0).</summary>
+/// <summary>
+/// Generate random double in [0.0, 1.0).
+/// </summary>
 /// <returns>Random double.</returns>
 let nextDouble () : double =
     getRandom().NextDouble()
 
-/// <summary>Generate random double in range [min, max).</summary>
+/// <summary>
+/// Generate random double in range [min, max).
+/// </summary>
 /// <param name="min">Minimum value (inclusive).</param>
 /// <param name="max">Maximum value (exclusive).</param>
 /// <returns>Random double in range.</returns>
@@ -58,18 +66,24 @@ let nextDoubleRange (min: double) (max: double) : double =
 // Integer Generation
 // ============================================================================
 
-/// <summary>Generate random int.</summary>
+/// <summary>
+/// Generate random int.
+/// </summary>
 /// <returns>Random int.</returns>
 let nextInt () : int =
     getRandom().Next()
 
-/// <summary>Generate random int in range [0, max).</summary>
+/// <summary>
+/// Generate random int in range [0, max).
+/// </summary>
 /// <param name="max">Maximum value (exclusive).</param>
 /// <returns>Random int.</returns>
 let nextIntMax (max: int) : int =
     getRandom().Next(max)
 
-/// <summary>Generate random int in range [min, max).</summary>
+/// <summary>
+/// Generate random int in range [min, max).
+/// </summary>
 /// <param name="min">Minimum value (inclusive).</param>
 /// <param name="max">Maximum value (exclusive).</param>
 /// <returns>Random int.</returns>
@@ -80,7 +94,9 @@ let nextIntRange (min: int) (max: int) : int =
 // Array Generation
 // ============================================================================
 
-/// <summary>Generate array of random doubles in parallel.</summary>
+/// <summary>
+/// Generate array of random doubles in parallel.
+/// </summary>
 /// <param name="length">Array length.</param>
 /// <returns>Array of random doubles in [0, 1).</returns>
 /// <remarks>
@@ -93,7 +109,9 @@ let nextDoubleArray (length: int) : double[] =
     ) |> ignore
     result
 
-/// <summary>Generate array of random doubles with custom range in parallel.</summary>
+/// <summary>
+/// Generate array of random doubles with custom range in parallel.
+/// </summary>
 /// <param name="length">Array length.</param>
 /// <param name="min">Minimum value.</param>
 /// <param name="max">Maximum value.</param>
@@ -105,7 +123,9 @@ let nextDoubleArrayRange (length: int) (min: double) (max: double) : double[] =
     ) |> ignore
     result
 
-/// <summary>Generate array of standard normal random numbers (Box-Muller).</summary>
+/// <summary>
+/// Generate array of standard normal random numbers (Box-Muller).
+/// </summary>
 /// <param name="length">Array length.</param>
 /// <returns>Array of N(0,1) random values.</returns>
 /// <remarks>
@@ -134,7 +154,9 @@ let nextNormalArray (length: int) : double[] =
 // Shuffling
 // ============================================================================
 
-/// <summary>Shuffle array in-place using Fisher-Yates algorithm.</summary>
+/// <summary>
+/// Shuffle array in-place using Fisher-Yates algorithm.
+/// </summary>
 /// <param name="array">Array to shuffle.</param>
 /// <remarks>
 /// Not thread-safe for concurrent modifications.
@@ -149,7 +171,12 @@ let shuffleInPlace (array: 'T[]) : unit =
         array.[i] <- array.[j]
         array.[j] <- temp
 
-/// <summary>Return shuffled copy of array.</summary>/// <param name="array">Source array.</param>/// <returns>Shuffled copy.</returns>let shuffle (array: 'T[]) : 'T[] =
+/// <summary>
+/// Return shuffled copy of array.
+/// </summary>
+/// <param name="array">Source array.</param>
+/// <returns>Shuffled copy.</returns>
+let shuffle (array: 'T[]) : 'T[] =
     let copy = Array.copy array
     shuffleInPlace copy
     copy
@@ -158,7 +185,9 @@ let shuffleInPlace (array: 'T[]) : unit =
 // Sampling
 // ============================================================================
 
-/// <summary>Sample k elements from array without replacement.</summary>
+/// <summary>
+/// Sample k elements from array without replacement.
+/// </summary>
 /// <param name="array">Source array.</param>
 /// <param name="k">Number of samples.</param>
 /// <returns>Array of k sampled elements.</returns>
@@ -180,7 +209,9 @@ let sampleWithoutReplacement (array: 'T[]) (k: int) : 'T[] =
     // Return first k elements
     Array.sub result 0 k
 
-/// <summary>Sample k elements from array with replacement.</summary>
+/// <summary>
+/// Sample k elements from array with replacement.
+/// </summary>
 /// <param name="array">Source array.</param>
 /// <param name="k">Number of samples.</param>
 /// <returns>Array of k sampled elements.</returns>
@@ -192,23 +223,37 @@ let sampleWithReplacement (array: 'T[]) (k: int) : 'T[] =
 // Probability
 // ============================================================================
 
-/// <summary>Generate true with given probability.</summary>
+/// <summary>
+/// Generate true with given probability.
+/// </summary>
 /// <param name="probability">Probability of true (0.0 to 1.0).</param>
 /// <returns>true with given probability.</returns>
 let nextBool (probability: double) : bool =
     getRandom().NextDouble() < probability
 
-/// <summary>Generate Bernoulli trial outcome.</summary>/// <param name="p">Success probability.</param>/// <returns>1 with probability p, 0 otherwise.</returns>let bernoulli (p: double) : int =
+/// <summary>
+/// Generate Bernoulli trial outcome.
+/// </summary>
+/// <param name="p">Success probability.</param>
+/// <returns>1 with probability p, 0 otherwise.</returns>
+let bernoulli (p: double) : int =
     if nextBool p then 1 else 0
 
 // ============================================================================
 // Distributions
 // ============================================================================
 
-/// <summary>Generate from exponential distribution.</summary>/// <param name="lambda">Rate parameter (1/mean).</param>/// <returns>Random value from Exp(lambda).</returns>let exponential (lambda: double) : double =
+/// <summary>
+/// Generate from exponential distribution.
+/// </summary>
+/// <param name="lambda">Rate parameter (1/mean).</param>
+/// <returns>Random value from Exp(lambda).</returns>
+let exponential (lambda: double) : double =
     -log (1.0 - nextDouble()) / lambda
 
-/// <summary>Generate from uniform distribution.</summary>
+/// <summary>
+/// Generate from uniform distribution.
+/// </summary>
 /// <param name="min">Minimum value.</param>
 /// <param name="max">Maximum value.</param>
 /// <returns>Random value from U(min, max).</returns>
@@ -219,7 +264,9 @@ let uniform (min: double) (max: double) : double =
 // Seeding (Advanced)
 // ============================================================================
 
-/// <summary>Create new Random with specific seed for this thread.</summary>
+/// <summary>
+/// Create new Random with specific seed for this thread.
+/// </summary>
 /// <param name="seed">Random seed.</param>
 /// <remarks>
 /// Replaces the thread-local Random with a new one using the specified seed.
@@ -228,6 +275,9 @@ let uniform (min: double) (max: double) : double =
 let reseed (seed: int) : unit =
     threadRandom.Value <- Random(seed)
 
-/// <summary>Reset thread-local Random to default (time-based seeding).</summary>let reset () : unit =
+/// <summary>
+/// Reset thread-local Random to default (time-based seeding).
+/// </summary>
+let reset () : unit =
     let seed = Thread.CurrentThread.ManagedThreadId + int (DateTime.Now.Ticks &&& 0xFFFFFFFFL)
     threadRandom.Value <- Random(seed)
