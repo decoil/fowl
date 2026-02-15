@@ -96,9 +96,13 @@ let addSingle (a: single[]) (b: single[]) : single[] =
 // Reduction Operations
 // ============================================================================
 
-/// <summary>Sum all elements using best available hardware instructions.</summary>/// <param name="a">Input array.</param>/// <returns>Sum of all elements.</returns>/// <remarks>
+/// <summary>Sum all elements using best available hardware instructions.</summary>
+/// <param name="a">Input array.</param>
+/// <returns>Sum of all elements.</returns>
+/// <remarks>
 /// Uses vectorized accumulation with horizontal reduction.
-/// </remarks>let sum (a: double[]) : double =
+/// </remarks>
+let sum (a: double[]) : double =
     KernelSelector.Sum(a)
 
 /// <summary>Calculate mean using hardware instructions.</summary>/// <param name="a">Input array.</param>/// <returns>Mean of all elements.</returns>/// <exception cref="System.ArgumentException">Thrown when array is empty.</exception>

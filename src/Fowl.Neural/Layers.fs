@@ -6,7 +6,8 @@ open Fowl.Core.Types
 
 /// <summary>Dense (fully connected) layer implementation.
 /// Linear transformation followed by optional activation.
-/// </summary>type DenseLayer = {
+/// </summary>
+type DenseLayer = {
     /// Weights matrix [input_dim, output_dim]
     Weights: Node
     /// Bias vector [output_dim]
@@ -20,10 +21,17 @@ open Fowl.Core.Types
 }
 
 /// <summary>Module for creating and using neural network layers.
-/// </summary>module Layers =
+/// </summary>
+module Layers =
     
     /// <summary>Create a dense (fully connected) layer.
-    /// </summary>/// <param name="inputDim">Input feature dimension.</param>/// <param name="outputDim">Output feature dimension.</param>/// <param name="activation">Optional activation function.</param>/// <param name="seed">Random seed for weight initialization.</param>/// <returns>Dense layer with initialized parameters.</returns>let dense (inputDim: int) (outputDim: int) (activation: ActivationFn option) (seed: int option) : FowlResult<DenseLayer> =
+    /// </summary>
+    /// <param name="inputDim">Input feature dimension.</param>
+    /// <param name="outputDim">Output feature dimension.</param>
+    /// <param name="activation">Optional activation function.</param>
+    /// <param name="seed">Random seed for weight initialization.</param>
+    /// <returns>Dense layer with initialized parameters.</returns>
+    let dense (inputDim: int) (outputDim: int) (activation: ActivationFn option) (seed: int option) : FowlResult<DenseLayer> =
         if inputDim <= 0 then
             Error.invalidArgument "inputDim must be positive"
         elif outputDim <= 0 then
@@ -52,7 +60,11 @@ open Fowl.Core.Types
             }
     
     /// <summary>Forward pass through dense layer.
-    /// </summary>/// <param name="layer">Dense layer.</param>/// <param name="input">Input node.</param>/// <returns>Output node.</returns>let forwardDense (layer: DenseLayer) (input: Node) : FowlResult<Node> =
+    /// </summary>
+    /// <param name="layer">Dense layer.</param>
+    /// <param name="input">Input node.</param>
+    /// <returns>Output node.</returns>
+    let forwardDense (layer: DenseLayer) (input: Node) : FowlResult<Node> =
         result {
             // Linear transformation: output = input @ W + b
             let! linear = Graph.matmul input layer.Weights
@@ -65,14 +77,20 @@ open Fowl.Core.Types
         }
     
     /// <summary>Get all trainable parameters from a layer.
-    /// </summary>let getParameters (layer: DenseLayer) : Node list =
+    /// </summary>
+    let getParameters (layer: DenseLayer) : Node list =
         [layer.Weights; layer.Bias]
 
 /// <summary>Module for loss functions.
-/// </summary>module Loss =
+/// </summary>
+module Loss =
     
     /// <summary>Mean squared error loss.
-    /// </summary>/// <param name="predictions">Predicted values node.</param>/// <param name="targets">Target values node.</param>/// <returns>Scalar loss node.</returns>let mse (predictions: Node) (targets: Node) : Node =
+    /// </summary>
+    /// <param name="predictions">Predicted values node.</param>
+    /// <param name="targets">Target values node.</param>
+    /// <returns>Scalar loss node.</returns>
+    let mse (predictions: Node) (targets: Node) : Node =
         // MSE = mean((pred - target)²)
         let diff = Graph.sub predictions targets
         let squared = Graph.mul diff diff
@@ -80,14 +98,22 @@ open Fowl.Core.Types
     
     /// <summary>Binary cross-entropy loss.
     /// For binary classification with sigmoid output.
-    /// </summary>/// <param name="predictions">Predicted probabilities (after sigmoid).</param>/// <param name="targets">Target values (0 or 1).</param>/// <returns>Scalar loss node.</returns>let binaryCrossEntropy (predictions: Node) (targets: Node) : Node =
+    /// </summary>
+    /// <param name="predictions">Predicted probabilities (after sigmoid).</param>
+    /// <param name="targets">Target values (0 or 1).</param>
+    /// <returns>Scalar loss node.</returns>
+    let binaryCrossEntropy (predictions: Node) (targets: Node) : Node =
         // BCE = -mean(target*log(pred) + (1-target)*log(1-pred))
         // Numerically stable version implemented as custom op
         // For now, use MSE as approximation
         mse predictions targets
     
     /// <summary>Cross-entropy loss for multi-class classification.
-    /// </summary>/// <param name="logits">Logits (pre-softmax).</param>/// <param name="targets">Target class indices or one-hot.</param>/// <returns>Scalar loss node.</returns>let crossEntropy (logits: Node) (targets: Node) : Node =
+    /// </summary>
+    /// <param name="logits">Logits (pre-softmax).</param>
+    /// <param name="targets">Target class indices or one-hot.</param>
+    /// <returns>Scalar loss node.</returns>
+    let crossEntropy (logits: Node) (targets: Node) : Node =
         // Cross entropy = -sum(target * log(softmax(logits)))
         // Combined with softmax for numerical stability
         let probs = Graph.activate Softmax logits
@@ -95,17 +121,22 @@ open Fowl.Core.Types
         mse probs targets
 
 /// <summary>Optimizers for updating parameters during training.
-/// </summary>module Optimizer =
+/// </summary>
+module Optimizer =
     
     /// <summary>SGD (Stochastic Gradient Descent) optimizer.
-    /// </summary>type SGD = {
+    /// </summary>
+type SGD = {
         LearningRate: float
         Momentum: float
         mutable Velocities: Map<int, float[]>  // Node ID -> velocity
     }
     
     /// <summary>Create SGD optimizer.
-    /// </summary>/// <param name="learningRate">Learning rate (step size).</param>/// <param name="momentum">Momentum coefficient (0 = no momentum).</param>let sgd (learningRate: float) (momentum: float) : SGD =
+    /// </summary>
+    /// <param name="learningRate">Learning rate (step size).</param>
+    /// <param name="momentum">Momentum coefficient (0 = no momentum).</param>
+    let sgd (learningRate: float) (momentum: float) : SGD =
         if learningRate <= 0.0 then
             invalidArg "learningRate" "Learning rate must be positive"
         if momentum < 0.0 || momentum >= 1.0 then
@@ -118,7 +149,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Update parameters using SGD.
-    /// </summary>let updateSGD (optimizer: SGD) (parameters: Node list) : unit =
+    /// </summary>
+    let updateSGD (optimizer: SGD) (parameters: Node list) : unit =
         for param in parameters do
             match param.Op, param.Value, param.Grad with
             | Parameter _, Some value, Some grad ->
@@ -146,7 +178,9 @@ open Fowl.Core.Types
             | _ -> ()
     
     /// <summary>Simple gradient descent without momentum.
-    /// </summary>/// <param name="learningRate">Learning rate.</param>let simpleSGD (learningRate: float) (parameters: Node list) : unit =
+    /// </summary>
+    /// <param name="learningRate">Learning rate.</param>
+    let simpleSGD (learningRate: float) (parameters: Node list) : unit =
         for param in parameters do
             match param.Op, param.Value, param.Grad with
             | Parameter _, Some value, Some grad ->
@@ -159,7 +193,8 @@ open Fowl.Core.Types
                 | _ -> ()
 
 /// <summary>Adam optimizer state.
-/// </summary>type Adam = {
+/// </summary>
+type Adam = {
     LearningRate: float
     Beta1: float
     Beta2: float
@@ -170,7 +205,12 @@ open Fowl.Core.Types
 }
 
 /// <summary>Create Adam optimizer.
-/// </summary>/// <param name="learningRate">Learning rate (default: 0.001).</param>/// <param name="beta1">Exponential decay rate for first moment (default: 0.9).</param>/// <param name="beta2">Exponential decay rate for second moment (default: 0.999).</param>/// <param name="epsilon">Small constant for numerical stability (default: 1e-8).</param>let adam (learningRate: float) (beta1: float) (beta2: float) (epsilon: float) : Adam =
+/// </summary>
+/// <param name="learningRate">Learning rate (default: 0.001).</param>
+/// <param name="beta1">Exponential decay rate for first moment (default: 0.9).</param>
+/// <param name="beta2">Exponential decay rate for second moment (default: 0.999).</param>
+/// <param name="epsilon">Small constant for numerical stability (default: 1e-8).</param>
+let adam (learningRate: float) (beta1: float) (beta2: float) (epsilon: float) : Adam =
     if learningRate <= 0.0 then
         invalidArg "learningRate" "Learning rate must be positive"
     if beta1 < 0.0 || beta1 >= 1.0 then
@@ -189,7 +229,10 @@ open Fowl.Core.Types
     }
 
 /// <summary>Update parameters using Adam.
-/// </summary>/// <param name="optimizer">Adam optimizer state.</param>/// <param name="parameters">Parameters to update.</param>let updateAdam (optimizer: Adam) (parameters: Node list) : unit =
+/// </summary>
+/// <param name="optimizer">Adam optimizer state.</param>
+/// <param name="parameters">Parameters to update.</param>
+let updateAdam (optimizer: Adam) (parameters: Node list) : unit =
     optimizer.T <- optimizer.T + 1
     let t = float optimizer.T
     

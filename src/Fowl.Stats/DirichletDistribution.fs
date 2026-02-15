@@ -7,11 +7,13 @@ open Fowl.Core.Types
 /// <summary>Dirichlet distribution.
 /// Multivariate generalization of Beta distribution.
 /// Conjugate prior to Multinomial in Bayesian inference.
-/// </summary>module DirichletDistribution =
+/// </summary>
+module DirichletDistribution =
     
     /// <summary>Validate Dirichlet parameters.
 /// All alpha must be positive.
-/// </summary>let private validate (alpha: float[]) : FowlResult<unit> =
+/// </summary>
+    let private validate (alpha: float[]) : FowlResult<unit> =
         if alpha.Length = 0 then
             Error.invalidArgument "Dirichlet alpha cannot be empty"
         elif alpha |> Array.exists (fun a -> a <= 0.0) then
@@ -21,7 +23,8 @@ open Fowl.Core.Types
     
     /// <summary>Log of multivariate beta function (normalizing constant).
 /// ln(B(α)) = Σ ln(Γ(αᵢ)) - ln(Γ(Σαᵢ))
-/// </summary>let private logMultivariateBeta (alpha: float[]) : float =
+/// </summary>
+    let private logMultivariateBeta (alpha: float[]) : float =
         let sumAlpha = Array.sum alpha
         let sumLogGamma = alpha |> Array.sumBy SpecialFunctions.logGamma
         sumLogGamma - SpecialFunctions.logGamma sumAlpha
@@ -29,7 +32,8 @@ open Fowl.Core.Types
     /// <summary>Probability density function.
 /// PDF(x) = 1/B(α) * Π xᵢ^(αᵢ-1)
 /// where xᵢ > 0 and Σ xᵢ = 1.
-/// </summary>let pdf (alpha: float[]) (x: float[]) : FowlResult<float> =
+/// </summary>
+    let pdf (alpha: float[]) (x: float[]) : FowlResult<float> =
         result {
             do! validate alpha
             
@@ -61,7 +65,8 @@ open Fowl.Core.Types
     
     /// <summary>Random variate sampling.
 /// Sample k Gamma(αᵢ, 1) variables and normalize.
-/// </summary>let rvs (alpha: float[]) (seed: int option) : FowlResult<float[]> =
+/// </summary>
+    let rvs (alpha: float[]) (seed: int option) : FowlResult<float[]> =
         result {
             do! validate alpha
             
@@ -92,7 +97,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Mean for each component: E[Xᵢ] = αᵢ / Σα
-/// </summary>let mean (alpha: float[]) : FowlResult<float[]> =
+/// </summary>
+    let mean (alpha: float[]) : FowlResult<float[]> =
         result {
             do! validate alpha
             let sumAlpha = Array.sum alpha
@@ -100,7 +106,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Variance for each component: Var(Xᵢ) = αᵢ(Σα - αᵢ) / (Σα)²(Σα + 1)
-/// </summary>let variance (alpha: float[]) : FowlResult<float[]> =
+/// </summary>
+    let variance (alpha: float[]) : FowlResult<float[]> =
         result {
             do! validate alpha
             let sumAlpha = Array.sum alpha
@@ -110,7 +117,8 @@ open Fowl.Core.Types
     
     /// <summary>Mode for each component: (αᵢ - 1) / (Σα - k) for αᵢ > 1
 /// If any αᵢ ≤ 1, mode is at boundary (0 for that component).
-/// </summary>let mode (alpha: float[]) : FowlResult<float[]> =
+/// </summary>
+    let mode (alpha: float[]) : FowlResult<float[]> =
         result {
             do! validate alpha
             let k = float alpha.Length
@@ -126,7 +134,8 @@ open Fowl.Core.Types
     
     /// <summary>Covariance matrix: Cov(Xᵢ, Xⱼ) = -αᵢαⱼ / (Σα)²(Σα + 1) for i ≠ j
 /// Var(Xᵢ) = αᵢ(Σα - αᵢ) / (Σα)²(Σα + 1)
-/// </summary>let covariance (alpha: float[]) : FowlResult<float[,]> =
+/// </summary>
+    let covariance (alpha: float[]) : FowlResult<float[,]> =
         result {
             do! validate alpha
             let k = alpha.Length
@@ -144,7 +153,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Marginal distribution for single component: Beta(αᵢ, Σα - αᵢ)
-/// </summary>let marginal (alpha: float[]) (idx: int) : FowlResult<(float * float)> =
+/// </summary>
+    let marginal (alpha: float[]) (idx: int) : FowlResult<(float * float)> =
         result {
             do! validate alpha
             
@@ -158,7 +168,8 @@ open Fowl.Core.Types
     /// <summary>Entropy: ln(B(α)) + (Σα - k)ψ(Σα) - Σ(αᵢ - 1)ψ(αᵢ)
 /// where ψ is the digamma function.
 /// Simplified approximation.
-/// </summary>let entropy (alpha: float[]) : FowlResult<float> =
+/// </summary>
+    let entropy (alpha: float[]) : FowlResult<float> =
         result {
             do! validate alpha
             let k = alpha.Length
@@ -176,7 +187,8 @@ open Fowl.Core.Types
     
     /// <summary>Concentration parameter: Σα
 /// Higher values = more concentrated around mean.
-/// </summary>let concentration (alpha: float[]) : FowlResult<float> =
+/// </summary>
+    let concentration (alpha: float[]) : FowlResult<float> =
         result {
             do! validate alpha
             return Array.sum alpha
@@ -184,7 +196,8 @@ open Fowl.Core.Types
     
     /// <summary>Symmetric Dirichlet: all αᵢ equal.
 /// Creates uniform prior when αᵢ = 1.
-/// </summary>let symmetric (alpha: float) (k: int) : FowlResult<float[]> =
+/// </summary>
+    let symmetric (alpha: float) (k: int) : FowlResult<float[]> =
         result {
             if alpha <= 0.0 then
                 return! Error.invalidArgument "Symmetric Dirichlet alpha must be positive"

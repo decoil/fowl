@@ -134,10 +134,12 @@ open System.Buffers
 // Stack Allocation (for small buffers)
 // ============================================================================
 
-/// <summary>Module for stack-allocated Span operations.</summary>/// <remarks>
+/// <summary>Module for stack-allocated Span operations.</summary>
+/// <remarks>
 /// Stack allocation is very fast but limited in size.
 /// Use for small temporary buffers (typically < 1KB).
-/// </remarks>module StackOps =
+/// </remarks>
+module StackOps =
     /// <summary>Execute operation with stack-allocated buffer.</summary>    /// <param name="size">Size of stack buffer.</param>    /// <param name="operation">Function using the buffer.</param>
     /// <returns>Result of operation.</returns>
     /// <example>

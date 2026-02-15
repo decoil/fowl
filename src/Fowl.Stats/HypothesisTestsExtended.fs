@@ -6,12 +6,14 @@ open Fowl.Core.Types
 
 /// <summary>Additional hypothesis tests.
 /// Kruskal-Wallis, Levene, Bartlett tests.
-/// </summary>module HypothesisTestsExtended =
+/// </summary>
+module HypothesisTestsExtended =
     
     /// <summary>Kruskal-Wallis H-test.
 /// Non-parametric ANOVA for comparing 3+ independent groups.
 /// H0: All groups have same distribution.
-/// </summary>type KruskalWallisResult = {
+/// </summary>
+type KruskalWallisResult = {
         /// H-statistic
         HStatistic: float
         /// P-value
@@ -25,7 +27,8 @@ open Fowl.Core.Types
     }
     
     /// <summary>Kruskal-Wallis test for 3+ groups.
-/// </summary>let kruskalWallis (groups: float[][]) : FowlResult<KruskalWallisResult> =
+/// </summary>
+    let kruskalWallis (groups: float[][]) : FowlResult<KruskalWallisResult> =
         result {
             let k = groups.Length
             if k < 3 then

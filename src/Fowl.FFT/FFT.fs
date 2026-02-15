@@ -7,14 +7,17 @@ open Fowl.Core.Types
 
 /// <summary>Fast Fourier Transform module.
 /// Implements FFT using Cooley-Tukey algorithm.
-/// </summary>module FFT =
+/// </summary>
+module FFT =
     
     /// <summary>Check if n is a power of 2.
-    /// </summary>let private isPowerOf2 (n: int) : bool =
+    /// </summary>
+    let private isPowerOf2 (n: int) : bool =
         n > 0 && (n & (n - 1)) = 0
     
     /// <summary>Bit-reverse the index.
-    /// </summary>let private bitReverse (n: int) (bits: int) : int =
+    /// </summary>
+    let private bitReverse (n: int) (bits: int) : int =
         let mutable result = 0
         let mutable n = n
         for i = 0 to bits - 1 do
@@ -24,7 +27,8 @@ open Fowl.Core.Types
     
     /// <summary>Cooley-Tukey iterative FFT.
     /// Time complexity: O(n log n)
-    /// </summary>let fft (input: Complex[]) : FowlResult<Complex[]> =
+    /// </summary>
+    let fft (input: Complex[]) : FowlResult<Complex[]> =
         let n = input.Length
         
         if not (isPowerOf2 n) then
@@ -62,7 +66,8 @@ open Fowl.Core.Types
             Ok output
     
     /// <summary>Inverse FFT.
-    /// </summary>let ifft (input: Complex[]) : FowlResult<Complex[]> =
+    /// </summary>
+    let ifft (input: Complex[]) : FowlResult<Complex[]> =
         let n = input.Length
         
         if not (isPowerOf2 n) then
@@ -81,7 +86,8 @@ open Fowl.Core.Types
     
     /// <summary>Real FFT (optimized for real input).
     /// Returns only positive frequencies.
-    /// </summary>let rfft (input: float[]) : FowlResult<Complex[]> =
+    /// </summary>
+    let rfft (input: float[]) : FowlResult<Complex[]> =
         let n = input.Length
         
         if not (isPowerOf2 n) then
@@ -97,7 +103,8 @@ open Fowl.Core.Types
             | Error e -> Error e
     
     /// <summary>Inverse real FFT.
-    /// </summary>let irfft (input: Complex[]) (n: int) : FowlResult<float[]> =
+    /// </summary>
+    let irfft (input: Complex[]) (n: int) : FowlResult<float[]> =
         if not (isPowerOf2 n) then
             Error.invalidArgument "IRFFT output length must be power of 2"
         else
@@ -118,7 +125,8 @@ open Fowl.Core.Types
             | Error e -> Error e
     
     /// <summary>2D FFT for images.
-    /// </summary>let fft2 (input: Complex[,]) : FowlResult<Complex[,]> =
+    /// </summary>
+    let fft2 (input: Complex[,]) : FowlResult<Complex[,]> =
         let rows = input.GetLength(0)
         let cols = input.GetLength(1)
         
@@ -148,12 +156,14 @@ open Fowl.Core.Types
             Ok result
     
     /// <summary>Calculate power spectral density.
-    /// </summary>let psd (fftResult: Complex[]) : float[] =
+    /// </summary>
+    let psd (fftResult: Complex[]) : float[] =
         fftResult |
         Array.map (fun c -> c.Magnitude ** 2.0)
     
     /// <summary>Calculate frequencies for FFT bins.
-    /// </summary>let fftfreq (n: int) (d: float) : float[] =
+    /// </summary>
+    let fftfreq (n: int) (d: float) : float[] =
         let df = 1.0 / (float n * d)
         Array.init n (fun i -
             if i <= n / 2 then
@@ -162,24 +172,28 @@ open Fowl.Core.Types
                 float (i - n) * df)
     
     /// <summary>Apply window function before FFT.
-    /// </summary>let applyWindow (window: float[]) (signal: float[]) : float[] =
+    /// </summary>
+    let applyWindow (window: float[]) (signal: float[]) : float[] =
         if window.Length <> signal.Length then
             invalidArg "window" "Window length must match signal length"
         
         Array.map2 (*) window signal
     
     /// <summary>Hanning window.
-    /// </summary>let hanning (n: int) : float[] =
+    /// </summary>
+    let hanning (n: int) : float[] =
         Array.init n (fun i -
             0.5 - 0.5 * cos (2.0 * System.Math.PI * float i / float (n - 1)))
     
     /// <summary>Hamming window.
-    /// </summary>let hamming (n: int) : float[] =
+    /// </summary>
+    let hamming (n: int) : float[] =
         Array.init n (fun i -
             0.54 - 0.46 * cos (2.0 * System.Math.PI * float i / float (n - 1)))
     
     /// <summary>Blackman window.
-    /// </summary>let blackman (n: int) : float[] =
+    /// </summary>
+    let blackman (n: int) : float[] =
         Array.init n (fun i -
             let alpha = 0.16
             let a0 = (1.0 - alpha) / 2.0
@@ -189,10 +203,12 @@ open Fowl.Core.Types
             a0 - a1 * cos f + a2 * cos (2.0 * f))
 
 /// <summary>Signal processing operations using FFT.
-/// </summary>module SignalProcessing =
+/// </summary>
+module SignalProcessing =
     
     /// <summary>Convolution using FFT (faster for large kernels).
-    /// </summary>let fftConvolve (signal: float[]) (kernel: float[]) : FowlResult<float[]> =
+    /// </summary>
+    let fftConvolve (signal: float[]) (kernel: float[]) : FowlResult<float[]> =
         let n = signal.Length + kernel.Length - 1
         let paddedSize = int (2.0 ** ceil (log (float n) / log 2.0))
         
@@ -222,13 +238,15 @@ open Fowl.Core.Types
         }
     
     /// <summary>Cross-correlation using FFT.
-    /// </summary>let fftCorrelate (x: float[]) (y: float[]) : FowlResult<float[]> =
+    /// </summary>
+    let fftCorrelate (x: float[]) (y: float[]) : FowlResult<float[]> =
         // Correlation = convolution with reversed kernel
         let yReversed = Array.rev y
         fftConvolve x yReversed
     
     /// <summary>Spectrogram computation.
-    /// </summary>let spectrogram (signal: float[]) (windowSize: int) (hopSize: int)
+    /// </summary>
+    let spectrogram (signal: float[]) (windowSize: int) (hopSize: int)
                      : FowlResult<float[,]> =
         if not (FFT.isPowerOf2 windowSize) then
             Error.invalidArgument "Window size must be power of 2"
@@ -261,7 +279,8 @@ open Fowl.Core.Types
                 Error.invalidState error
     
     /// <summary>Welch's method for power spectral density estimation.
-    /// </summary>let welch (signal: float[]) (windowSize: int) (overlap: int)
+    /// </summary>
+    let welch (signal: float[]) (windowSize: int) (overlap: int)
               : FowlResult<float[]> =
         if not (FFT.isPowerOf2 windowSize) then
             Error.invalidArgument "Window size must be power of 2"
@@ -302,10 +321,12 @@ open Fowl.Core.Types
 
 /// <summary>Discrete Cosine Transform (DCT).
 /// Used in JPEG compression.
-/// </summary>module DCT =
+/// </summary>
+module DCT =
     
     /// <summary>Type 2 DCT.
-    /// </summary>let dct2 (input: float[]) : float[] =
+    /// </summary>
+    let dct2 (input: float[]) : float[] =
         let n = input.Length
         let output = Array.zeroCreate n
         let scale = sqrt (2.0 / float n)
@@ -323,7 +344,8 @@ open Fowl.Core.Types
         output
     
     /// <summary>Inverse Type 2 DCT (Type 3 DCT).
-    /// </summary>let idct2 (input: float[]) : float[] =
+    /// </summary>
+    let idct2 (input: float[]) : float[] =
         let n = input.Length
         let output = Array.zeroCreate n
         let scale = sqrt (2.0 / float n)
@@ -337,7 +359,8 @@ open Fowl.Core.Types
         output
     
     /// <summary>2D DCT for images.
-    /// </summary>let dct2_2d (input: float[,]) : float[,] =
+    /// </summary>
+    let dct2_2d (input: float[,]) : float[,] =
         let rows = input.GetLength(0)
         let cols = input.GetLength(1)
         

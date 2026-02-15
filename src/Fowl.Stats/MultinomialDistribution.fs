@@ -7,10 +7,12 @@ open Fowl.Core.Types
 /// <summary>Multinomial distribution.
 /// Generalization of Binomial to multiple outcomes.
 /// Models categorical data with n trials and k categories.
-/// </summary>module MultinomialDistribution =
+/// </summary>
+module MultinomialDistribution =
     
     /// <summary>Validate Multinomial parameters.
-/// </summary>let private validate (probs: float[]) (n: int) : FowlResult<unit> =
+/// </summary>
+    let private validate (probs: float[]) (n: int) : FowlResult<unit> =
         if n < 0 then
             Error.invalidArgument "Multinomial n must be non-negative"
         elif probs.Length = 0 then
@@ -24,14 +26,16 @@ open Fowl.Core.Types
     
     /// <summary>Logarithm of multinomial coefficient.
 /// ln(n! / (x₁! x₂! ... xₖ!)) = ln(n!) - Σ ln(xᵢ!)
-/// </summary>let private logMultinomialCoefficient (n: int) (counts: int[]) : float =
+/// </summary>
+    let private logMultinomialCoefficient (n: int) (counts: int[]) : float =
         // Use log-gamma: ln(n!) = ln(Γ(n+1))
         SpecialFunctions.logGamma (float n + 1.0)
         - Array.sumBy (fun x -> SpecialFunctions.logGamma (float x + 1.0)) counts
     
     /// <summary>Probability mass function.
 /// PMF(x) = n!/(x₁!...xₖ!) * p₁^x₁ * ... * pₖ^xₖ
-/// </summary>let pmf (probs: float[]) (n: int) (counts: int[]) : FowlResult<float> =
+/// </summary>
+    let pmf (probs: float[]) (n: int) (counts: int[]) : FowlResult<float> =
         result {
             do! validate probs n
             
@@ -53,7 +57,8 @@ open Fowl.Core.Types
     
     /// <summary>Random variate sampling.
 /// Sample from categorical distribution n times and count outcomes.
-/// </summary>let rvs (probs: float[]) (n: int) (seed: int option) : FowlResult<int[]> =
+/// </summary>
+    let rvs (probs: float[]) (n: int) (seed: int option) : FowlResult<int[]> =
         result {
             do! validate probs n
             
@@ -80,21 +85,24 @@ open Fowl.Core.Types
         }
     
     /// <summary>Mean for each category: E[Xᵢ] = n * pᵢ
-/// </summary>let mean (probs: float[]) (n: int) : FowlResult<float[]> =
+/// </summary>
+    let mean (probs: float[]) (n: int) : FowlResult<float[]> =
         result {
             do! validate probs n
             return probs |> Array.map (fun p -> float n * p)
         }
     
     /// <summary>Variance for each category: Var(Xᵢ) = n * pᵢ * (1 - pᵢ)
-/// </summary>let variance (probs: float[]) (n: int) : FowlResult<float[]> =
+/// </summary>
+    let variance (probs: float[]) (n: int) : FowlResult<float[]> =
         result {
             do! validate probs n
             return probs |> Array.map (fun p -> float n * p * (1.0 - p))
         }
     
     /// <summary>Standard deviation for each category.
-/// </summary>let std (probs: float[]) (n: int) : FowlResult<float[]> =
+/// </summary>
+    let std (probs: float[]) (n: int) : FowlResult<float[]> =
         result {
             let! var = variance probs n
             return var |> Array.map sqrt
@@ -102,7 +110,8 @@ open Fowl.Core.Types
     
     /// <summary>Covariance between categories: Cov(Xᵢ, Xⱼ) = -n * pᵢ * pⱼ (i ≠ j)
 /// For i = j, Cov(Xᵢ, Xᵢ) = Var(Xᵢ)
-/// </summary>let covariance (probs: float[]) (n: int) : FowlResult<float[,]> =
+/// </summary>
+    let covariance (probs: float[]) (n: int) : FowlResult<float[,]> =
         result {
             do! validate probs n
             let k = probs.Length
@@ -121,7 +130,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Marginal distribution for single category: Binomial(n, pᵢ)
-/// </summary>let marginal (probs: float[]) (n: int) (idx: int) : FowlResult<float> =
+/// </summary>
+    let marginal (probs: float[]) (n: int) (idx: int) : FowlResult<float> =
         result {
             do! validate probs n
             
@@ -134,7 +144,8 @@ open Fowl.Core.Types
     
     /// <summary>Entropy (approximate): H = -Σ pᵢ ln(pᵢ) * n
 /// This is the entropy per trial times n.
-/// </summary>let entropy (probs: float[]) (n: int) : FowlResult<float> =
+/// </summary>
+    let entropy (probs: float[]) (n: int) : FowlResult<float> =
         result {
             do! validate probs n
             let h = 

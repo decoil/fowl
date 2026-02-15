@@ -6,11 +6,13 @@ open Fowl.Core.Types
 
 /// <summary>Additional descriptive statistics operations.
 /// zscore, cumulative functions, histogram, quantile.
-/// </summary>module DescriptiveExtended =
+/// </summary>
+module DescriptiveExtended =
     
     /// <summary>Z-score normalization (standardization).
 /// z = (x - μ) / σ
-/// </summary>let zscore (data: float[]) : FowlResult<float[]> =
+/// </summary>
+    let zscore (data: float[]) : FowlResult<float[]> =
         result {
             if data.Length = 0 then
                 return! Error.invalidArgument "zscore requires non-empty data"
@@ -25,7 +27,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Z-score with specified mean and std.
-/// </summary>let zscoreWithParams (mean: float) (std: float) (data: float[]) : FowlResult<float[]> =
+/// </summary>
+    let zscoreWithParams (mean: float) (std: float) (data: float[]) : FowlResult<float[]> =
         result {
             if data.Length = 0 then
                 return! Error.invalidArgument "zscore requires non-empty data"
@@ -37,7 +40,8 @@ open Fowl.Core.Types
     
     /// <summary>Cumulative sum.
 /// Returns array where each element is sum of all previous.
-/// </summary>let cumsum (data: float[]) : float[] =
+/// </summary>
+    let cumsum (data: float[]) : float[] =
         let result = Array.zeroCreate data.Length
         let mutable sum = 0.0
         for i = 0 to data.Length - 1 do
@@ -47,7 +51,8 @@ open Fowl.Core.Types
     
     /// <summary>Cumulative product.
 /// Returns array where each element is product of all previous.
-/// </summary>let cumprod (data: float[]) : float[] =
+/// </summary>
+    let cumprod (data: float[]) : float[] =
         let result = Array.zeroCreate data.Length
         let mutable prod = 1.0
         for i = 0 to data.Length - 1 do
@@ -57,7 +62,8 @@ open Fowl.Core.Types
     
     /// <summary>Histogram computation.
 /// Counts values in bins.
-/// </summary>let histogram (data: float[]) (bins: int) : FowlResult<float[] * float[]> =
+/// </summary>
+    let histogram (data: float[]) (bins: int) : FowlResult<float[] * float[]> =
         result {
             if data.Length = 0 then
                 return! Error.invalidArgument "histogram requires non-empty data"
@@ -88,7 +94,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Histogram with specified range.
-/// </summary>let histogramRange (data: float[]) (bins: int) (range: float * float) 
+/// </summary>
+    let histogramRange (data: float[]) (bins: int) (range: float * float) 
                       : FowlResult<float[] * float[]> =
         result {
             let (minVal, maxVal) = range
@@ -118,7 +125,8 @@ open Fowl.Core.Types
     
     /// <summary>Quantile (inverse CDF) using linear interpolation.
 /// Returns value at given quantile (0 to 1).
-/// </summary>let quantile (data: float[]) (q: float) : FowlResult<float> =
+/// </summary>
+    let quantile (data: float[]) (q: float) : FowlResult<float> =
         result {
             if data.Length = 0 then
                 return! Error.invalidArgument "quantile requires non-empty data"
@@ -141,14 +149,16 @@ open Fowl.Core.Types
         }
     
     /// <summary>Multiple quantiles at once.
-/// </summary>let quantiles (data: float[]) (qs: float[]) : FowlResult<float[]> =
+/// </summary>
+    let quantiles (data: float[]) (qs: float[]) : FowlResult<float[]> =
         result {
             return! qs |> Array.map (fun q -> quantile data q) |> Result.sequenceArray
         }
     
     /// <summary>Five-number summary (Tukey's hinges).
 /// Returns (min, Q1, median, Q3, max)
-/// </summary>let fiveNumberSummary (data: float[]) : FowlResult<(float * float * float * float * float)> =
+/// </summary>
+    let fiveNumberSummary (data: float[]) : FowlResult<(float * float * float * float * float)> =
         result {
             if data.Length = 0 then
                 return! Error.invalidArgument "fiveNumberSummary requires non-empty data"
@@ -165,7 +175,8 @@ open Fowl.Core.Types
     
     /// <summary>Interquartile range (IQR).
 /// IQR = Q3 - Q1
-/// </summary>let iqr (data: float[]) : FowlResult<float> =
+/// </summary>
+    let iqr (data: float[]) : FowlResult<float> =
         result {
             let! q1 = Descriptive.percentile data 25.0
             let! q3 = Descriptive.percentile data 75.0
@@ -174,7 +185,8 @@ open Fowl.Core.Types
     
     /// <summary>Standard error of the mean.
 /// SEM = σ / √n
-/// </summary>let sem (data: float[]) : FowlResult<float> =
+/// </summary>
+    let sem (data: float[]) : FowlResult<float> =
         result {
             let! std = Descriptive.std data
             return std / sqrt (float data.Length)
@@ -182,7 +194,8 @@ open Fowl.Core.Types
     
     /// <summary>Median absolute deviation (MAD).
 /// Robust measure of spread.
-/// </summary>let mad (data: float[]) : FowlResult<float> =
+/// </summary>
+    let mad (data: float[]) : FowlResult<float> =
         result {
             let! median = Descriptive.median data
             let absDeviations = data |> Array.map (fun x -> abs (x - median))
@@ -191,7 +204,8 @@ open Fowl.Core.Types
     
     /// <summary>Trimmed mean (remove outliers).
 /// proportion: fraction to trim from each tail (0.05 for 5%)
-/// </summary>let trimmedMean (data: float[]) (proportion: float) : FowlResult<float> =
+/// </summary>
+    let trimmedMean (data: float[]) (proportion: float) : FowlResult<float> =
         result {
             if proportion < 0.0 || proportion >= 0.5 then
                 return! Error.invalidArgument "trimmedMean proportion must be in [0, 0.5)"
@@ -205,7 +219,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Winsorized mean (cap outliers instead of removing).
-/// </summary>let winsorizedMean (data: float[]) (proportion: float) : FowlResult<float> =
+/// </summary>
+    let winsorizedMean (data: float[]) (proportion: float) : FowlResult<float> =
         result {
             if proportion < 0.0 || proportion >= 0.5 then
                 return! Error.invalidArgument "winsorizedMean proportion must be in [0, 0.5)"

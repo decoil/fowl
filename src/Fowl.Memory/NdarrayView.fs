@@ -1,4 +1,5 @@
-/// <summary>Fowl NdarrayView - Zero-Copy Array Views</summary>/// <remarks>
+/// <summary>Fowl NdarrayView - Zero-Copy Array Views</summary>
+/// <remarks>
 /// Provides view types that reference existing array data without copying.
 /// 
 /// Unlike Ndarray.slice which creates a copy, NdarrayView creates a view
@@ -24,10 +25,14 @@ open Fowl.Core.Types
 // View Types
 // ============================================================================
 
-/// <summary>A view into existing Ndarray data without copying.</summary>/// <typeparam name="K">Element type phantom (Float32, Float64).</typeparam>/// <typeparam name="T">Element type.</typeparam>/// <remarks>
+/// <summary>A view into existing Ndarray data without copying.</summary>
+/// <typeparam name="K">Element type phantom (Float32, Float64).</typeparam>
+/// <typeparam name="T">Element type.</typeparam>
+/// <remarks>
 /// Holds a reference to source array plus offset and strides.
 /// Changes to the view affect the source array.
-/// </remarks>type NdarrayView<'K, 'T> = {
+/// </remarks>
+type NdarrayView<'K, 'T> = {
     /// <summary>Source array being viewed.</summary>    Source: Ndarray<'K, 'T>
     /// <summary>Offset into source data.</summary>    Offset: int
     /// <summary>Shape of the view.</summary>    Shape: Shape

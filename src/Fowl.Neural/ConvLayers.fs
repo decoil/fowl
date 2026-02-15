@@ -6,7 +6,8 @@ open Fowl.Core.Types
 
 /// <summary>2D Convolution layer for image processing.
 /// Implements Conv2D with configurable kernel, stride, padding.
-/// </summary>type Conv2DLayer = {
+/// </summary>
+type Conv2DLayer = {
     /// Input channels (e.g., 3 for RGB)
     InChannels: int
     /// Output channels (number of filters)
@@ -26,13 +27,15 @@ open Fowl.Core.Types
 }
 
 /// <summary>Padding modes for convolution.
-/// </summary>and Padding =
+/// </summary>
+and Padding =
     | Same      // Output same size as input (with stride=1)
     | Valid     // No padding
     | Explicit of int  // Specific padding amount
 
 /// <summary>2D Pooling layer (MaxPool or AvgPool).
-/// </summary>type Pool2DLayer = {
+/// </summary>
+type Pool2DLayer = {
     PoolType: PoolType
     KernelSize: int
     Stride: int
@@ -40,10 +43,12 @@ open Fowl.Core.Types
 }
 
 /// <summary>Type of pooling operation.
-/// </summary>and PoolType = MaxPool | AvgPool
+/// </summary>
+and PoolType = MaxPool | AvgPool
 
 /// <summary>Batch Normalization layer for 2D data.
-/// </summary>type BatchNorm2DLayer = {
+/// </summary>
+type BatchNorm2DLayer = {
     NumFeatures: int
     /// Learnable scale parameter (gamma)
     Gamma: Node
@@ -60,22 +65,26 @@ open Fowl.Core.Types
 }
 
 /// <summary>Flatten layer to convert NCHW to 2D.
-/// </summary>type FlattenLayer = {
+/// </summary>
+type FlattenLayer = {
     StartDim: int
     EndDim: int
 }
 
 /// <summary>Module for computer vision layers.
-/// </summary>module Conv2D =
+/// </summary>
+module Conv2D =
     
     /// <summary>Calculate output size for convolution.
-    /// </summary>let private calculateOutputSize (inputSize: int) (kernelSize: int) 
+    /// </summary>
+    let private calculateOutputSize (inputSize: int) (kernelSize: int) 
                                        (stride: int) (padding: int) (dilation: int) : int =
         let dilatedKernel = (kernelSize - 1) * dilation + 1
         (inputSize + 2 * padding - dilatedKernel) / stride + 1
     
     /// <summary>Calculate padding for "Same" mode.
-    /// </summary>let private calculateSamePadding (inputSize: int) (kernelSize: int) 
+    /// </summary>
+    let private calculateSamePadding (inputSize: int) (kernelSize: int) 
                                             (stride: int) : int =
         let outputSize = (inputSize + stride - 1) / stride
         let totalPadding = max 0 ((outputSize - 1) * stride + kernelSize - inputSize)
@@ -83,7 +92,8 @@ open Fowl.Core.Types
     
     /// <summary>Perform 2D convolution on a single channel.
     /// Naive implementation for clarity.
-    /// </summary>let private conv2dSingleChannel (input: float[,]) (kernel: float[,])
+    /// </summary>
+    let private conv2dSingleChannel (input: float[,]) (kernel: float[,])
                                       (stride: int) (padH: int) (padW: int) : float[,] =
         let inH = input.GetLength(0)
         let inW = input.GetLength(1)
@@ -109,7 +119,8 @@ open Fowl.Core.Types
         output
     
     /// <summary>Create a Conv2D layer with Xavier initialization.
-    /// </summary>let create (inChannels: int) (outChannels: int) (kernelSize: int)
+    /// </summary>
+    let create (inChannels: int) (outChannels: int) (kernelSize: int)
                ?(stride: int) ?(padding: Padding) ?(dilation: int)
                (seed: int option) : FowlResult<Conv2DLayer> =
         
@@ -159,17 +170,20 @@ open Fowl.Core.Types
     
     /// <summary>Forward pass through Conv2D layer.
     /// Input shape: [batch, channels, height, width] (NCHW format)
-    /// </summary>let forward (layer: Conv2DLayer) (input: Node) : FowlResult<Node> =
+    /// </summary>
+    let forward (layer: Conv2DLayer) (input: Node) : FowlResult<Node> =
         // This would involve reshaping and convolution operations
         // For now, return a placeholder operation
         // Full implementation requires extensive tensor operations
         Error.notImplemented "Conv2D forward pass requires tensor operations - implementing"
 
 /// <summary>2D Pooling operations.
-/// </summary>module Pool2D =
+/// </summary>
+module Pool2D =
     
     /// <summary>Max pooling operation.
-    /// </summary>let maxPool (input: float[,]) (kernelSize: int) (stride: int) : float[,] =
+    /// </summary>
+    let maxPool (input: float[,]) (kernelSize: int) (stride: int) : float[,] =
         let inH = input.GetLength(0)
         let inW = input.GetLength(1)
         let outH = (inH - kernelSize) / stride + 1
@@ -191,7 +205,8 @@ open Fowl.Core.Types
         output
     
     /// <summary>Average pooling operation.
-    /// </summary>let avgPool (input: float[,]) (kernelSize: int) (stride: int) : float[,] =
+    /// </summary>
+    let avgPool (input: float[,]) (kernelSize: int) (stride: int) : float[,] =
         let inH = input.GetLength(0)
         let inW = input.GetLength(1)
         let outH = (inH - kernelSize) / stride + 1
@@ -216,7 +231,8 @@ open Fowl.Core.Types
         output
     
     /// <summary>Create a 2D pooling layer.
-    /// </summary>let create (poolType: PoolType) (kernelSize: int) ?(stride: int) ?(padding: Padding) : Pool2DLayer =
+    /// </summary>
+    let create (poolType: PoolType) (kernelSize: int) ?(stride: int) ?(padding: Padding) : Pool2DLayer =
         let stride = defaultArg stride kernelSize
         let padding = defaultArg padding Valid
         
@@ -228,17 +244,20 @@ open Fowl.Core.Types
         }
 
 /// <summary>Flatten operations for converting 4D to 2D.
-/// </summary>module Flatten =
+/// </summary>
+module Flatten =
     
     /// <summary>Create a flatten layer.
-    /// </summary>let create (?startDim: int) (?endDim: int) : FlattenLayer =
+    /// </summary>
+    let create (?startDim: int) (?endDim: int) : FlattenLayer =
         {
             StartDim = defaultArg startDim 1
             EndDim = defaultArg endDim -1
         }
     
     /// <summary>Flatten a 4D array [N,C,H,W] to 2D [N, C*H*W].
-    /// </summary>let flatten4D (input: float[,,,]) : float[,] =
+    /// </summary>
+    let flatten4D (input: float[,,,]) : float[,] =
         let n = input.GetLength(0)
         let c = input.GetLength(1)
         let h = input.GetLength(2)
@@ -258,10 +277,12 @@ open Fowl.Core.Types
         output
 
 /// <summary>Batch Normalization for 2D data.
-/// </summary>module BatchNorm2D =
+/// </summary>
+module BatchNorm2D =
     
     /// <summary>Create BatchNorm2D layer.
-    /// </summary>let create (numFeatures: int) ?(momentum: float) ?(epsilon: float) 
+    /// </summary>
+    let create (numFeatures: int) ?(momentum: float) ?(epsilon: float) 
                   (seed: int option) : BatchNorm2DLayer =
         
         let momentum = defaultArg momentum 0.1
@@ -284,7 +305,8 @@ open Fowl.Core.Types
     
     /// <summary>Forward pass for batch norm (training mode).
     /// Normalizes: y = (x - mean) / sqrt(var + eps) * gamma + beta
-    /// </summary>let forwardTrain (layer: BatchNorm2DLayer) (input: float[,,,]) : float[,,,] =
+    /// </summary>
+    let forwardTrain (layer: BatchNorm2DLayer) (input: float[,,,]) : float[,,,] =
         let n = input.GetLength(0)
         let c = input.GetLength(1)
         let h = input.GetLength(2)
@@ -330,10 +352,12 @@ open Fowl.Core.Types
         output
 
 /// <summary>Helper operations for computer vision.
-/// </summary>module ImageOps =
+/// </summary>
+module ImageOps =
     
     /// <summary>Resize image using bilinear interpolation.
-    /// </summary>let resizeBilinear (input: float[,]) (newHeight: int) (newWidth: int) : float[,] =
+    /// </summary>
+    let resizeBilinear (input: float[,]) (newHeight: int) (newWidth: int) : float[,] =
         let inH = input.GetLength(0)
         let inW = input.GetLength(1)
         let output = Array2D.zeroCreate newHeight newWidth
@@ -367,7 +391,8 @@ open Fowl.Core.Types
         output
     
     /// <summary>Normalize image to [0, 1] range.
-    /// </summary>let normalize (input: float[,]) : float[,] =
+    /// </summary>
+    let normalize (input: float[,]) : float[,] =
         let minVal = 
             seq { for y in 0..input.GetLength(0)-1 do
                   for x in 0..input.GetLength(1)-1 do yield input.[y,x] }
@@ -384,5 +409,6 @@ open Fowl.Core.Types
             input |> Array2D.map (fun v -> (v - minVal) / range)
     
     /// <summary>Standardize image with mean and std.
-    /// </summary>let standardize (input: float[,]) (mean: float) (std: float) : float[,] =
+    /// </summary>
+    let standardize (input: float[,]) (mean: float) (std: float) : float[,] =
         input |> Array2D.map (fun v -> (v - mean) / std)

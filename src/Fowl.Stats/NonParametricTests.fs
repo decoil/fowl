@@ -6,12 +6,14 @@ open Fowl.Core.Types
 
 /// <summary>Non-parametric tests for comparing groups.
 /// Use when data doesn't meet normality assumptions.
-/// </summary>module NonParametricTests =
+/// </summary>
+module NonParametricTests =
     
     /// <summary>Mann-Whitney U test (Wilcoxon rank-sum test).
 /// Non-parametric test comparing two independent groups.
 /// H0: Distributions are equal (medians equal under shift alternative).
-/// </summary>type MannWhitneyResult = {
+/// </summary>
+type MannWhitneyResult = {
         /// U statistic (minimum of U1 and U2)
         UStatistic: float
         /// Z-score (normalized U)
@@ -31,7 +33,8 @@ open Fowl.Core.Types
     }
     
     /// <summary>Perform Mann-Whitney U test.
-/// </summary>let mannWhitneyU (sample1: float[]) (sample2: float[]) 
+/// </summary>
+    let mannWhitneyU (sample1: float[]) (sample2: float[]) 
                      : FowlResult<MannWhitneyResult> =
         result {
             let n1 = sample1.Length
@@ -141,7 +144,8 @@ open Fowl.Core.Types
     /// <summary>Wilcoxon signed-rank test.
 /// Non-parametric test for paired samples.
 /// H0: Median difference is zero.
-/// </summary>type WilcoxonResult = {
+/// </summary>
+type WilcoxonResult = {
         /// W+ statistic (sum of positive ranks)
         WPlus: float
         /// W- statistic (sum of negative ranks)
@@ -157,7 +161,8 @@ open Fowl.Core.Types
     }
     
     /// <summary>Perform Wilcoxon signed-rank test.
-/// </summary>let wilcoxonSignedRank (before: float[]) (after: float[]) 
+/// </summary>
+    let wilcoxonSignedRank (before: float[]) (after: float[]) 
                          : FowlResult<WilcoxonResult> =
         result {
             if before.Length <> after.Length then
@@ -238,7 +243,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Interpret non-parametric test result.
-/// </summary>let interpretMannWhitney (result: MannWhitneyResult) (alpha: float) : string =
+/// </summary>
+    let interpretMannWhitney (result: MannWhitneyResult) (alpha: float) : string =
         if result.PValue < alpha then
             sprintf "Reject H0: Distributions differ significantly (U=%.1f, p=%.4f, r=%.3f)"
                 result.UStatistic result.PValue result.EffectSize
@@ -247,7 +253,8 @@ open Fowl.Core.Types
                 result.UStatistic result.PValue
     
     /// <summary>Interpret Wilcoxon test result.
-/// </summary>let interpretWilcoxon (result: WilcoxonResult) (alpha: float) : string =
+/// </summary>
+    let interpretWilcoxon (result: WilcoxonResult) (alpha: float) : string =
         if result.PValue < alpha then
             sprintf "Reject H0: Paired samples differ significantly (W=%.1f, p=%.4f)"
                 result.WStatistic result.PValue

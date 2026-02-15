@@ -6,27 +6,33 @@ open Fowl.Core.Types
 
 /// <summary>Module for executing the forward pass through the computation graph.
 /// Computes values for all nodes in topological order.
-/// </summary>module Forward =
+/// </summary>
+module Forward =
     
     /// <summary>Element-wise addition of two arrays.
-    /// </summary>let private addArrays (a: float[]) (b: float[]) : float[] =
+    /// </summary>
+    let private addArrays (a: float[]) (b: float[]) : float[] =
         Array.map2 (+) a b
     
     /// <summary>Element-wise subtraction of two arrays.
-    /// </summary>let private subArrays (a: float[]) (b: float[]) : float[] =
+    /// </summary>
+    let private subArrays (a: float[]) (b: float[]) : float[] =
         Array.map2 (-) a b
     
     /// <summary>Element-wise multiplication of two arrays.
-    /// </summary>let private mulArrays (a: float[]) (b: float[]) : float[] =
+    /// </summary>
+    let private mulArrays (a: float[]) (b: float[]) : float[] =
         Array.map2 (*) a b
     
     /// <summary>Element-wise division of two arrays.
-    /// </summary>let private divArrays (a: float[]) (b: float[]) : float[] =
+    /// </summary>
+    let private divArrays (a: float[]) (b: float[]) : float[] =
         Array.map2 (/) a b
     
     /// <summary>Matrix multiplication for 2D arrays.
     /// Assumes row-major storage.
-    /// </summary>let private matmul2D (a: float[]) (b: float[]) (m: int) (n: int) (p: int) : float[] =
+    /// </summary>
+    let private matmul2D (a: float[]) (b: float[]) (m: int) (n: int) (p: int) : float[] =
         let result = Array.zeroCreate (m * p)
         for i = 0 to m - 1 do
             for j = 0 to p - 1 do
@@ -37,7 +43,8 @@ open Fowl.Core.Types
         result
     
     /// <summary>Apply activation function element-wise.
-    /// </summary>let private applyActivation (fn: ActivationFn) (x: float[]) : float[] =
+    /// </summary>
+    let private applyActivation (fn: ActivationFn) (x: float[]) : float[] =
         match fn with
         | ReLU -> Array.map (max 0.0) x
         | Sigmoid -> Array.map (fun v -> 1.0 / (1.0 + exp (-v))) x
@@ -53,7 +60,8 @@ open Fowl.Core.Types
         | Identity -> x
     
     /// <summary>Execute a single node's operation.
-    /// </summary>let private executeOp (op: Operation) (parentValues: float[] list) : FowlResult<float[]> =
+    /// </summary>
+    let private executeOp (op: Operation) (parentValues: float[] list) : FowlResult<float[]> =
         match op, parentValues with
         | Const c, _ -> Ok [|c|]
         | ConstArray (data, _), _ -> Ok data
@@ -80,7 +88,8 @@ open Fowl.Core.Types
     
     /// <summary>Execute forward pass starting from given nodes.
     /// Computes values for all nodes in topological order.
-    /// </summary>let run (outputNodes: Node list) : FowlResult<unit> =
+    /// </summary>
+    let run (outputNodes: Node list) : FowlResult<unit> =
         let sorted = Graph.topologicalSort outputNodes
         
         let rec processNodes (nodes: Node list) =
@@ -110,7 +119,8 @@ open Fowl.Core.Types
     
     /// <summary>Execute forward pass with input values.
     /// Sets input node values then computes the graph.
-    /// </summary>let runWithInputs (outputNode: Node) (inputs: Map<string, float[]>) : FowlResult<float[]> =
+    /// </summary>
+    let runWithInputs (outputNode: Node) (inputs: Map<string, float[]>) : FowlResult<float[]> =
         // Get all nodes in graph
         let sorted = Graph.topologicalSort [outputNode]
         

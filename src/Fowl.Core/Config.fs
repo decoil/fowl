@@ -1,4 +1,5 @@
-/// <summary>Fowl Configuration - Global Optimization Settings</summary>/// <remarks>
+/// <summary>Fowl Configuration - Global Optimization Settings</summary>
+/// <remarks>
 /// Central configuration for all Fowl optimization settings.
 /// 
 /// Example:
@@ -90,9 +91,11 @@ let cacheDefaults = {
     cache: CacheConfig
 }
 
-/// <summary>Current optimization configuration.</summary>/// <remarks>
+/// <summary>Current optimization configuration.</summary>
+/// <remarks>
 /// Modify this to change optimization behavior globally.
-/// </remarks>let mutable current = {
+/// </remarks>
+let mutable current = {
     simd = simdDefaults
     parallel = parallelDefaults
     memory = memoryDefaults

@@ -3,9 +3,11 @@ namespace Fowl.Neural
 open Fowl
 open Fowl.Core.Types
 
-/// <summary>Represents the shape of a tensor in the computation graph.</summary>type Shape = int[]
+/// <summary>Represents the shape of a tensor in the computation graph.</summary>
+type Shape = int[]
 
-/// <summary>Activation functions supported by the neural network module.</summary>type ActivationFn =
+/// <summary>Activation functions supported by the neural network module.</summary>
+type ActivationFn =
     | ReLU
     | Sigmoid
     | Tanh
@@ -15,7 +17,8 @@ open Fowl.Core.Types
     | Identity
 
 /// <summary>Loss functions for training.
-/// Each loss function stores both the forward computation and its gradient function.</summary>type LossFn =
+/// Each loss function stores both the forward computation and its gradient function.</summary>
+type LossFn =
     | MSE              // Mean squared error: (pred - target)²
     | CrossEntropy     // Cross-entropy for classification
     | BinaryCrossEntropy // Binary cross-entropy
@@ -24,7 +27,8 @@ open Fowl.Core.Types
 
 /// <summary>Operations that can be performed in the computation graph.
 /// Each operation knows how to compute its output and gradients.
-/// </summary>type Operation =
+/// </summary>
+type Operation =
     | Input of string                    // Input node with name
     | Const of float                     // Constant scalar value
     | ConstArray of float[] * Shape      // Constant array with shape
@@ -45,7 +49,8 @@ open Fowl.Core.Types
 
 /// <summary>A node in the computation graph.
 /// Nodes are mutable to support lazy evaluation and gradient accumulation.
-/// </summary>and Node = {
+/// </summary>
+and Node = {
     /// Unique identifier for this node
     Id: int
     /// Shape of the tensor this node produces
@@ -63,7 +68,8 @@ open Fowl.Core.Types
 }
 
 /// <summary>A computation graph containing all nodes.
-/// </summary>type Graph = {
+/// </summary>
+type Graph = {
     Nodes: Map<int, Node>
     Inputs: Map<string, Node>
     Parameters: Node list
@@ -71,7 +77,8 @@ open Fowl.Core.Types
 }
 
 /// <summary>Module for creating and manipulating computation graphs.
-/// </summary>module Graph =
+/// </summary>
+module Graph =
     /// Global counter for generating unique node IDs
     let private idCounter = ref 0
     
@@ -90,27 +97,32 @@ open Fowl.Core.Types
     }
     
     /// <summary>Create an input node.
-    /// </summary>let input (name: string) (shape: Shape) : Node =
+    /// </summary>
+    let input (name: string) (shape: Shape) : Node =
         { Id = nextId(); Shape = shape; Op = Input name
           Parents = []; Value = None; Grad = None; Children = [] }
     
     /// <summary>Create a constant node.
-    /// </summary>let constant (value: float) : Node =
+    /// </summary>
+    let constant (value: float) : Node =
         { Id = nextId(); Shape = [||]; Op = Const value
           Parents = []; Value = Some [|value|]; Grad = None; Children = [] }
     
     /// <summary>Create a constant array node.
-    /// </summary>let constantArray (data: float[]) (shape: Shape) : Node =
+    /// </summary>
+    let constantArray (data: float[]) (shape: Shape) : Node =
         { Id = nextId(); Shape = shape; Op = ConstArray(data, shape)
           Parents = []; Value = Some data; Grad = None; Children = [] }
     
     /// <summary>Create a trainable parameter node.
-    /// </summary>let parameter (name: string) (shape: Shape) (init: float[]) : Node =
+    /// </summary>
+    let parameter (name: string) (shape: Shape) (init: float[]) : Node =
         { Id = nextId(); Shape = shape; Op = Parameter name
           Parents = []; Value = Some init; Grad = Some (Array.zeroCreate init.Length); Children = [] }
     
     /// <summary>Create an addition node.
-    /// </summary>let add (a: Node) (b: Node) : Node =
+    /// </summary>
+    let add (a: Node) (b: Node) : Node =
         // Infer shape (broadcasting)
         let shape = 
             if a.Shape = b.Shape then a.Shape
@@ -125,7 +137,8 @@ open Fowl.Core.Types
         node
     
     /// <summary>Create a subtraction node.
-    /// </summary>let sub (a: Node) (b: Node) : Node =
+    /// </summary>
+    let sub (a: Node) (b: Node) : Node =
         let node = { Id = nextId(); Shape = a.Shape; Op = Sub
                      Parents = [a; b]; Value = None; Grad = None; Children = [] }
         a.Children <- node :: a.Children
@@ -133,7 +146,8 @@ open Fowl.Core.Types
         node
     
     /// <summary>Create a multiplication node.
-    /// </summary>let mul (a: Node) (b: Node) : Node =
+    /// </summary>
+    let mul (a: Node) (b: Node) : Node =
         let node = { Id = nextId(); Shape = a.Shape; Op = Mul
                      Parents = [a; b]; Value = None; Grad = None; Children = [] }
         a.Children <- node :: a.Children
@@ -141,7 +155,8 @@ open Fowl.Core.Types
         node
     
     /// <summary>Create a matrix multiplication node.
-    /// </summary>let matmul (a: Node) (b: Node) : FowlResult<Node> =
+    /// </summary>
+    let matmul (a: Node) (b: Node) : FowlResult<Node> =
         if a.Shape.Length < 2 || b.Shape.Length < 2 then
             Error.invalidArgument "matmul requires 2D tensors"
         elif Array.last a.Shape <>> Array.head b.Shape then
@@ -158,28 +173,35 @@ open Fowl.Core.Types
             Ok node
     
     /// <summary>Apply an activation function.
-    /// </summary>let activate (fn: ActivationFn) (x: Node) : Node =
+    /// </summary>
+    let activate (fn: ActivationFn) (x: Node) : Node =
         let node = { Id = nextId(); Shape = x.Shape; Op = Activation fn
                      Parents = [x]; Value = None; Grad = None; Children = [] }
         x.Children <- node :: x.Children
         node
     
     /// <summary>Compute the sum of all elements.
-    /// </summary>let sum (x: Node) : Node =
+    /// </summary>
+    let sum (x: Node) : Node =
         let node = { Id = nextId(); Shape = [||]; Op = Sum None
                      Parents = [x]; Value = None; Grad = None; Children = [] }
         x.Children <- node :: x.Children
         node
     
     /// <summary>Compute the mean of all elements.
-    /// </summary>let mean (x: Node) : Node =
+    /// </summary>
+    let mean (x: Node) : Node =
         let node = { Id = nextId(); Shape = [||]; Op = Mean None
                      Parents = [x]; Value = None; Grad = None; Children = [] }
         x.Children <- node :: x.Children
         node
     
     /// <summary>Apply dropout regularization.
-    /// </summary>/// <param name="rate">Dropout rate (0.0 to 1.0). Probability of dropping a unit.</param>/// <param name="x">Input node.</param>/// <returns>Output node with dropout applied during training.</returns>let dropout (rate: float) (x: Node) : Node =
+    /// </summary>
+    /// <param name="rate">Dropout rate (0.0 to 1.0). Probability of dropping a unit.</param>
+    /// <param name="x">Input node.</param>
+    /// <returns>Output node with dropout applied during training.</returns>
+    let dropout (rate: float) (x: Node) : Node =
         if rate < 0.0 || rate >= 1.0 then
             invalidArg "rate" "Dropout rate must be in [0, 1)"
         
@@ -190,7 +212,8 @@ open Fowl.Core.Types
     
     /// <summary>Topological sort of nodes (Kahn's algorithm).
     /// Returns nodes in order they can be computed.
-    /// </summary>let topologicalSort (nodes: Node list) : Node list =
+    /// </summary>
+    let topologicalSort (nodes: Node list) : Node list =
         let mutable visited = Set.empty
         let mutable result = []
         

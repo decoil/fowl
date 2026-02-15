@@ -5,10 +5,12 @@ open Fowl
 open Fowl.Core.Types
 
 /// <summary>Training utilities for neural networks.
-/// </summary>module Training =
+/// </summary>
+module Training =
     
     /// <summary>Training metrics for monitoring progress.
-    /// </summary>type TrainingMetrics = {
+    /// </summary>
+type TrainingMetrics = {
         Epoch: int
         Step: int
         Loss: float
@@ -16,7 +18,8 @@ open Fowl.Core.Types
     }
     
     /// <summary>Training configuration.
-    /// </summary>type TrainingConfig = {
+    /// </summary>
+type TrainingConfig = {
         Epochs: int
         BatchSize: int
         LearningRate: float
@@ -34,7 +37,15 @@ open Fowl.Core.Types
     }
     
     /// <summary>Simple training loop for a single layer model.
-    /// </summary>/// <param name="model">Dense layer model.</param>/// <param name="lossFn">Function to compute loss node.</param>/// <param name="optimizer">Optimizer state.</param>/// <param name="xTrain">Training inputs [n_samples, n_features].</param>/// <param name="yTrain">Training targets [n_samples, n_outputs].</param>/// <param name="config">Training configuration.</param>/// <returns>Training metrics history.</returns>let train (model: DenseLayer)
+    /// </summary>
+    /// <param name="model">Dense layer model.</param>
+    /// <param name="lossFn">Function to compute loss node.</param>
+    /// <param name="optimizer">Optimizer state.</param>
+    /// <param name="xTrain">Training inputs [n_samples, n_features].</param>
+    /// <param name="yTrain">Training targets [n_samples, n_outputs].</param>
+    /// <param name="config">Training configuration.</param>
+    /// <returns>Training metrics history.</returns>
+let train (model: DenseLayer)
               (lossFn: Node -> Node -> Node)
               (optimizer: Optimizer.SGD)
               (xTrain: float[,])
@@ -111,7 +122,8 @@ open Fowl.Core.Types
             List.rev metrics
     
     /// <summary>Evaluate model on test data.
-    /// </summary>let evaluate (model: DenseLayer) (xTest: float[,]) (yTest: float[,]) : float =
+    /// </summary>
+let evaluate (model: DenseLayer) (xTest: float[,]) (yTest: float[,]) : float =
         let nSamples = xTest.GetLength(0)
         let nFeatures = xTest.GetLength(1)
         
@@ -143,7 +155,8 @@ open Fowl.Core.Types
     
     /// <summary>Simple linear regression test.
     /// Verifies the neural network infrastructure works.
-    /// </summary>let testLinearRegression() : unit =
+    /// </summary>
+let testLinearRegression() : unit =
         printfn "Testing linear regression..."
         
         // Generate synthetic data: y = 2x + 1 + noise
@@ -180,12 +193,16 @@ open Fowl.Core.Types
                 printfn "✗ Linear regression test FAILED"
 
 /// <summary>Model serialization utilities.
-/// </summary>module Serialization =
+/// </summary>
+module Serialization =
     open System.IO
     open System.Text.Json
     
     /// <summary>Save a dense layer to a file.
-    /// </summary>/// <param name="path">File path to save to.</param>/// <param name="model">Dense layer model.</param>let saveDense (path: string) (model: DenseLayer) : FowlResult<unit> =
+    /// </summary>
+    /// <param name="path">File path to save to.</param>
+    /// <param name="model">Dense layer model.</param>
+let saveDense (path: string) (model: DenseLayer) : FowlResult<unit> =
         try
             let weights = model.Weights.Value |> Option.defaultValue [||]
             let bias = model.Bias.Value |> Option.defaultValue [||]
@@ -205,7 +222,10 @@ open Fowl.Core.Types
         | ex -> Error.ioError (sprintf "Failed to save model: %s" ex.Message)
     
     /// <summary>Load a dense layer from a file.
-    /// </summary>/// <param name="path">File path to load from.</param>/// <returns>Loaded dense layer.</returns>let loadDense (path: string) : FowlResult<DenseLayer> =
+    /// </summary>
+    /// <param name="path">File path to load from.</param>
+    /// <returns>Loaded dense layer.</returns>
+let loadDense (path: string) : FowlResult<DenseLayer> =
         try
             let json = File.ReadAllText(path)
             let data = JsonSerializer.Deserialize<{| InputDim: int; OutputDim: int; Weights: float[]; Bias: float[]; Activation: string |}>(json)

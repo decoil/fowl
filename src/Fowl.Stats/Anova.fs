@@ -6,10 +6,12 @@ open Fowl.Core.Types
 
 /// <summary>ANOVA (Analysis of Variance) tests.
 /// Compare means across multiple groups.
-/// </summary>module Anova =
+/// </summary>
+module Anova =
     
     /// <summary>Result of one-way ANOVA.
-/// </summary>type AnovaResult = {
+/// </summary>
+type AnovaResult = {
         /// F-statistic
         FStatistic: float
         /// P-value
@@ -37,7 +39,8 @@ open Fowl.Core.Types
     /// <summary>One-way ANOVA.
 /// Tests if means of 3+ groups are equal.
 /// H0: μ₁ = μ₂ = ... = μₖ
-/// </summary>let oneWay (groups: float[][]) : FowlResult<AnovaResult> =
+/// </summary>
+    let oneWay (groups: float[][]) : FowlResult<AnovaResult> =
         result {
             let k = groups.Length
             if k < 2 then

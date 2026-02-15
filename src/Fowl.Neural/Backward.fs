@@ -6,11 +6,13 @@ open Fowl.Core.Types
 
 /// <summary>Module for computing gradients via reverse-mode automatic differentiation.
 /// Implements backpropagation through the computation graph.
-/// </summary>module Backward =
+/// </summary>
+module Backward =
     
     /// <summary>Initialize gradients for all nodes to zero.
     /// Called before starting backward pass.
-    /// </summary>let initGrads (nodes: Node list) : unit =
+    /// </summary>
+    let initGrads (nodes: Node list) : unit =
         for node in nodes do
             if node.Grad.IsNone then
                 let size = Shape.numel node.Shape
@@ -18,7 +20,8 @@ open Fowl.Core.Types
     
     /// <summary>Reset all gradients to zero.
     /// Call before each training iteration.
-    /// </summary>let resetGrads (nodes: Node list) : unit =
+    /// </summary>
+    let resetGrads (nodes: Node list) : unit =
         for node in nodes do
             match node.Grad with
             | Some grad -> Array.fill grad 0 grad.Length 0.0
@@ -26,18 +29,21 @@ open Fowl.Core.Types
     
     /// <summary>Element-wise addition of gradients.
     /// Gradients accumulate from all children.
-    /// </summary>let private accumGrad (grad: float[]) (delta: float[]) : unit =
+    /// </summary>
+    let private accumGrad (grad: float[]) (delta: float[]) : unit =
         for i = 0 to grad.Length - 1 do
             grad.[i] <- grad.[i] + delta.[i]
     
     /// <summary>Compute gradient for element-wise addition.
     /// If z = x + y, then dz/dx = dz/dy = dz/dz
-    /// </summary>let private gradAdd (outputGrad: float[]) (inputShape: Shape) : float[] =
+    /// </summary>
+    let private gradAdd (outputGrad: float[]) (inputShape: Shape) : float[] =
         outputGrad  // Gradient flows through unchanged
     
     /// <summary>Compute gradient for element-wise subtraction.
     /// If z = x - y, then dz/dx = dz/dz, dz/dy = -dz/dz
-    /// </summary>let private gradSub (isFirst: bool) (outputGrad: float[]) : float[] =
+    /// </summary>
+    let private gradSub (isFirst: bool) (outputGrad: float[]) : float[] =
         if isFirst then
             outputGrad
         else
@@ -45,12 +51,14 @@ open Fowl.Core.Types
     
     /// <summary>Compute gradient for element-wise multiplication.
     /// If z = x * y, then dz/dx = y * dz/dz, dz/dy = x * dz/dz
-    /// </summary>let private gradMul (siblingValue: float[]) (outputGrad: float[]) : float[] =
+    /// </summary>
+    let private gradMul (siblingValue: float[]) (outputGrad: float[]) : float[] =
         Array.map2 (*) siblingValue outputGrad
     
     /// <summary>Compute gradient for element-wise division.
     /// If z = x / y, then dz/dx = dz/dz / y, dz/dy = -x * dz/dz / y²
-    /// </summary>let private gradDiv (isFirst: bool) (siblingValue: float[]) 
+    /// </summary>
+    let private gradDiv (isFirst: bool) (siblingValue: float[]) 
                           (thisValue: float[]) (outputGrad: float[]) : float[] =
         if isFirst then
             Array.map2 (/) outputGrad siblingValue
@@ -60,7 +68,8 @@ open Fowl.Core.Types
     
     /// <summary>Compute gradient for matrix multiplication.
     /// If Z = X @ Y, then dZ/dX = grad @ Y^T, dZ/dY = X^T @ grad
-    /// </summary>let private gradMatMul (isFirst: bool) (a: float[]) (b: float[])
+    /// </summary>
+    let private gradMatMul (isFirst: bool) (a: float[]) (b: float[])
                               (aShape: Shape) (bShape: Shape) (outputGrad: float[]) : float[] =
         // Simplified for 2D case
         // TODO: Handle arbitrary dimensions
@@ -96,7 +105,8 @@ open Fowl.Core.Types
             result
     
     /// <summary>Compute gradient for activation functions.
-    /// </summary>let private gradActivation (fn: ActivationFn) (input: float[]) (outputGrad: float[]) : float[] =
+    /// </summary>
+    let private gradActivation (fn: ActivationFn) (input: float[]) (outputGrad: float[]) : float[] =
         match fn with
         | ReLU ->
             Array.map2 (fun x grad -> if x > 0.0 then grad else 0.0) input outputGrad
@@ -125,21 +135,24 @@ open Fowl.Core.Types
     
     /// <summary>Compute gradient for sum operation.
     /// If z = sum(x), then dz/dx[i] = dz/dz for all i
-    /// </summary>let private gradSum (inputShape: Shape) (outputGrad: float[]) : float[] =
+    /// </summary>
+    let private gradSum (inputShape: Shape) (outputGrad: float[]) : float[] =
         // Broadcast the scalar gradient to input shape
         let size = Shape.numel inputShape
         Array.init size (fun _ -> outputGrad.[0])
     
     /// <summary>Compute gradient for mean operation.
     /// If z = mean(x), then dz/dx[i] = dz/dz / n for all i
-    /// </summary>let private gradMean (inputShape: Shape) (outputGrad: float[]) : float[] =
+    /// </summary>
+    let private gradMean (inputShape: Shape) (outputGrad: float[]) : float[] =
         let size = Shape.numel inputShape
         let factor = outputGrad.[0] / float size
         Array.init size (fun _ -> factor)
     
     /// <summary>Compute local gradients for an operation.
     /// Returns list of gradients for each parent.
-    /// </summary>let private computeLocalGrads (node: Node) : FowlResult<float[] list> =
+    /// </summary>
+    let private computeLocalGrads (node: Node) : FowlResult<float[] list> =
         match node.Op, node.Parents with
         | Const _, _ | ConstArray _, _ | Input _, _ ->
             Ok []  // No parents, no gradients to propagate
@@ -189,7 +202,8 @@ open Fowl.Core.Types
     
     /// <summary>Execute backward pass starting from output nodes.
     /// Computes gradients for all nodes in reverse topological order.
-    /// </summary>let run (outputNodes: Node list) : FowlResult<unit> =
+    /// </summary>
+    let run (outputNodes: Node list) : FowlResult<unit> =
         // Get all nodes in topological order
         let sorted = Graph.topologicalSort outputNodes
         
@@ -223,12 +237,14 @@ open Fowl.Core.Types
         processReverse (List.rev sorted)
     
     /// <summary>Get gradient for a specific node after backward pass.
-    /// </summary>let getGrad (node: Node) : float[] option =
+    /// </summary>
+    let getGrad (node: Node) : float[] option =
         node.Grad
     
     /// <summary>Get gradients for all parameters.
     /// Useful for optimizer updates.
-    /// </summary>let getParameterGrads (nodes: Node list) : (Node * float[]) list =
+    /// </summary>
+    let getParameterGrads (nodes: Node list) : (Node * float[]) list =
         nodes
         |> List.filter (fun node -> 
             match node.Op with

@@ -1,4 +1,5 @@
-/// <summary>Fowl Optimized Operations - High-Performance Primitives</summary>/// <remarks>
+/// <summary>Fowl Optimized Operations - High-Performance Primitives</summary>
+/// <remarks>
 /// High-performance element-wise operations using SIMD, parallelization,
 /// and automatic fallback to scalar for small arrays.
 /// 
@@ -24,14 +25,19 @@ open Fowl.Config
 // Element-wise Operations with Auto-Selection
 // ============================================================================
 
-/// <summary>Element-wise addition with automatic optimization selection.</summary>/// <param name="a">First array.</param>/// <param name="b">Second array.</param>/// <returns>New array with element-wise sum.</returns>/// <remarks>
+/// <summary>Element-wise addition with automatic optimization selection.</summary>
+/// <param name="a">First array.</param>
+/// <param name="b">Second array.</param>
+/// <returns>New array with element-wise sum.</returns>
+/// <remarks>
 /// Automatically selects from (fastest to slowest):
 /// 1. Parallel + Hardware SIMD (AVX2)
 /// 2. Hardware SIMD (AVX2/SSE2)
 /// 3. Portable SIMD (Vector<T>)
 /// 4. Parallel scalar
 /// 5. Sequential scalar
-/// </remarks>let add (a: double[]) (b: double[]) : double[] =
+/// </remarks>
+let add (a: double[]) (b: double[]) : double[] =
     if a.Length <> b.Length then
         invalidArg "b" "Arrays must have same length"
     
