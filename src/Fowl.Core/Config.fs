@@ -10,8 +10,8 @@
 /// Optimizations.enableAll()
 ///
 /// // Or fine-tune individually
-/// Optimizations.SIMD.enabled <- true
-/// Optimizations.Parallel.threshold <- 5000
+/// Optimizations.SIMD.enabled &lt;- true
+/// Optimizations.Parallel.threshold &lt;- 5000
 /// </code>
 /// </remarks>
 module Fowl.Config
@@ -113,10 +113,12 @@ let mutable current = {
 
 /// <summary>Reset all optimizations to defaults.</summary>
 let resetToDefaults () =
-    current.simd <- simdDefaults
-    current.``parallel`` <- parallelDefaults
-    current.memory <- memoryDefaults
-    current.cache <- cacheDefaults
+    current <- {
+        simd = simdDefaults
+        ``parallel`` = parallelDefaults
+        memory = memoryDefaults
+        cache = cacheDefaults
+    }
 
 /// <summary>Enable all optimizations.</summary>
 let enableAll () =

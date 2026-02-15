@@ -121,3 +121,15 @@ module Error =
             Ok (f())
         with
         | ex -> Error (ofException ex)
+
+/// <summary>Computation expression builder for Result type.</summary>
+type ResultBuilder() =
+    member _.Bind(m, f) = Result.bind f m
+    member _.Return(x) = Ok x
+    member _.ReturnFrom(m) = m
+    member _.Zero() = Ok ()
+    member _.Combine(a, b) = Result.bind (fun _ -> b) a
+    member _.Delay(f) = f()
+
+/// <summary>Global result computation expression instance.</summary>
+let result = ResultBuilder()

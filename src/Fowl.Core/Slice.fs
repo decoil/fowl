@@ -1,9 +1,9 @@
 module Fowl.Core.Slice
 
-open Fowl
+open Fowl.Core.Types
 
 /// Parse a slice specification into concrete indices for a given dimension size
-let parseSlice (dimSize: int) (spec: SliceSpec) : int Result array =
+let parseSlice (dimSize: int) (spec: SliceSpec) : FowlResult<int array> =
     match spec with
     | All -> Ok [|0 .. dimSize - 1|]
     | Index i ->
@@ -70,48 +70,51 @@ let sliceShape (shape: Shape) (specs: SliceSpec array) : FowlResult<Shape> =
 let slice (arr: Ndarray<'K, 'T>) (specs: SliceSpec array) : FowlResult<Ndarray<'K, 'T>> =
     match arr with
     | Dense d ->
-        result {
-            let! outShape = sliceShape d.Shape specs
-            let n = Shape.numel outShape
-            let outData = Array.zeroCreate n
+        // First check if all specs parse successfully
+        let parseResults = specs |> Array.mapi (fun i spec -> parseSlice d.Shape.[i] spec)
+        let hasError = parseResults |> Array.exists (function Error _ -> true | _ -> false)
+        
+        if hasError then
+            parseResults |> Array.tryPick (function Error e -> Some (Error e) | _ -> None) |> Option.defaultWith (fun () -> Error.invalidArgument "Slice error")
+        else
+            result {
+                let! outShape = sliceShape d.Shape specs
+                let n = Shape.numel outShape
+                
+                // Parse all specs into index arrays
+                let indexArrays = parseResults |> Array.map (function Ok indices -> indices | _ -> [||])
 
-            // Parse all specs into index arrays
-            let indexArrays = specs |> Array.mapi (fun i spec ->
-                match parseSlice d.Shape.[i] spec with
-                | Ok indices -> indices
-                | Error e -> return! Error e)
+                // Generate all index combinations
+                let generateCombinations (dims: int array array) : int array array =
+                    let rec helper (dims: int array array) (current: int list) (acc: int array list) =
+                        if current.Length = dims.Length then
+                            (current |> List.rev |> List.toArray) :: acc
+                        else
+                            let dimIdx = current.Length
+                            dims.[dimIdx]
+                            |> Array.fold (fun acc2 i ->
+                                helper dims (i :: current) acc2) acc
+                    helper dims [] [] |> List.toArray
 
-            // Generate all index combinations
-            let generateCombinations (dims: int array array) : int array array =
-                let rec helper (dims: int array array) (current: int list) (acc: int array list) =
-                    if current.Length = dims.Length then
-                        (current |> List.rev |> List.toArray) :: acc
-                    else
-                        let dimIdx = current.Length
-                        dims.[dimIdx]
-                        |> Array.fold (fun acc2 i ->
-                            helper dims (i :: current) acc2) acc
-                helper dims [] [] |> List.toArray
+                // Generate all input index combinations
+                let allIndices = generateCombinations indexArrays
 
-            // Generate all input index combinations
-            let allIndices = generateCombinations indexArrays
+                // Fill output data using Array.mapi (no mutable state needed)
+                let outData' =
+                    allIndices
+                    |> Array.mapi (fun outIdx outIndices ->
+                        // Map output indices back to input indices
+                        let inputIndices = Array.zeroCreate d.Shape.Length
+                        for i = 0 to specs.Length - 1 do
+                            inputIndices.[i] <- outIndices.[i]
+                        for i = specs.Length to d.Shape.Length - 1 do
+                            inputIndices.[i] <- outIndices.[i]
 
-            // Fill output data using Array.mapi (no mutable state needed)
-            let outData' =
-                allIndices
-                |> Array.mapi (fun outIdx outIndices ->
-                    // Map output indices back to input indices
-                    let inputIndices = Array.zeroCreate d.Shape.Length
-                    for i = 0 to specs.Length - 1 do
-                        inputIndices.[i] <- outIndices.[i]
-                    for i = specs.Length to d.Shape.Length - 1 do
-                        inputIndices.[i] <- outIndices.[i]
+                        let srcIdx = Ndarray.flatIndex d.Strides inputIndices d.Offset
+                        d.Data.[srcIdx])
 
-                    let srcIdx = Ndarray.flatIndex d.Strides inputIndices d.Offset
-                    d.Data.[srcIdx])
-
-            return! Ndarray.ofArray outData' outShape
-        }
+                return! Ndarray.ofArray outData' outShape
+            }
     | Sparse _ -> Error.notImplemented "slice not implemented for sparse arrays"
 
 /// Check if two shapes are compatible for broadcasting
