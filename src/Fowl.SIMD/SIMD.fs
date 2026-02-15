@@ -26,50 +26,46 @@
 /// </remarks>
 module Fowl.SIMD
 
-open Fowl.SIMD.Core
-open Fowl.SIMD.ElementWise
-open Fowl.SIMD.Reductions
-
-// Re-export Core module values
-let isHardwareAccelerated = Core.isHardwareAccelerated
-let vectorCountDouble = Core.vectorCountDouble
-let vectorCountSingle = Core.vectorCountSingle
-let vectorSizeBits = Core.vectorSizeBits
-let getSimdInfo = Core.getSimdInfo
-let formatSimdInfo = Core.formatSimdInfo
-let simdThreshold = Core.simdThreshold
-let shouldUseSimd = Core.shouldUseSimd
+// Re-export Core module values with fully qualified names
+let isHardwareAccelerated = Fowl.SIMD.Core.isHardwareAccelerated
+let vectorCountDouble = Fowl.SIMD.Core.vectorCountDouble
+let vectorCountSingle = Fowl.SIMD.Core.vectorCountSingle
+let vectorSizeBits = Fowl.SIMD.Core.vectorSizeBits
+let getSimdInfo = Fowl.SIMD.Core.getSimdInfo
+let formatSimdInfo = Fowl.SIMD.Core.formatSimdInfo
+let simdThreshold = Fowl.SIMD.Core.simdThreshold
+let shouldUseSimd = Fowl.SIMD.Core.shouldUseSimd
 
 // Re-export ElementWise module (double precision)
-let add = ElementWise.add
-let sub = ElementWise.sub
-let mul = ElementWise.mul
-let div = ElementWise.div
-let negate = ElementWise.negate
-let addScalar = ElementWise.addScalar
-let mulScalar = ElementWise.mulScalar
-let addInPlace = ElementWise.addInPlace
-let mulInPlace = ElementWise.mulInPlace
+let add = Fowl.SIMD.ElementWise.add
+let sub = Fowl.SIMD.ElementWise.sub
+let mul = Fowl.SIMD.ElementWise.mul
+let div = Fowl.SIMD.ElementWise.div
+let negate = Fowl.SIMD.ElementWise.negate
+let addScalar = Fowl.SIMD.ElementWise.addScalar
+let mulScalar = Fowl.SIMD.ElementWise.mulScalar
+let addInPlace = Fowl.SIMD.ElementWise.addInPlace
+let mulInPlace = Fowl.SIMD.ElementWise.mulInPlace
 
 // Re-export ElementWise module (single precision)
-let addSingle = ElementWise.addSingle
-let subSingle = ElementWise.subSingle
-let mulSingle = ElementWise.mulSingle
-let divSingle = ElementWise.divSingle
+let addSingle = Fowl.SIMD.ElementWise.addSingle
+let subSingle = Fowl.SIMD.ElementWise.subSingle
+let mulSingle = Fowl.SIMD.ElementWise.mulSingle
+let divSingle = Fowl.SIMD.ElementWise.divSingle
 
 // Re-export Reductions module (double precision)
-let sum = Reductions.sum
-let mean = Reductions.mean
-let dot = Reductions.dot
-let min = Reductions.min
-let max = Reductions.max
-let sumAbs = Reductions.sumAbs
-let norm = Reductions.norm
+let sum = Fowl.SIMD.Reductions.sum
+let mean = Fowl.SIMD.Reductions.mean
+let dot = Fowl.SIMD.Reductions.dot
+let min = Fowl.SIMD.Reductions.min
+let max = Fowl.SIMD.Reductions.max
+let sumAbs = Fowl.SIMD.Reductions.sumAbs
+let norm = Fowl.SIMD.Reductions.norm
 
 // Re-export Reductions module (single precision)
-let sumSingle = Reductions.sumSingle
-let meanSingle = Reductions.meanSingle
-let dotSingle = Reductions.dotSingle
+let sumSingle = Fowl.SIMD.Reductions.sumSingle
+let meanSingle = Fowl.SIMD.Reductions.meanSingle
+let dotSingle = Fowl.SIMD.Reductions.dotSingle
 
 /// <summary>
 /// SIMD information record.

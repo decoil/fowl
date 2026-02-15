@@ -433,7 +433,10 @@ module ParallelReductions =
             invalidArg "a" "Cannot find min of empty array"
         
         if a.Length < parallelThreshold then
-            Array.min a
+            let mutable m = a.[0]
+            for i = 1 to a.Length - 1 do
+                if a.[i] < m then m <- a.[i]
+            m
         else
             let numChunks = min processorCount 8
             let chunkSize = calculateChunkSize a.Length numChunks
@@ -448,7 +451,10 @@ module ParallelReductions =
                 partialMins.[chunkIdx] <- m
             ) |> ignore
             
-            Microsoft.FSharp.Collections.Array.min partialMins
+            let mutable result = partialMins.[0]
+            for i = 1 to partialMins.Length - 1 do
+                if partialMins.[i] < result then result <- partialMins.[i]
+            result
     
     /// <summary>
     /// Find maximum in parallel.
@@ -460,7 +466,10 @@ module ParallelReductions =
             invalidArg "a" "Cannot find max of empty array"
         
         if a.Length < parallelThreshold then
-            Microsoft.FSharp.Collections.Array.max a
+            let mutable m = a.[0]
+            for i = 1 to a.Length - 1 do
+                if a.[i] > m then m <- a.[i]
+            m
         else
             let numChunks = min processorCount 8
             let chunkSize = calculateChunkSize a.Length numChunks
@@ -475,7 +484,10 @@ module ParallelReductions =
                 partialMaxs.[chunkIdx] <- m
             ) |> ignore
             
-            Microsoft.FSharp.Collections.Array.max partialMaxs
+            let mutable result = partialMaxs.[0]
+            for i = 1 to partialMaxs.Length - 1 do
+                if partialMaxs.[i] > result then result <- partialMaxs.[i]
+            result
 
 // ============================================================================
 // Matrix Operations
