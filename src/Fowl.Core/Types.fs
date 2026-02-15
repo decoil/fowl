@@ -50,6 +50,13 @@ type Ndarray<'K, 'T> =
     | Dense of DenseArray<'T>
     | Sparse of SparseArray<'T>
 
+/// Type aliases for common ndarray types
+type Ndarray<'T> = Ndarray<Float64, 'T>
+type Float32Ndarray = Ndarray<Float32, float32>
+type Float64Ndarray = Ndarray<Float64, float>
+type Complex32Ndarray = Ndarray<Complex32, System.Numerics.Complex>
+type Complex64Ndarray = Ndarray<Complex64, System.Numerics.Complex>
+
 /// Slice specification for indexing
 type SliceSpec =
     | All                    // Take all elements in this dimension

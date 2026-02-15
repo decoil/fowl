@@ -1,6 +1,7 @@
 module Fowl.Core.Slice
 
 open Fowl.Core.Types
+open Fowl.Core
 
 /// Parse a slice specification into concrete indices for a given dimension size
 let parseSlice (dimSize: int) (spec: SliceSpec) : FowlResult<int array> =
@@ -28,9 +29,14 @@ let parseSlice (dimSize: int) (spec: SliceSpec) : FowlResult<int array> =
                 if s = 0 then Error.invalidArgument "Step cannot be zero"
                 else Ok s
         
-        Result.map3 (fun s e st ->
+        // Combine start, stop, step using Result.bind and Result.map
+        match startIdx, stopIdx, stepSize with
+        | Ok s, Ok e, Ok st ->
             let actualStop = if st > 0 then e else e + 1
-            [|s .. st .. actualStop - 1|] |> Array.filter (fun i -> i >= 0 && i < dimSize)) startIdx stopIdx stepSize
+            [|s .. st .. actualStop - 1|] |> Array.filter (fun i -> i >= 0 && i < dimSize) |> Ok
+        | Error e, _, _ -> Error e
+        | _, Error e, _ -> Error e
+        | _, _, Error e -> Error e
     | IndexArray indices ->
         let result = indices |> Array.map (fun i ->
             let idx = if i < 0 then dimSize + i else i
