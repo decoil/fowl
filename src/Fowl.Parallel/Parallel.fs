@@ -438,7 +438,7 @@ module ParallelReductions =
                 if a.[i] < m then m <- a.[i]
             m
         else
-            let numChunks = min processorCount 8
+            let numChunks = System.Math.Min(processorCount, 8)
             let chunkSize = calculateChunkSize a.Length numChunks
             let partialMins = Array.zeroCreate numChunks
             
@@ -471,7 +471,7 @@ module ParallelReductions =
                 if a.[i] > m then m <- a.[i]
             m
         else
-            let numChunks = min processorCount 8
+            let numChunks = System.Math.Min(processorCount, 8)
             let chunkSize = calculateChunkSize a.Length numChunks
             let partialMaxs = Array.zeroCreate numChunks
             

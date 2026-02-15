@@ -24,11 +24,10 @@
 /// printfn "%s" (formatSimdInfo (getSimdInfo()))
 /// </code>
 /// </remarks>
-module Fowl.SIMD
+namespace Fowl.SIMD
 
-// This module serves as a container for submodules.
-// Access functionality through:
-// - Fowl.SIMD.Core for hardware detection
-// - Fowl.SIMD.ElementWise for element-wise operations
-// - Fowl.SIMD.Reductions for reduction operations
-// - Fowl.SIMD.Hardware for hardware-specific intrinsics
+// This namespace contains submodules:
+// - Core for hardware detection
+// - ElementWise for element-wise operations  
+// - Reductions for reduction operations
+// - Hardware for hardware-specific intrinsics
