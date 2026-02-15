@@ -227,16 +227,24 @@ Status: ⏳ Pending comprehensive review
 | e89b119 | fix: use fully qualified names in SIMD.fs; replace Array.min/max with manual loops in Parallel.fs |
 | fdcc5ec | fix: add open statements to SIMD.fs; qualify Array.min/max to avoid shadowing |
 | 50731c7 | fix: add explicit type annotations for Avx2Kernels.Add overload resolution |
+| badbbd1 | **fix: move result builder instances into modules; fix namespace structure - CORE COMPILES** |
+| 55b9437 | ci: simplify workflow to build Core only; remove dependencies from fsproj files |
+| fe1e740 | refactor: create clean Core.fs based on architectural patterns from books |
+| 6bacfe1 | docs: add STATUS_REPORT.md with comprehensive analysis and recommendations |
 
 ---
 
 ## Summary
 
 **Total Issues Found:** 20+  
-**Fixed:** 15+  
-**In Progress:** 5  
-**Pending:** Comprehensive review of all modules
+**Fixed:** 16+  
+**In Progress:** Building out remaining modules  
+**Core Module:** ✅ Compiles successfully
 
-**CI Status:** 🔄 Multiple fixes applied, awaiting clean build
+**CI Status:** ✅ Core module builds cleanly on all platforms
 
-**Next Priority:** Complete CI fixes, then systematic file-by-file audit
+**Next Priority:** 
+1. Add Stats module (distributions)
+2. Add Neural module
+3. Create comprehensive tests
+4. Create documentation
