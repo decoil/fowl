@@ -299,7 +299,10 @@ module LoopReorderOps =
 // Cache Information
 // ============================================================================
 
-/// <summary>Print cache configuration information.</summary>let printCacheInfo () : unit =
+/// <summary>
+/// Print cache configuration information.
+/// </summary>
+let printCacheInfo () : unit =
     printfn "\n=== Cache Configuration ==="
     printfn "Cache Line Size:    %d bytes" cacheLineSize
     printfn "L1 Cache Size:      %d KB" (l1CacheSize / 1024)
