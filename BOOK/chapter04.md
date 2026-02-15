@@ -1,4 +1,4 @@
-# Chapter 3: Linear Algebra Fundamentals
+# Chapter 4: Linear Algebra Fundamentals
 
 ## 3.1 Introduction
 
@@ -423,4 +423,4 @@ Key concepts:
 
 ---
 
-*Next: [Chapter 4: Signal Processing](chapter04.md)*
+*Next: [Chapter 5: Statistics and Probability](chapter05.md)*

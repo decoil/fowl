@@ -465,4 +465,4 @@ Key concepts:
 
 ---
 
-*Next: [Chapter 10: Advanced Neural Networks](chapter10.md)*
+*Next: [Chapter 10: Neural Networks](chapter10.md)*

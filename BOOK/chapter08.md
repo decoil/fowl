@@ -402,4 +402,4 @@ Key concepts:
 
 ---
 
-*Next: [Chapter 10: Algorithmic Differentiation](chapter10.md)*
+*Next: [Chapter 9: Advanced Signal Processing](chapter09.md)*

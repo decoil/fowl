@@ -78,7 +78,10 @@ let! output = Layers.forwardDense layer input
 4. [Linear Algebra](BOOK/chapter04.md)
 5. [Statistics](BOOK/chapter05.md)
 6. [Optimization](BOOK/chapter06.md)
-7. [Neural Networks](BOOK/chapter11.md)
+7. [Algorithmic Differentiation](BOOK/chapter07.md)
+8. [Signal Processing](BOOK/chapter08.md)
+9. [Neural Networks](BOOK/chapter10.md)
+10. [Advanced Neural Networks](BOOK/chapter11.md)
 
 ## Examples
 

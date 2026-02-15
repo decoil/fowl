@@ -17,30 +17,28 @@
 4. [Linear Algebra Fundamentals](chapter04.md)
 
 ### Part II: Statistics & Probability
-5. [Descriptive Statistics](chapter05.md)
-6. [Probability Distributions](chapter06.md)
-7. [Hypothesis Testing](chapter07.md)
+5. [Statistics and Probability](chapter05.md)
+6. [Optimization](chapter06.md)
+7. [Algorithmic Differentiation](chapter07.md)
 
-### Part III: Advanced Numerical Computing
+### Part III: Signal Processing
 8. [Signal Processing](chapter08.md)
-9. [Optimization](chapter09.md)
-10. [Algorithmic Differentiation](chapter10.md)
+9. [Advanced Signal Processing](chapter09.md)
 
 ### Part IV: Machine Learning
-11. [Neural Networks](chapter11.md)
-12. [Deep Learning](chapter12.md)
-13. [Regression & Classification](chapter13.md)
+10. [Neural Networks](chapter10.md)
+11. [Advanced Neural Networks](chapter11.md)
 
 ### Part V: Real-World Applications
-14. [Time Series Analysis](chapter14.md)
-15. [Image Processing](chapter15.md)
-16. [Case Studies](chapter16.md)
+12. [Time Series Analysis](chapter12.md) *[Planned]*
+13. [Image Processing](chapter13.md) *[Planned]*
+14. [Case Studies](chapter14.md) *[Planned]*
 
 ### Appendices
-- [A. API Reference](appendix-a.md)
-- [B. Performance Tuning](appendix-b.md)
-- [C. Interop with .NET](appendix-c.md)
-- [D. Migration from NumPy/Owl](appendix-d.md)
+- [A. API Reference](appendix-a.md) *[Planned]*
+- [B. Performance Tuning](appendix-b.md) *[Planned]*
+- [C. Interop with .NET](appendix-c.md) *[Planned]*
+- [D. Migration from NumPy/Owl](appendix-d.md) *[Planned]*
 
 ---
 
