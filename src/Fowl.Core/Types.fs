@@ -137,6 +137,8 @@ type ResultBuilder() =
     member _.Zero() = Ok ()
     member _.Combine(a, b) = Result.bind (fun _ -> b) a
     member _.Delay(f) = f()
+    member _.For(sequence, body) =
+        sequence |> Seq.fold (fun acc item -> Result.bind (fun _ -> body item) acc) (Ok ())
 
 /// <summary>Global result computation expression instance.</summary>
 let result = ResultBuilder()

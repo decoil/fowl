@@ -26,7 +26,7 @@ let empty<'K> (shape: Shape) : FowlResult<Ndarray<'K, 'T>> =
 /// <returns>Result containing zero array or error.</returns>
 /// <example>
 /// <code>
-/// let arr = Ndarray.zeros<Float64> [|3; 4|]
+/// let arr = Ndarray.zeros&lt;Float64&gt; [|3; 4|]
 /// // Creates a 3x4 matrix of zeros
 /// </code>
 /// </example>

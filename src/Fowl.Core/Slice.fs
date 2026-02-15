@@ -2,6 +2,7 @@ module Fowl.Core.Slice
 
 open Fowl.Core.Types
 open Fowl.Core
+open Fowl
 
 /// Parse a slice specification into concrete indices for a given dimension size
 let parseSlice (dimSize: int) (spec: SliceSpec) : FowlResult<int array> =
@@ -38,17 +39,17 @@ let parseSlice (dimSize: int) (spec: SliceSpec) : FowlResult<int array> =
         | _, Error e, _ -> Error e
         | _, _, Error e -> Error e
     | IndexArray indices ->
-        let result = indices |> Array.map (fun i ->
+        let mapped = indices |> Array.map (fun i ->
             let idx = if i < 0 then dimSize + i else i
             if idx < 0 || idx >= dimSize then
                 Error.indexOutOfRange (sprintf "Index %d out of range for dimension of size %d" i dimSize)
             else
                 Ok idx)
-        // If any index is error, return error
-        if result |> Array.exists (function Error _ -> true | _ -> false) then
-            result |> Array.tryPick (function Error e -> Some e | _ -> None) |> Option.defaultWith (fun () -> Error.indexOutOfRange "Invalid index")
-        else
-            result |> Array.map (function Ok i -> i | _ -> failwith "unreachable") |> Ok
+        // If any index is error, return first error
+        let firstError = mapped |> Array.tryPick (function Error e -> Some (Error e) | _ -> None)
+        match firstError with
+        | Some err -> err
+        | None -> mapped |> Array.map (function Ok i -> i | _ -> failwith "unreachable") |> Ok
 
 /// Calculate output shape from slice specifications
 let sliceShape (shape: Shape) (specs: SliceSpec array) : FowlResult<Shape> =
