@@ -4,7 +4,7 @@ namespace Fowl
 
 open System
 
-/// <summary>Error function.
+/// <summary>Error function approximation.
 /// </summary>
 module Special =
     let erf (x: float) : float =
@@ -73,26 +73,6 @@ module Distributions =
         let rvs (lambda: float) (rng: Random) : float =
             -log (1.0 - rng.NextDouble()) / lambda
 
-/// <summary>Error function.
-/// </summary>
-and Special =
-    static member erf (x: float) : float =
-        // Abramowitz & Stegun approximation
-        let a1 =  0.254829592
-        let a2 = -0.284496736
-        let a3 =  1.421413741
-        let a4 = -1.453152027
-        let a5 =  1.061405429
-        let p  =  0.3275911
-        
-        let sign = if x < 0.0 then -1.0 else 1.0
-        let x = abs x
-        
-        let t = 1.0 / (1.0 + p * x)
-        let y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * exp (-x * x)
-        
-        sign * y
-
 /// <summary>Summary statistics.
 /// </summary>
 module Summary =
@@ -118,7 +98,7 @@ module Summary =
         else
             (sorted.[n / 2 - 1] + sorted.[n / 2]) / 2.0
 
-/// <summary>Random sampling.
+/// <summary>Random sampling utilities.
 /// </summary>
 module Sampling =
     let rngSeed (seed: int) = Random(seed)
