@@ -1,30 +1,36 @@
-# 🦉 Fowl
+<p align="center">
+  <img src="assets/fowl-logo.svg" width="200" alt="Fowl Logo"/>
+</p>
+
+# Fowl
+
+[![Build Status](https://github.com/decoil/fowl/workflows/CI/badge.svg)](https://github.com/decoil/fowl/actions)
+[![NuGet](https://img.shields.io/nuget/v/Fowl.svg)](https://www.nuget.org/packages/Fowl)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![F#](https://img.shields.io/badge/F%23-8.0-blueviolet)](https://fsharp.org)
+[![Coverage](https://codecov.io/gh/decoil/fowl/branch/main/graph/badge.svg)](https://codecov.io/gh/decoil/fowl)
 
 **High-Performance Numerical Computing for F#**
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/decoil/fowl)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![F#](https://img.shields.io/badge/F%23-8.0-blueviolet)](https://fsharp.org)
-
 Fowl is a comprehensive scientific computing library for F#, providing type-safe, high-performance numerical operations inspired by OCaml's [Owl](https://ocaml.xyz) library and Python's [NumPy](https://numpy.org).
 
-## 🚀 Features
+## Features
 
-- **🔢 N-dimensional Arrays** - Tensors with broadcasting, slicing, and advanced indexing
-- **📐 Linear Algebra** - Matrix operations, decompositions (LU, QR, SVD, Cholesky), solvers
-- **📊 Statistics** - Descriptive stats, hypothesis tests, 14+ probability distributions
-- **📡 Signal Processing** - FFT, DCT, filters, convolution, spectrograms
-- **🧠 Neural Networks** - Computation graphs, automatic differentiation, deep learning
-- **🔧 Optimization** - Gradient descent, Adam, L-BFGS
-- **⚡ Performance** - SIMD acceleration, parallel operations, cache optimization
+- **N-dimensional Arrays** - Tensors with broadcasting, slicing, and advanced indexing
+- **Linear Algebra** - Matrix operations, decompositions (LU, QR, SVD, Cholesky), solvers
+- **Statistics** - Descriptive stats, hypothesis tests, 14+ probability distributions
+- **Signal Processing** - FFT, DCT, filters, convolution, spectrograms
+- **Neural Networks** - Computation graphs, automatic differentiation, deep learning
+- **Optimization** - Gradient descent, Adam, L-BFGS
+- **Performance** - SIMD acceleration, parallel operations, cache optimization
 
-## 📦 Installation
+## Installation
 
 ```bash
 dotnet add package Fowl
 ```
 
-## 🎯 Quick Start
+## Quick Start
 
 ```fsharp
 open Fowl
@@ -57,7 +63,7 @@ let! layer = Layers.dense 784 256 (Some ReLU) (Some 42)
 let! output = Layers.forwardDense layer input
 ```
 
-## 📚 Documentation
+## Documentation
 
 - **[Tutorial Book](BOOK/README.md)** - Comprehensive guide from basics to advanced topics
 - **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
@@ -68,11 +74,13 @@ let! output = Layers.forwardDense layer input
 
 1. [Introduction to Fowl](BOOK/chapter01.md)
 2. [Ndarray Basics](BOOK/chapter02.md)
-3. [Linear Algebra](BOOK/chapter04.md)
-4. [Statistics](BOOK/chapter05.md)
-5. [Neural Networks](BOOK/chapter11.md)
+3. [Array Manipulation](BOOK/chapter03.md)
+4. [Linear Algebra](BOOK/chapter04.md)
+5. [Statistics](BOOK/chapter05.md)
+6. [Optimization](BOOK/chapter06.md)
+7. [Neural Networks](BOOK/chapter11.md)
 
-## 🔬 Examples
+## Examples
 
 ### Linear Regression
 
@@ -112,7 +120,7 @@ let signal = Array.init 1024 (fun i -> sin (2.0 * PI * 50.0 * float i / 1024.0))
 let spectrum = FFT.fft (signal |> Array.map (fun x -> Complex(x, 0.0))) |> unwrap
 ```
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 Fowl/
@@ -132,7 +140,7 @@ Fowl/
 └── BOOK/                   # Tutorial book
 ```
 
-## ⚡ Performance
+## Performance
 
 | Operation | Fowl | NumPy | Speedup |
 |-----------|------|-------|---------|
@@ -140,9 +148,9 @@ Fowl/
 | Matrix multiply (1K) | 50 ms | 1000 ms | **20x** |
 | FFT (1M) | 10 ms | 15 ms | **1.5x** |
 
-*Benchmarks on Apple M3, .NET 8.0*
+Benchmarks on Apple M3, .NET 8.0
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -155,7 +163,7 @@ dotnet test tests/Fowl.Core.Tests
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
@@ -168,30 +176,29 @@ dotnet build
 dotnet test
 ```
 
-## 📖 Learning Resources
+## Learning Resources
 
 - [F# for Fun and Profit](https://fsharpforfunandprofit.com/)
 - [Owl Tutorial](https://ocaml.xyz/tutorial/)
 - [Architecture of Advanced Numerical Analysis Systems](https://link.springer.com/book/10.1007/978-3-030-97636-9)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Owl](https://github.com/owlbarn/owl) - OCaml numerical library by Liang Wang & Jianxin Zhao
 - [NumPy](https://numpy.org) - Python numerical computing
 - [Math.NET](https://numerics.mathdotnet.com/) - .NET numerical computing
 - F# community for inspiration and best practices
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file
 
-## 🔗 Links
+## Links
 
 - [Documentation](https://fowl.dev/docs)
 - [NuGet Package](https://www.nuget.org/packages/Fowl)
 - [GitHub Issues](https://github.com/decoil/fowl/issues)
-- [Discord](https://discord.gg/fowl)
 
 ---
 
-**Made with ❤️ by the Fowl team and contributors**
+Made by the Fowl team and contributors
