@@ -172,7 +172,7 @@ let mean (?axis: int) (arr: Ndarray<'K, float>) : Ndarray<'K, float> =
         let n = float (Ndarray.numel arr)
         Ndarray.map (fun x -> x / n) s
     | Some ax ->
-        let s = sum ~axis:ax arr
+        let s = sum (?axis = Some ax) arr
         let n = float (Ndarray.shape arr).[ax]
         Ndarray.map (fun x -> x / n) s
 
