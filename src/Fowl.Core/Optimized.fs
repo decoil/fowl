@@ -222,7 +222,7 @@ let add (a: double[]) (b: double[]) : double[] =
     // Use cache-optimized version for large matrices
     if current.cache.enabled && (m > 100 || n > 100 || p > 100) then
         Fowl.Cache.CacheMatrixOps.matmulTiled a b
-    elif current.parallel.enabled && (m * p >= current.parallel.threshold) then
+    elif current.``parallel``.enabled && (m * p >= current.``parallel``.threshold) then
         Fowl.Parallel.ParallelMatrixOps.matmul a b
     else
         // Naive sequential
