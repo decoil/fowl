@@ -217,13 +217,19 @@
 
 ---
 
-### ❌ DATA - Skeleton
+### ✅ DATA - Complete
 
 | Module | Status | Lines | Tests | Notes |
 |--------|--------|-------|-------|-------|
-| CsvTypeProvider.fs | ❌ Skeleton | ~150 | No | Type provider scaffold but runtime getters not implemented |
+| Csv.fs | ✅ Complete | ~350 | Yes | Full CSV read/write with type inference |
+| CsvTypeProvider.fs | ⚠️ Skeleton | ~150 | No | Type provider (compile-time, lower priority) |
 
-**Issues:** The getter code has `// Simplified - actual implementation would use runtime value` - needs full implementation
+**Features:**
+- Read CSV with automatic type inference
+- Write CSV from data
+- Convert to/from Ndarray
+- Column selection and filtering
+- Error handling with Result types
 
 ---
 
