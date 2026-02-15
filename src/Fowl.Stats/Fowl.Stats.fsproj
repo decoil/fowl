@@ -2,39 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="SpecialFunctions.fs" />
-    <Compile Include="BetaDistribution.fs" />
-    <Compile Include="StudentTDistribution.fs" />
-    <Compile Include="ChiSquareDistribution.fs" />
-    <Compile Include="FDistribution.fs" />
-    <Compile Include="LogNormalDistribution.fs" />
-    <Compile Include="MultinomialDistribution.fs" />
-    <Compile Include="DirichletDistribution.fs" />
-    <Compile Include="CauchyDistribution.fs" />
-    <Compile Include="WeibullDistribution.fs" />
-    <Compile Include="BinomialDistribution.fs" />
-    <Compile Include="PoissonDistribution.fs" />
-    <Compile Include="GeometricDistribution.fs" />
-    <Compile Include="Descriptive.fs" />
-    <Compile Include="Distributions.fs" />
-    <Compile Include="Correlation.fs" />
-    <Compile Include="RankCorrelation.fs" />
-    <Compile Include="HypothesisTests.fs" />
-    <Compile Include="NormalityTests.fs" />
-    <Compile Include="DescriptiveExtended.fs" />
-    <Compile Include="Anova.fs" />
-    <Compile Include="NonParametricTests.fs" />
-    <Compile Include="HypothesisTestsExtended.fs" />
-    <Compile Include="BesselFunctions.fs" />
     <Compile Include="Stats.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Fowl.Core\Fowl.Core.fsproj" />
   </ItemGroup>
 
 </Project>
