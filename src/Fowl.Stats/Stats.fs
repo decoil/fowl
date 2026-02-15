@@ -42,36 +42,9 @@ module Special =
         else
             Math.PI / (sin (Math.PI * x) * gamma (1.0 - x))
     
-    /// <summary>Incomplete gamma function P(a,x).
-    /// Regularized lower incomplete gamma.
-    /// </summary>
-    let gammainc (a: float) (x: float) : float =
-        // Series representation for small x
-        let rec series (gln: float) (sum: float) (del: float) (ap: float) (n: int) : float =
-            if n > 10000 then
-                failwith "gammainc: series did not converge"
-            else
-                let ap = ap + 1.0
-                let del = del * x / ap
-                let sum = sum + del
-                if abs del < abs sum * 1e-7 then
-                    sum * exp (-x + a * log x - gln)
-                else
-                    series gln sum del ap (n + 1)
-        
-        if x < 0.0 || a <= 0.0 then
-            failwith "gammainc: invalid arguments"
-        elif x < a + 1.0 then
-            // Use series representation
-            let gln = gammaln a
-            series gln (1.0 / a) (1.0 / a) a 0
-        else
-            // Use continued fraction
-            1.0 - gammaincc a x
-    
     /// <summary>Complementary incomplete gamma function Q(a,x).
     /// </summary>
-    and gammaincc (a: float) (x: float) : float =
+    let gammaincc (a: float) (x: float) : float =
         // Continued fraction representation
         let rec cfrac (gl: float) (a: float) (x: float) : float =
             let b = x + 1.0 - a
@@ -101,6 +74,33 @@ module Special =
         let gln = gammaln a
         let ans = cfrac gln a x
         exp (-x + a * log x - gln) * ans
+    
+    /// <summary>Incomplete gamma function P(a,x).
+    /// Regularized lower incomplete gamma.
+    /// </summary>
+    let gammainc (a: float) (x: float) : float =
+        // Series representation for small x
+        let rec series (gln: float) (sum: float) (del: float) (ap: float) (n: int) : float =
+            if n > 10000 then
+                failwith "gammainc: series did not converge"
+            else
+                let ap = ap + 1.0
+                let del = del * x / ap
+                let sum = sum + del
+                if abs del < abs sum * 1e-7 then
+                    sum * exp (-x + a * log x - gln)
+                else
+                    series gln sum del ap (n + 1)
+        
+        if x < 0.0 || a <= 0.0 then
+            failwith "gammainc: invalid arguments"
+        elif x < a + 1.0 then
+            // Use series representation
+            let gln = gammaln a
+            series gln (1.0 / a) (1.0 / a) a 0
+        else
+            // Use continued fraction
+            1.0 - gammaincc a x
     
     /// <summary>Error function erf(x).
     /// </summary>
@@ -148,23 +148,9 @@ module Special =
     let betaln (a: float) (b: float) : float =
         gammaln a + gammaln b - gammaln (a + b)
     
-    /// <summary>Incomplete beta function Ix(a,b).
-    /// </summary>
-    let betainc (a: float) (b: float) (x: float) : float =
-        if x < 0.0 || x > 1.0 then
-            failwith "betainc: x must be in [0, 1]"
-        elif x = 0.0 || x = 1.0 then
-            x
-        else
-            let bt = exp (-betaln a b + a * log x + b * log (1.0 - x))
-            if x < (a + 1.0) / (a + b + 2.0) then
-                bt * betacf a b x / a
-            else
-                1.0 - bt * betacf b a (1.0 - x) / b
-    
     /// <summary>Continued fraction for incomplete beta.
     /// </summary>
-    and betacf (a: float) (b: float) (x: float) : float =
+    let betacf (a: float) (b: float) (x: float) : float =
         let rec loop m m2 d c h =
             if m > 10000 then h
             else
@@ -195,6 +181,20 @@ module Special =
         let c = 1.0
         let h = aa / d
         loop 1 2.0 d c h
+    
+    /// <summary>Incomplete beta function Ix(a,b).
+    /// </summary>
+    let betainc (a: float) (b: float) (x: float) : float =
+        if x < 0.0 || x > 1.0 then
+            failwith "betainc: x must be in [0, 1]"
+        elif x = 0.0 || x = 1.0 then
+            x
+        else
+            let bt = exp (-betaln a b + a * log x + b * log (1.0 - x))
+            if x < (a + 1.0) / (a + b + 2.0) then
+                bt * betacf a b x / a
+            else
+                1.0 - bt * betacf b a (1.0 - x) / b
 
 // ============================================================================
 // Probability Distributions
