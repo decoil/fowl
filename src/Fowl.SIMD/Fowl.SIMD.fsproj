@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fowl.Core\Fowl.Core.fsproj" />
     <ProjectReference Include="..\Fowl.Native.SIMD\Fowl.Native.SIMD.csproj" />
   </ItemGroup>
 

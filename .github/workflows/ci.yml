@@ -62,30 +62,3 @@ jobs:
       with:
         files: '**/coverage.cobertura.xml'
         fail_ci_if_error: false
-
-  docs:
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Restore tools
-      run: dotnet tool restore
-
-    - name: Build Documentation
-      run: |
-        # If using fsdocs or similar
-        # dotnet fsdocs build
-        echo "Documentation built"
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./docs/_site
