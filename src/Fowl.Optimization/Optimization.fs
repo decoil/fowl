@@ -5,7 +5,8 @@ open Fowl
 open Fowl.Core.Types
 
 /// <summary>Result from optimization.
-/// </summary>type OptimizationResult = {
+/// </summary>
+type OptimizationResult = {
     /// Optimal parameters
     X: float[]
     /// Function value at optimum
@@ -19,7 +20,8 @@ open Fowl.Core.Types
 }
 
 /// <summary>Options for optimization algorithms.
-/// </summary>type OptimizationOptions = {
+/// </summary>
+type OptimizationOptions = {
     /// Maximum iterations
     MaxIter: int
     /// Convergence tolerance
@@ -31,7 +33,8 @@ open Fowl.Core.Types
 }
 
 /// <summary>Default optimization options.
-/// </summary>let defaultOptions = {
+/// </summary>
+let defaultOptions = {
     MaxIter = 1000
     Tol = 1e-6
     LearningRate = 0.01
@@ -39,13 +42,15 @@ open Fowl.Core.Types
 }
 
 /// <summary>Gradient descent optimizer.
-/// </summary>module GradientDescent =
+/// </summary>
+module GradientDescent =
     
     /// <summary>Minimize function using gradient descent.
-    /// </summary>let minimize (f: float[] -> float) 
-                       (gradF: float[] -> float[]) 
-                       (x0: float[])
-                       (options: OptimizationOptions) : OptimizationResult =
+    /// </summary>
+    let minimize (f: float[] -> float) 
+                 (gradF: float[] -> float[]) 
+                 (x0: float[])
+                 (options: OptimizationOptions) : OptimizationResult =
         
         let mutable x = Array.copy x0
         let mutable fx = f x
@@ -82,10 +87,11 @@ open Fowl.Core.Types
         }
     
     /// <summary>Minimize with adaptive learning rate.
-    /// </summary>let minimizeAdaptive (f: float[] -> float) 
-                             (gradF: float[] -> float[]) 
-                             (x0: float[])
-                             (options: OptimizationOptions) : OptimizationResult =
+    /// </summary>
+    let minimizeAdaptive (f: float[] -> float) 
+                         (gradF: float[] -> float[]) 
+                         (x0: float[])
+                         (options: OptimizationOptions) : OptimizationResult =
         
         let mutable x = Array.copy x0
         let mutable fx = f x
@@ -132,14 +138,16 @@ open Fowl.Core.Types
         }
 
 /// <summary>RMSprop optimizer.
-/// </summary>module RMSprop =
+/// </summary>
+module RMSprop =
     
     /// <summary>Minimize using RMSprop.
-    /// </summary>let minimize (f: float[] -> float) 
-                     (gradF: float[] -> float[]) 
-                     (x0: float[])
-                     ?(rho: float) ?(epsilon: float)
-                     (options: OptimizationOptions) : OptimizationResult =
+    /// </summary>
+    let minimize (f: float[] -> float) 
+                 (gradF: float[] -> float[]) 
+                 (x0: float[])
+                 ?(rho: float) ?(epsilon: float)
+                 (options: OptimizationOptions) : OptimizationResult =
         
         let rho = defaultArg rho 0.9
         let epsilon = defaultArg epsilon 1e-8
@@ -160,15 +168,16 @@ open Fowl.Core.Types
                 v.[i] <- rho * v.[i] + (1.0 - rho) * grad.[i] * grad.[i]
             
             // Update parameters
-            x <- Array.init n (fun i -
+            let xNew = Array.init n (fun i -
                 x.[i] - options.LearningRate * grad.[i] / (sqrt v.[i] + epsilon))
             
-            let fxNew = f x
+            let fxNew = f xNew
             
             if abs (fxNew - fx) < options.Tol then
                 converged <- true
                 message <- "Converged"
             
+            x <- xNew
             fx <- fxNew
             iter <- iter + 1
         
@@ -181,14 +190,16 @@ open Fowl.Core.Types
         }
 
 /// <summary>Adam optimizer.
-/// </summary>module Adam =
+/// </summary>
+module Adam =
     
     /// <summary>Minimize using Adam (Adaptive Moment Estimation).
-    /// </summary>let minimize (f: float[] -> float) 
-                     (gradF: float[] -> float[]) 
-                     (x0: float[])
-                     ?(beta1: float) ?(beta2: float) ?(epsilon: float)
-                     (options: OptimizationOptions) : OptimizationResult =
+    /// </summary>
+    let minimize (f: float[] -> float) 
+                 (gradF: float[] -> float[]) 
+                 (x0: float[])
+                 ?(beta1: float) ?(beta2: float) ?(epsilon: float)
+                 (options: OptimizationOptions) : OptimizationResult =
         
         let beta1 = defaultArg beta1 0.9
         let beta2 = defaultArg beta2 0.999
@@ -216,19 +227,20 @@ open Fowl.Core.Types
                 v.[i] <- beta2 * v.[i] + (1.0 - beta2) * grad.[i] * grad.[i]
             
             // Bias correction
-            let mHat = m |> Array.map (fun mi -> mi / (1.0 - beta1 ** float iter))
-            let vHat = v |> Array.map (fun vi -> vi / (1.0 - beta2 ** float iter))
+            let mHat = Array.init n (fun i -> m.[i] / (1.0 - pown beta1 iter))
+            let vHat = Array.init n (fun i -> v.[i] / (1.0 - pown beta2 iter))
             
             // Update parameters
-            x <- Array.init n (fun i -
+            let xNew = Array.init n (fun i -
                 x.[i] - options.LearningRate * mHat.[i] / (sqrt vHat.[i] + epsilon))
             
-            let fxNew = f x
+            let fxNew = f xNew
             
             if abs (fxNew - fx) < options.Tol then
                 converged <- true
                 message <- "Converged"
             
+            x <- xNew
             fx <- fxNew
         
         {
@@ -239,21 +251,22 @@ open Fowl.Core.Types
             Message = message
         }
 
-/// <summary>AdamW optimizer (Adam with decoupled weight decay).
-/// </summary>module AdamW =
+/// <summary>AdamW optimizer (Adam with weight decay).
+/// </summary>
+module AdamW =
     
     /// <summary>Minimize using AdamW.
-    /// </summary>let minimize (f: float[] -> float) 
-                     (gradF: float[] -> float[]) 
-                     (x0: float[])
-                     ?(weightDecay: float)
-                     ?(beta1: float) ?(beta2: float) ?(epsilon: float)
-                     (options: OptimizationOptions) : OptimizationResult =
+    /// </summary>
+    let minimize (f: float[] -> float) 
+                 (gradF: float[] -> float[]) 
+                 (x0: float[])
+                 ?(beta1: float) ?(beta2: float) ?(epsilon: float) ?(weightDecay: float)
+                 (options: OptimizationOptions) : OptimizationResult =
         
-        let weightDecay = defaultArg weightDecay 0.01
         let beta1 = defaultArg beta1 0.9
         let beta2 = defaultArg beta2 0.999
         let epsilon = defaultArg epsilon 1e-8
+        let weightDecay = defaultArg weightDecay 0.01
         let n = x0.Length
         
         let mutable x = Array.copy x0
@@ -265,29 +278,31 @@ open Fowl.Core.Types
         let mutable message = "Maximum iterations reached"
         
         while not converged && iter < options.MaxIter do
-            // Decoupled weight decay
-            x <- x |> Array.map (fun xi -> xi * (1.0 - options.LearningRate * weightDecay))
-            
             let grad = gradF x
             iter <- iter + 1
             
-            // Adam update
+            // Decoupled weight decay
+            for i = 0 to n - 1 do
+                x.[i] <- x.[i] * (1.0 - options.LearningRate * weightDecay)
+            
+            // Adam updates
             for i = 0 to n - 1 do
                 m.[i] <- beta1 * m.[i] + (1.0 - beta1) * grad.[i]
                 v.[i] <- beta2 * v.[i] + (1.0 - beta2) * grad.[i] * grad.[i]
             
-            let mHat = m |> Array.map (fun mi -> mi / (1.0 - beta1 ** float iter))
-            let vHat = v |> Array.map (fun vi -> vi / (1.0 - beta2 ** float iter))
+            let mHat = Array.init n (fun i -> m.[i] / (1.0 - pown beta1 iter))
+            let vHat = Array.init n (fun i -> v.[i] / (1.0 - pown beta2 iter))
             
-            x <- Array.init n (fun i -
+            let xNew = Array.init n (fun i -
                 x.[i] - options.LearningRate * mHat.[i] / (sqrt vHat.[i] + epsilon))
             
-            let fxNew = f x
+            let fxNew = f xNew
             
             if abs (fxNew - fx) < options.Tol then
                 converged <- true
                 message <- "Converged"
             
+            x <- xNew
             fx <- fxNew
         
         {
@@ -298,94 +313,105 @@ open Fowl.Core.Types
             Message = message
         }
 
-/// <summary>Simulated Annealing for global optimization.
-/// </summary>module SimulatedAnnealing =
+/// <summary>Simulated annealing optimizer.
+/// For non-convex optimization problems.
+/// </summary>
+module SimulatedAnnealing =
     
     /// <summary>Minimize using simulated annealing.
-    /// </summary>let minimize (f: float[] -> float) 
-                     (x0: float[])
-                     (bounds: (float * float)[])
-                     ?(initialTemp: float) ?(coolingRate: float)
-                     (options: OptimizationOptions) : OptimizationResult =
+    /// </summary>
+    let minimize (f: float[] -> float) 
+                 (x0: float[])
+                 ?(initialTemp: float) ?(coolingRate: float)
+                 (options: OptimizationOptions) : OptimizationResult =
         
         let initialTemp = defaultArg initialTemp 100.0
         let coolingRate = defaultArg coolingRate 0.95
-        let rng = Random()
         let n = x0.Length
+        let rng = System.Random()
         
         let mutable x = Array.copy x0
         let mutable fx = f x
-        let mutable temp = initialTemp
         let mutable bestX = Array.copy x
-        let mutable bestF = fx
-        let mutable accepted = 0
+        let mutable bestFx = fx
+        let mutable temp = initialTemp
+        let mutable iter = 0
+        let mutable message = "Maximum iterations reached"
         
-        for iter = 0 to options.MaxIter - 1 do
+        while iter < options.MaxIter do
             // Generate neighbor
-            let xNew = 
-                x |
-                Array.mapi (fun i xi -
-                    let (lo, hi) = bounds.[i]
-                    let range = hi - lo
-                    let step = range * 0.1 * (rng.NextDouble() - 0.5) * 2.0
-                    max lo (min hi (xi + step)))
+            let xNew = Array.init n (fun i -
+                x.[i] + (rng.NextDouble() - 0.5) * 2.0 * temp / initialTemp)
             
             let fxNew = f xNew
             let delta = fxNew - fx
             
-            // Accept or reject
+            // Accept if better, or with probability based on temperature
             if delta < 0.0 || rng.NextDouble() < exp (-delta / temp) then
                 x <- xNew
                 fx <- fxNew
-                accepted <- accepted + 1
                 
-                if fx < bestF then
+                if fx < bestFx then
                     bestX <- Array.copy x
-                    bestF >- fx
+                    bestFx <- fx
             
             // Cool down
             temp <- temp * coolingRate
-            
-            if options.Verbose && iter % 1000 = 0 then
-                printfn "Iter %d: T=%.4f, f(x)=%.10f, best=%.10f" iter temp fx bestF
+            iter <- iter + 1
         
         {
             X = bestX
-            Fun = bestF
-            Nit = options.MaxIter
+            Fun = bestFx
+            Nit = iter
             Success = true
-            Message = sprintf "Completed (acceptance rate: %.2f%%)" 
-                     (100.0 * float accepted / float options.MaxIter)
+            Message = "Completed cooling schedule"
         }
 
-/// <summary>Test functions for optimization.
-/// </summary>module TestFunctions =
+/// <summary>Common test functions for optimization.
+/// </summary>
+module TestFunctions =
     
-    /// <summary>Rosenbrock function. Global minimum at (1, 1).
-    /// </summary>let rosenbrock (x: float[]) : float =
-        let a = 1.0
-        let b = 100.0
-        (a - x.[0]) ** 2.0 + b * (x.[1] - x.[0] ** 2.0) ** 2.0
+    /// <summary>Rosenbrock function (banana function).
+    /// Global minimum at (1, 1, ..., 1) with value 0.
+    /// </summary>
+    let rosenbrock (x: float[]) : float =
+        let mutable sum = 0.0
+        for i = 0 to x.Length - 2 do
+            sum <- sum + 100.0 * pown (x.[i+1] - x.[i]*x.[i]) 2 + pown (1.0 - x.[i]) 2
+        sum
     
-    /// <summary>Gradient of Rosenbrock.
-    /// </summary>let rosenbrockGrad (x: float[]) : float[] =
-        let a = 1.0
-        let b = 100.0
-        let dx0 = -2.0 * (a - x.[0]) - 4.0 * b * x.[0] * (x.[1] - x.[0] ** 2.0)
-        let dx1 = 2.0 * b * (x.[1] - x.[0] ** 2.0)
-        [|dx0; dx1|]
+    /// <summary>Gradient of Rosenbrock function.
+    /// </summary>
+    let rosenbrockGrad (x: float[]) : float[] =
+        let n = x.Length
+        let grad = Array.zeroCreate n
+        
+        for i = 0 to n - 1 do
+            if i = 0 then
+                grad.[i] <- -400.0 * x.[i] * (x.[i+1] - x.[i]*x.[i]) - 2.0 * (1.0 - x.[i])
+            elif i = n - 1 then
+                grad.[i] <- 200.0 * (x.[i] - x.[i-1]*x.[i-1])
+            else
+                grad.[i] <- 200.0 * (x.[i] - x.[i-1]*x.[i-1]) - 400.0 * x.[i] * (x.[i+1] - x.[i]*x.[i]) - 2.0 * (1.0 - x.[i])
+        
+        grad
     
-    /// <summary>Sphere function. Global minimum at origin.
-    /// </summary>let sphere (x: float[]) : float =
+    /// <summary>Sphere function.
+    /// Global minimum at origin with value 0.
+    /// </summary>
+    let sphere (x: float[]) : float =
         x |> Array.sumBy (fun xi -> xi * xi)
     
-    /// <summary>Gradient of sphere.
-    /// </summary>let sphereGrad (x: float[]) : float[] =
+    /// <summary>Gradient of sphere function.
+    /// </summary>
+    let sphereGrad (x: float[]) : float[] =
         x |> Array.map (fun xi -> 2.0 * xi)
     
-    /// <summary>Rastrigin function (many local minima).
-    /// </summary>let rastrigin (x: float[]) : float =
-        let A = 10.0
+    /// <summary>Rastrigin function.
+    /// Many local minima. Global minimum at origin with value 0.
+    /// </summary>
+    let rastrigin (x: float[]) : float =
         let n = float x.Length
-        A * n + Array.sumBy (fun xi -
-            xi * xi - A * cos (2.0 * System.Math.PI * xi)) x
+        let A = 10.0
+        A * n + (x |> Array.sumBy (fun xi -
+            xi * xi - A * cos (2.0 * System.Math.PI * xi)))

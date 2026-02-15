@@ -1,4 +1,4 @@
-namespace Fowl.Linalg
+namespace Fowl.Linq
 
 open System
 open Fowl
@@ -6,13 +6,16 @@ open Fowl.Core.Types
 
 /// <summary>Advanced linear algebra operations.
 /// Least squares, pseudoinverse, matrix properties.
-/// </summary>module AdvancedOps =
+/// </summary>
+module AdvancedOps =
     
     /// <summary>Least squares solution: minimize ||Ax - b||₂
     /// Uses SVD for numerical stability.
-    /// </summary>/// <param name="A">Coefficient matrix (m x n).</param>
+    /// </summary>
+    /// <param name="A">Coefficient matrix (m x n).</param>
     /// <param name="b">Right-hand side vector (m).</param>
-    /// <returns>Solution x (n), residual, rank, singular values.</returns>    let lstsq (A: Ndarray<'K, float>) (b: Ndarray<'K, float>) 
+    /// <returns>Solution x (n), residual, rank, singular values.</returns>
+    let lstsq (A: Ndarray<'K, float>) (b: Ndarray<'K, float>) 
               : FowlResult<Ndarray<'K, float> * float * int * float[]> =
         result {
             // Use SVD: A = U * S * Vt
@@ -75,8 +78,10 @@ open Fowl.Core.Types
     
     /// <summary>Moore-Penrose pseudoinverse using SVD.
     /// A⁺ = V * Σ⁺ * Ut where Σ⁺ is pseudoinverse of singular values.
-    /// </summary>/// <param name="A">Input matrix.</param>
-    /// <returns>Pseudoinverse A⁺.</returns>    let pinv (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
+    /// </summary>
+    /// <param name="A">Input matrix.</param>
+    /// <returns>Pseudoinverse A⁺.</returns>
+    let pinv (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
         result {
             let! u, s, vt = Factorizations.svd A
             let! uArr = Ndarray.toArray2D u
@@ -99,7 +104,7 @@ open Fowl.Core.Types
             let v = Array2D.init n n (fun i j -> vtArr.[j, i])
             
             // V * S⁺ (scale columns)
-            let vScaled = Array2D.init n n (fun i j -
+            let vScaled = Array2D.init n n (fun i j ->
                 if j < sPinv.Length then
                     v.[i, j] * sPinv.[j]
                 else
@@ -118,8 +123,10 @@ open Fowl.Core.Types
     
     /// <summary>Matrix rank using SVD.
     /// Number of singular values above threshold.
-    /// </summary>/// <param name="A">Input matrix.</param>
-    /// <returns>Rank of matrix.</returns>    let rank (A: Ndarray<'K, float>) : FowlResult<int> =
+    /// </summary>
+    /// <param name="A">Input matrix.</param>
+    /// <returns>Rank of matrix.</returns>
+    let rank (A: Ndarray<'K, float>) : FowlResult<int> =
         result {
             let! _, s, _ = Factorizations.svd A
             
@@ -135,8 +142,10 @@ open Fowl.Core.Types
     /// <summary>Condition number using SVD.
     /// κ(A) = σ_max / σ_min
     /// Large condition number indicates ill-conditioned matrix.
-    /// </summary>/// <param name="A">Input matrix.</param>
-    /// <returns>Condition number.</returns>    let cond (A: Ndarray<'K, float>) : FowlResult<float> =
+    /// </summary>
+    /// <param name="A">Input matrix.</param>
+    /// <returns>Condition number.</returns>
+    let cond (A: Ndarray<'K, float>) : FowlResult<float> =
         result {
             let! _, s, _ = Factorizations.svd A
             
@@ -151,8 +160,10 @@ open Fowl.Core.Types
     
     /// <summary>Null space using SVD.
     /// Returns basis for null space (vectors x such that Ax = 0)
-    /// </summary>/// <param name="A">Input matrix.</param>
-    /// <returns>Basis for null space.</returns>    let nullSpace (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
+    /// </summary>
+    /// <param name="A">Input matrix.</param>
+    /// <returns>Basis for null space.</returns>
+    let nullSpace (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
         result {
             let! _, s, vt = Factorizations.svd A
             let! vtArr = Ndarray.toArray2D vt
@@ -181,8 +192,10 @@ open Fowl.Core.Types
         }
     
     /// <summary>Orthonormal basis for range (column space) using SVD.
-    /// </summary>/// <param name="A">Input matrix.</param>
-    /// <returns>Orthonormal basis for range of A.</returns>    let orth (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
+    /// </summary>
+    /// <param name="A">Input matrix.</param>
+    /// <returns>Orthonormal basis for range of A.</returns>
+    let orth (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
         result {
             let! u, s, _ = Factorizations.svd A
             let! uArr = Ndarray.toArray2D u
@@ -207,8 +220,10 @@ open Fowl.Core.Types
     
     /// <summary>Matrix exponential using Pade approximation.
     /// Computes e^A for square matrix A.
-    /// </summary>/// <param name="A">Square matrix.</param>
-    /// <returns>e^A.</returns>    let expm (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
+    /// </summary>
+    /// <param name="A">Square matrix.</param>
+    /// <returns>e^A.</returns>
+    let expm (A: Ndarray<'K, float>) : FowlResult<Ndarray<'K, float>> =
         result {
             let! aArr = Ndarray.toArray2D A
             let n = aArr.GetLength(0)
@@ -276,8 +291,10 @@ open Fowl.Core.Types
     
     /// <summary>Frobenius norm of a matrix.
     /// ||A||_F = sqrt(sum(A_ij^2))
-    /// </summary>/// <param name="A">Input matrix.</param>
-    /// <returns>Frobenius norm.</returns>    let normFrobenius (A: Ndarray<'K, float>) : FowlResult<float> =
+    /// </summary>
+    /// <param name="A">Input matrix.</param>
+    /// <returns>Frobenius norm.</returns>
+    let normFrobenius (A: Ndarray<'K, float>) : FowlResult<float> =
         result {
             let! data = Ndarray.toArray A
             let sumSq = data |> Array.sumBy (fun x -> x * x)

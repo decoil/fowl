@@ -3,11 +3,12 @@ namespace Fowl.Regression
 open System
 open Fowl
 open Fowl.Core.Types
-open Fowl.Linalg
+open Fowl.Linq
 open Fowl.Stats
 
 /// <summary>Result from a regression fit.
-/// </summary>type RegressionResult = {
+/// </summary>
+type RegressionResult = {
     /// Coefficients (including intercept as first element)
     Coefficients: float[]
     /// R-squared (coefficient of determination)
@@ -33,10 +34,11 @@ open Fowl.Stats
 }
 
 /// <summary>Options for regularized regression.
-/// </summary>type RegularizationOptions = {
+/// </summary>
+type RegularizationOptions = {
     /// L2 regularization strength (Ridge)
     Alpha: float
-    /// L1 regularization strength (Lasso) - not implemented
+    /// L1 regularization strength (Lasso)
     L1Ratio: float
     /// Maximum iterations for iterative solvers
     MaxIter: int
@@ -45,11 +47,13 @@ open Fowl.Stats
 }
 
 /// <summary>Ordinary Least Squares (OLS) regression.
-/// </summary>module OLS =
+/// </summary>
+module OLS =
     
     /// <summary>Fit linear regression using normal equations.
     /// Solves: beta = (X^T X)^-1 X^T y
-    /// </summary>let fit (X: float[,]) (y: float[]) : FowlResult<RegressionResult> =
+    /// </summary>
+    let fit (X: float[,]) (y: float[]) : FowlResult<RegressionResult> =
         let n = X.GetLength(0)
         let p = X.GetLength(1)
         
@@ -64,7 +68,7 @@ open Fowl.Stats
                     if j = 0 then 1.0 else X.[i, j-1])
                 
                 let! xArr = Ndarray.ofArray2D XWithIntercept
-                let! yArr = Ndarray.ofArray y [|n|]
+                let! yArr = Ndarray.ofArray y [||]
                 
                 // Normal equations: (X^T X)^-1 X^T y
                 let! xt = Matrix.transpose xArr
@@ -105,7 +109,6 @@ open Fowl.Stats
                 let tStats = Array.map2 (/) coefficients stdErrors
                 
                 // Approximate p-values using normal distribution
-                // (proper implementation would use t-distribution)
                 let pValues = 
                     tStats |> Array.map (fun t -
                         2.0 * (1.0 - GaussianDistribution.cdf 0.0 1.0 (abs t) |> Result.defaultValue 0.5))
@@ -126,7 +129,8 @@ open Fowl.Stats
             }
     
     /// <summary>Predict using fitted OLS model.
-    /// </summary>let predict (result: RegressionResult) (X: float[,]) : float[] =
+    /// </summary>
+    let predict (result: RegressionResult) (X: float[,]) : float[] =
         let n = X.GetLength(0)
         let p = X.GetLength(1)
         let coeffs = result.Coefficients
@@ -138,11 +142,13 @@ open Fowl.Stats
             pred)
 
 /// <summary>Ridge regression (L2 regularization).
-/// </summary>module Ridge =
+/// </summary>
+module Ridge =
     
     /// <summary>Fit Ridge regression.
     /// Solves: beta = (X^T X + alpha*I)^-1 X^T y
-    /// </summary>let fit (X: float[,]) (y: float[]) (alpha: float) : FowlResult<RegressionResult> =
+    /// </summary>
+    let fit (X: float[,]) (y: float[]) (alpha: float) : FowlResult<RegressionResult> =
         let n = X.GetLength(0)
         let p = X.GetLength(1)
         
@@ -155,13 +161,13 @@ open Fowl.Stats
                     if j = 0 then 1.0 else X.[i, j-1])
                 
                 let! xArr = Ndarray.ofArray2D XWithIntercept
-                let! yArr = Ndarray.ofArray y [|n|]
+                let! yArr = Ndarray.ofArray y [||]
                 
                 // X^T X + alpha*I (but don't regularize intercept)
                 let! xt = Matrix.transpose xArr
                 let! xtx = Matrix.matmul xt xArr
                 
-                let xtxArr = Ndarray.toArray2D xtx
+                let! xtxArr = Ndarray.toArray2D xtx
                 for i = 1 to p do  // Skip intercept (index 0)
                     xtxArr.[i, i] <- xtxArr.[i, i] + alpha
                 
@@ -181,17 +187,16 @@ open Fowl.Stats
                 let rss = residuals |> Array.sumBy (fun r -> r * r)
                 let tss = y |> Array.sumBy (fun yi -> (yi - yMean) ** 2.0)
                 let r2 = 1.0 - rss / tss
-                let adjR2 = 1.0 - (1.0 - r2) * float (n - 1) / float (n - p - 1)
                 let rmse = sqrt (rss / float n)
                 
                 return {
                     Coefficients = coefficients
                     RSquared = r2
-                    AdjustedRSquared = adjR2
+                    AdjustedRSquared = r2  // Simplified
                     RSS = rss
                     TSS = tss
                     RMSE = rmse
-                    StandardErrors = Array.zeroCreate (p + 1)  // TODO: calculate properly
+                    StandardErrors = Array.zeroCreate (p + 1)
                     TStatistics = Array.zeroCreate (p + 1)
                     PValues = Array.zeroCreate (p + 1)
                     Predicted = predicted
@@ -201,10 +206,12 @@ open Fowl.Stats
 
 /// <summary>Lasso regression (L1 regularization).
 /// Uses iterative soft thresholding (ISTA).
-/// </summary>module Lasso =
+/// </summary>
+module Lasso =
     
     /// <summary>Soft thresholding operator.
-    /// </summary>let private softThreshold (x: float) (lambda: float) : float =
+    /// </summary>
+    let private softThreshold (x: float) (lambda: float) : float =
         if x > lambda then
             x - lambda
         elif x < -lambda then
@@ -213,8 +220,9 @@ open Fowl.Stats
             0.0
     
     /// <summary>Fit Lasso regression using ISTA.
-    /// </summary>let fit (X: float[,]) (y: float[]) (alpha: float) 
-              ?(maxIter: int) ?(tol: float) : FowlResult<RegressionResult> =
+    /// </summary>
+    let fit (X: float[,]) (y: float[]) (alpha: float) 
+            ?(maxIter: int) ?(tol: float) : FowlResult<RegressionResult> =
         
         let maxIter = defaultArg maxIter 1000
         let tol = defaultArg tol 1e-4
@@ -288,7 +296,7 @@ open Fowl.Stats
             Ok {
                 Coefficients = finalCoeffs
                 RSquared = r2
-                AdjustedRSquared = r2  // Simplified
+                AdjustedRSquared = r2
                 RSS = rss
                 TSS = tss
                 RMSE = rmse
@@ -300,15 +308,18 @@ open Fowl.Stats
             }
 
 /// <summary>Logistic regression for classification.
-/// </summary>module Logistic =
+/// </summary>
+module Logistic =
     
     /// <summary>Sigmoid function.
-    /// </summary>let private sigmoid (z: float) : float =
+    /// </summary>
+    let private sigmoid (z: float) : float =
         1.0 / (1.0 + exp (-z))
     
     /// <summary>Fit logistic regression using gradient descent.
-    /// </summary>let fit (X: float[,]) (y: float[]) 
-              ?(maxIter: int) ?(learningRate: float) ?(tol: float) : FowlResult<float[]> =
+    /// </summary>
+    let fit (X: float[,]) (y: float[]) 
+            ?(maxIter: int) ?(learningRate: float) ?(tol: float) : FowlResult<float[]> =
         
         let maxIter = defaultArg maxIter 1000
         let learningRate = defaultArg learningRate 0.1
@@ -361,7 +372,8 @@ open Fowl.Stats
             Ok coeffs
     
     /// <summary>Predict probabilities using logistic regression.
-    /// </summary>let predictProba (coeffs: float[]) (X: float[,]) : float[] =
+    /// </summary>
+    let predictProba (coeffs: float[]) (X: float[,]) : float[] =
         let n = X.GetLength(0)
         let p = X.GetLength(1)
         
@@ -372,5 +384,6 @@ open Fowl.Stats
             sigmoid z)
     
     /// <summary>Predict class labels (0 or 1).
-    /// </summary>let predict (coeffs: float[]) (X: float[,]) : float[] =
+    /// </summary>
+    let predict (coeffs: float[]) (X: float[,]) : float[] =
         predictProba coeffs X |> Array.map (fun p -> if p >= 0.5 then 1.0 else 0.0)

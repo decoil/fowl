@@ -5,11 +5,13 @@ open Fowl.Core.Types
 
 /// <summary>Additional ndarray operations.
 /// Sorting, tiling, repeating, and utility functions.
-/// </summary>module NdarrayOps =
+/// </summary>
+module NdarrayOps =
     
     /// <summary>Sort array in ascending order.
-/// Returns sorted array (copy).
-/// </summary>let sort (arr: Ndarray<float>) : FowlResult<Ndarray<float>> =
+    /// Returns sorted array (copy).
+    /// </summary>
+    let sort (arr: Ndarray<float>) : FowlResult<Ndarray<float>> =
         result {
             let data = Ndarray.toArray arr
             let sorted = Array.sort data
@@ -17,7 +19,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Sort array along specified axis.
-/// </summary>let sortAxis (arr: Ndarray<float>) (axis: int) : FowlResult<Ndarray<float>> =
+    /// </summary>
+    let sortAxis (arr: Ndarray<float>) (axis: int) : FowlResult<Ndarray<float>> =
         result {
             let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
             let rank = shape.Length
@@ -55,7 +58,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Return indices that would sort the array.
-/// </summary>let argsort (arr: Ndarray<float>) : FowlResult<int[]> =
+    /// </summary>
+    let argsort (arr: Ndarray<float>) : FowlResult<int[]> =
         result {
             let data = Ndarray.toArray arr
             let indexed = data |> Array.mapi (fun i x -> (i, x))
@@ -64,7 +68,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Tile array by repeating it.
-/// </summary>let tile (arr: Ndarray<float>) (reps: int[]) : FowlResult<Ndarray<float>> =
+    /// </summary>
+    let tile (arr: Ndarray<float>) (reps: int[]) : FowlResult<Ndarray<float>> =
         result {
             let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
             
@@ -73,7 +78,7 @@ open Fowl.Core.Types
             
             // Pad shape with 1s to match reps length
             let paddedShape = 
-                Array.init reps.Length (fun i -
+                Array.init reps.Length (fun i ->
                     if i < reps.Length - shape.Length then 1
                     else shape.[i - (reps.Length - shape.Length)])
             
@@ -110,7 +115,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Repeat elements of array.
-/// </summary>let repeat (arr: Ndarray<float>) (repeats: int) : FowlResult<Ndarray<float>> =
+    /// </summary>
+    let repeat (arr: Ndarray<float>) (repeats: int) : FowlResult<Ndarray<float>> =
         result {
             if repeats < 0 then
                 return! Error.invalidArgument "repeat: repeats must be non-negative"
@@ -135,7 +141,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Reverse array (flip).
-/// </summary>let reverse (arr: Ndarray<float>) : FowlResult<Ndarray<float>> =
+    /// </summary>
+    let reverse (arr: Ndarray<float>) : FowlResult<Ndarray<float>> =
         result {
             let data = Ndarray.toArray arr
             let reversed = Array.rev data
@@ -143,7 +150,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Flip array along specified axis.
-/// </summary>let flipAxis (arr: Ndarray<float>) (axis: int) : FowlResult<Ndarray<float>> =
+    /// </summary>
+    let flipAxis (arr: Ndarray<float>) (axis: int) : FowlResult<Ndarray<float>> =
         result {
             let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
             let rank = shape.Length
@@ -177,7 +185,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Return indices of maximum values.
-/// </summary>let argmax (arr: Ndarray<float>) : FowlResult<int[]> =
+    /// </summary>
+    let argmax (arr: Ndarray<float>) : FowlResult<int[]> =
         result {
             let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
             let data = Ndarray.toArray arr
@@ -205,7 +214,8 @@ open Fowl.Core.Types
         }
     
     /// <summary>Return indices of minimum values.
-/// </summary>let argmin (arr: Ndarray<float>) : FowlResult<int[]> =
+    /// </summary>
+    let argmin (arr: Ndarray<float>) : FowlResult<int[]> =
         result {
             let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
             let data = Ndarray.toArray arr
@@ -233,10 +243,11 @@ open Fowl.Core.Types
         }
     
     /// <summary>Clip (limit) values in array.
-/// </summary>let clip (arr: Ndarray<float>) (minVal: float) (maxVal: float) : FowlResult<Ndarray<float>> =
+    /// </summary>
+    let clip (arr: Ndarray<float>) (minVal: float) (maxVal: float) : FowlResult<Ndarray<float>> =
         result {
             let data = Ndarray.toArray arr
-            let clipped = data |> Array.map (fun x -
+            let clipped = data |> Array.map (fun x ->
                 if x < minVal then minVal
                 elif x > maxVal then maxVal
                 else x)
