@@ -236,3 +236,39 @@ let div (a: Ndarray<'K, float>) (b: Ndarray<'K, float>) : FowlResult<Ndarray<'K,
             let newData = Array.map2 (/) da.Data db.Data
             Ok (Dense { da with Data = newData })
     | _ -> Error.notImplemented "div not implemented for sparse arrays"
+
+/// <summary>Create 2D Ndarray from 2D array.</summary>
+/// <param name="data">2D array data.</param>
+/// <returns>2D Ndarray.</returns>
+let ofArray2D (data: 'T[,]) : FowlResult<Ndarray<'K, 'T>> =
+    let rows = data.GetLength(0)
+    let cols = data.GetLength(1)
+    
+    // Flatten 2D to 1D in row-major order
+    let flatData = Array.init (rows * cols) (fun i ->
+        let r = i / cols
+        let c = i % cols
+        data.[r, c])
+    
+    ofArray flatData [|rows; cols|]
+
+/// <summary>Convert Ndarray to 2D array.</summary>
+/// <param name="arr">Ndarray to convert.</param>
+/// <returns>2D array.</returns>
+let toArray2D (arr: Ndarray<'K, 'T>) : FowlResult<'T[,]> =
+    match arr with
+    | Dense d ->
+        if d.Shape.Length <> 2 then
+            Error.invalidShape "toArray2D requires 2D array"
+        else
+            let rows = d.Shape.[0]
+            let cols = d.Shape.[1]
+            let result = Array2D.zeroCreate rows cols
+            
+            for r = 0 to rows - 1 do
+                for c = 0 to cols - 1 do
+                    let idx = flatIndex d.Strides [|r; c|] d.Offset
+                    result.[r, c] <- d.Data.[idx]
+            
+            Ok result
+    | Sparse _ -> Error.notImplemented "toArray2D not implemented for sparse arrays"
