@@ -29,6 +29,7 @@
     <Compile Include="Anova.fs" />
     <Compile Include="NonParametricTests.fs" />
     <Compile Include="HypothesisTestsExtended.fs" />
+    <Compile Include="BesselFunctions.fs" />
     <Compile Include="Stats.fs" />
   </ItemGroup>
 
