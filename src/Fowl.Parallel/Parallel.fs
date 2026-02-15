@@ -24,15 +24,20 @@ open System.Threading.Tasks
 // Configuration
 // ============================================================================
 
-/// <summary>Minimum array size to benefit from parallelization.</summary>/// <remarks>
+/// <summary>Minimum array size to benefit from parallelization.</summary>
+/// <remarks>
 /// Arrays smaller than this use sequential processing because
 /// parallel overhead dominates for small arrays.
 /// Default: 10,000 elements
-/// </remarks>let mutable parallelThreshold = 10000
+/// </remarks>
+let mutable parallelThreshold = 10000
 
-/// <summary>Get current parallel threshold.</summary>let getParallelThreshold () = parallelThreshold
+/// <summary>Get current parallel threshold.</summary>
+let getParallelThreshold () = parallelThreshold
 
-/// <summary>Set parallel threshold.</summary>/// <param name="threshold">New threshold value.</param>let setParallelThreshold (threshold: int) =
+/// <summary>Set parallel threshold.</summary>
+/// <param name="threshold">New threshold value.</param>
+let setParallelThreshold (threshold: int) =
     parallelThreshold <- max 1000 threshold  // Minimum 1000 to avoid overhead
 
 /// <summary>Check if array is large enough for parallel processing.</summary>/// <param name="length">Array length.</param>/// <returns>true if parallel should be used.</returns>let shouldParallelize (length: int) =
@@ -160,9 +165,11 @@ let private parallelSimd (length: int)
 // Parallel + SIMD Operations
 // ============================================================================
 
-/// <summary>Module for combined Parallel + SIMD operations.</summary>/// <remarks>
+/// <summary>Module for combined Parallel + SIMD operations.</summary>
+/// <remarks>
 /// Maximum performance: uses multiple cores with SIMD per core.
-/// </remarks>module ParallelSimdOps =
+/// </remarks>
+module ParallelSimdOps =
     open System.Numerics
     
     /// <summary>Add two arrays using Parallel + Vector<T> SIMD.</summary>    /// <param name="a">First array.</param>    /// <param name="b">Second array.</param>    /// <returns>New array with element-wise sum.</returns>    let add (a: double[]) (b: double[]) : double[] =
@@ -255,9 +262,11 @@ let private parallelSimd (length: int)
 // Parallel Reductions
 // ============================================================================
 
-/// <summary>Module for parallel reduction operations.</summary>/// <remarks>
+/// <summary>Module for parallel reduction operations.</summary>
+/// <remarks>
 /// Parallel reductions use tree-based aggregation for better performance.
-/// </remarks>module ParallelReductions =
+/// </remarks>
+module ParallelReductions =
     /// <summary>Sum all elements in parallel.</summary>    /// <param name="a">Input array.</param>    /// <returns>Sum of all elements.</returns>    let sum (a: double[]) : double =
         if a.Length < parallelThreshold then
             Array.sum a

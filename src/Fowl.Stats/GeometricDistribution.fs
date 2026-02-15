@@ -42,7 +42,8 @@ let pmf (p: float) (k: int) : FowlResult<float> =
 
 /// <summary>Cumulative distribution function for Geometric distribution.</summary>/// <param name="p">Success probability (0 < p <= 1).</param>/// <param name="k">Upper bound on failures (k >= 0).</param>/// <returns>CDF value P(X <= k).</returns>/// <remarks>
 /// CDF(k) = 1 - (1-p)^(k+1)
-/// </remarks>let cdf (p: float) (k: int) : FowlResult<float> =
+/// </remarks>
+let cdf (p: float) (k: int) : FowlResult<float> =
     validateParams p
     |> Result.bind (fun () ->
         if k < 0 then
@@ -56,7 +57,8 @@ let pmf (p: float) (k: int) : FowlResult<float> =
 
 /// <summary>Percent point function (inverse CDF) for Geometric distribution.</summary>/// <param name="p">Success probability (0 < p <= 1).</param>/// <param name="prob">Probability (0 <= prob <= 1).</param>/// <returns>Smallest k such that P(X <= k) >= prob.</returns>/// <remarks>
 /// k = ceil(log(1-prob) / log(1-p)) - 1
-/// </remarks>let ppf (p: float) (prob: float) : FowlResult<int> =
+/// </remarks>
+let ppf (p: float) (prob: float) : FowlResult<int> =
     validateParams p
     |> Result.bind (fun () ->
         if prob < 0.0 || prob > 1.0 then
@@ -76,7 +78,8 @@ let pmf (p: float) (k: int) : FowlResult<float> =
 /// <summary>Random variate sampling from Geometric distribution.</summary>/// <param name="p">Success probability (0 < p <= 1).</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses inverse transform: k = floor(log(U) / log(1-p)) where U ~ Uniform(0,1)
 /// Or: count trials until first success.
-/// </remarks>let rvs (p: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (p: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams p
     |> Result.bind (fun () ->
         let n = Shape.numel shape

@@ -51,7 +51,8 @@ let pdf (alpha: float) (beta: float) (x: float) : FowlResult<float> =
 /// <summary>Percent point function (inverse CDF) for Beta distribution.</summary>/// <param name="alpha">Shape parameter α > 0.</param>/// <param name="beta">Shape parameter β > 0.</param>/// <param name="p">Probability (0 <= p <= 1).</param>/// <returns>Value x such that CDF(x) = p.</returns>/// <remarks>
 /// Uses Newton-Raphson iteration to find the inverse.
 /// Initial guess uses Cornish-Fisher expansion approximation.
-/// </remarks>let ppf (alpha: float) (beta: float) (p: float) : FowlResult<float> =
+/// </remarks>
+let ppf (alpha: float) (beta: float) (p: float) : FowlResult<float> =
     validateParams alpha beta
     |> Result.bind (fun () ->
         if p < 0.0 || p > 1.0 then
@@ -96,7 +97,8 @@ let pdf (alpha: float) (beta: float) (x: float) : FowlResult<float> =
 /// <summary>Random variate sampling from Beta distribution.</summary>/// <param name="alpha">Shape parameter α > 0.</param>/// <param name="beta">Shape parameter β > 0.</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses the relationship: if X ~ Gamma(α, 1) and Y ~ Gamma(β, 1),
 /// then X/(X+Y) ~ Beta(α, β).
-/// </remarks>let rvs (alpha: float) (beta: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (alpha: float) (beta: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams alpha beta
     |> Result.bind (fun () ->
         let n = Shape.numel shape

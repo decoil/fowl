@@ -52,7 +52,8 @@ let pdf (d1: float) (d2: float) (x: float) : FowlResult<float> =
 /// Uses the relationship to incomplete beta function:
 /// CDF(x) = I_{d1*x/(d2+d1*x)}(d1/2, d2/2)
 /// where I is the regularized incomplete beta function.
-/// </remarks>let cdf (d1: float) (d2: float) (x: float) : FowlResult<float> =
+/// </remarks>
+let cdf (d1: float) (d2: float) (x: float) : FowlResult<float> =
     validateParams d1 d2
     |> Result.bind (fun () ->
         if x <= 0.0 then
@@ -68,7 +69,8 @@ let pdf (d1: float) (d2: float) (x: float) : FowlResult<float> =
 /// Uses the relationship: if F ~ F(d1, d2), then
 /// F = (d2/d1) * (X/(1-X)) where X ~ Beta(d1/2, d2/2)
 /// So F^{-1}(p) = (d2/d1) * (Beta^{-1}(p) / (1 - Beta^{-1}(p)))
-/// </remarks>let ppf (d1: float) (d2: float) (p: float) : FowlResult<float> =
+/// </remarks>
+let ppf (d1: float) (d2: float) (p: float) : FowlResult<float> =
     validateParams d1 d2
     |> Result.bind (fun () ->
         if p < 0.0 || p > 1.0 then
@@ -87,7 +89,8 @@ let pdf (d1: float) (d2: float) (x: float) : FowlResult<float> =
 /// <summary>Random variate sampling from F-distribution.</summary>/// <param name="d1">Numerator degrees of freedom > 0.</param>/// <param name="d2">Denominator degrees of freedom > 0.</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses the relationship: F(d1, d2) = (Chi-square(d1)/d1) / (Chi-square(d2)/d2)
 /// Or equivalently: F(d1, d2) = (d2/d1) * (X/(1-X)) where X ~ Beta(d1/2, d2/2)
-/// </remarks>let rvs (d1: float) (d2: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (d1: float) (d2: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams d1 d2
     |> Result.bind (fun () ->
         let n = Shape.numel shape

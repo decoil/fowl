@@ -28,7 +28,8 @@ type TrainingConfig = {
     }
     
     /// <summary>Default training configuration.
-    /// </summary>let defaultConfig = {
+    /// </summary>
+let defaultConfig = {
         Epochs = 10
         BatchSize = 32
         LearningRate = 0.01

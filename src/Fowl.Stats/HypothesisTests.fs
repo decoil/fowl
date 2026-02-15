@@ -8,7 +8,8 @@ open Fowl.Stats.ChiSquareDistribution
 open Fowl.Stats.FDistribution
 
 /// <summary>Test result containing statistic, p-value, and conclusion.
-/// </summary>type TestResult = {
+/// </summary>
+type TestResult = {
     Statistic: float
     PValue: float
     Significant: bool  // True if p < alpha
@@ -16,7 +17,8 @@ open Fowl.Stats.FDistribution
 }
 
 /// <summary>Helper to create test result.
-/// </summary>let private makeResult (statistic: float) (pValue: float) (alpha: float) : TestResult =
+/// </summary>
+let private makeResult (statistic: float) (pValue: float) (alpha: float) : TestResult =
     {
         Statistic = statistic
         PValue = pValue

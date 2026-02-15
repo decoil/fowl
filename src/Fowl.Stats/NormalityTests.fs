@@ -6,7 +6,8 @@ open Fowl.Core.Types
 open Fowl.Stats.GaussianDistribution
 
 /// <summary>Result from a normality test.
-/// </summary>type NormalityTestResult = {
+/// </summary>
+type NormalityTestResult = {
     Statistic: float
     PValue: float
     IsNormal: bool  // True if p >= alpha (fail to reject null)
@@ -15,7 +16,8 @@ open Fowl.Stats.GaussianDistribution
 
 /// <summary>Helper to create normality test result.
 /// Null hypothesis: data comes from normal distribution.
-/// </summary>let private makeResult (statistic: float) (pValue: float) (alpha: float) : NormalityTestResult =
+/// </summary>
+let private makeResult (statistic: float) (pValue: float) (alpha: float) : NormalityTestResult =
     {
         Statistic = statistic
         PValue = pValue
@@ -28,7 +30,8 @@ open Fowl.Stats.GaussianDistribution
 /// </summary>/// <param name="sample">Sample data.</param>/// <param name="alpha">Significance level (default: 0.05).</param>/// <returns>Normality test result.</returns>/// <remarks>
 /// This is an approximation for larger samples (n > 50).
 /// For exact values, use statistical tables or software.
-/// </remarks>let shapiroWilk (sample: float[]) (alpha: float) : FowlResult<NormalityTestResult> =
+/// </remarks>
+let shapiroWilk (sample: float[]) (alpha: float) : FowlResult<NormalityTestResult> =
     let n = sample.Length
     
     if n < 3 then

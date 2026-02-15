@@ -109,7 +109,8 @@ let pmf (n: int) (p: float) (k: int) : FowlResult<float> =
 /// <summary>Random variate sampling from Binomial distribution.</summary>/// <param name="n">Number of trials (n >= 0).</param>/// <param name="p">Success probability (0 <= p <= 1).</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses inverse transform sampling for small n, 
 /// normal approximation for large n.
-/// </remarks>let rvs (n: int) (p: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (n: int) (p: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams n p
     |> Result.bind (fun () ->
         let nSamples = Shape.numel shape

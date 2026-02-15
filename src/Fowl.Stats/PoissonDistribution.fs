@@ -48,11 +48,16 @@ let pmf (lambda: float) (k: int) : FowlResult<float> =
                 let logPmf = float k * log lambda - lambda - logKFact
                 Ok (exp logPmf))
 
-/// <summary>Cumulative distribution function for Poisson distribution.</summary>/// <param name="lambda">Rate parameter λ >= 0.</param>/// <param name="k">Upper bound on number of events.</param>/// <returns>CDF value P(X <= k).</returns>/// <remarks>
+/// <summary>Cumulative distribution function for Poisson distribution.</summary>
+/// <param name="lambda">Rate parameter λ >= 0.</param>
+/// <param name="k">Upper bound on number of events.</param>
+/// <returns>CDF value P(X <= k).</returns>
+/// <remarks>
 /// Uses the relationship to incomplete gamma function:
 /// P(X <= k) = Γ(k+1, λ) / k! = Q(k+1, λ)
 /// where Q is the regularized upper incomplete gamma.
-/// </remarks>let cdf (lambda: float) (k: int) : FowlResult<float> =
+/// </remarks>
+let cdf (lambda: float) (k: int) : FowlResult<float> =
     validateParams lambda
     |> Result.bind (fun () ->
         if k < 0 then
@@ -122,10 +127,15 @@ let pmf (lambda: float) (k: int) : FowlResult<float> =
                     searchUp (mean + 1)
             | Error e -> Error e)
 
-/// <summary>Random variate sampling from Poisson distribution.</summary>/// <param name="lambda">Rate parameter λ >= 0.</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
+/// <summary>Random variate sampling from Poisson distribution.</summary>
+/// <param name="lambda">Rate parameter λ >= 0.</param>
+/// <param name="shape">Shape of output array.</param>
+/// <returns>Array of random samples.</returns>
+/// <remarks>
 /// Uses Knuth's algorithm for small λ, 
 /// Ahrens-Dieter algorithm for large λ.
-/// </remarks>let rvs (lambda: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (lambda: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams lambda
     |> Result.bind (fun () ->
         let n = Shape.numel shape
@@ -200,7 +210,8 @@ let pmf (lambda: float) (k: int) : FowlResult<float> =
 
 /// <summary>Entropy of Poisson distribution.</summary>/// <param name="lambda">Rate parameter λ > 0.</param>/// <returns>Entropy in nats.</returns>/// <remarks>
 /// H(X) = λ(1 - log λ) + e^(-λ) * Σ(λ^k * log(k!) / k!)
-/// </remarks>let entropy (lambda: float) : FowlResult<float> =
+/// </remarks>
+let entropy (lambda: float) : FowlResult<float> =
     validateParams lambda
     |> Result.map (fun () ->
         // Approximation for moderate to large λ

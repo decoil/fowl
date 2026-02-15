@@ -47,7 +47,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Cumulative distribution function for Chi-square distribution.</summary>/// <param name="df">Degrees of freedom k > 0.</param>/// <param name="x">Point at which to evaluate CDF (x >= 0).</param>/// <returns>CDF value at x.</returns>/// <remarks>
 /// Uses the relationship to incomplete beta function via:
 /// CDF(x) = incompleteBeta(df/2, x/2)
-/// </remarks>let cdf (df: float) (x: float) : FowlResult<float> =
+/// </remarks>
+let cdf (df: float) (x: float) : FowlResult<float> =
     validateParams df
     |> Result.bind (fun () ->
         if x <= 0.0 then
@@ -76,7 +77,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Percent point function (inverse CDF) for Chi-square distribution.</summary>/// <param name="df">Degrees of freedom k > 0.</param>/// <param name="p">Probability (0 <= p <= 1).</param>/// <returns>Value x such that CDF(x) = p.</returns>/// <remarks>
 /// Uses the relationship: if X ~ Chi-square(k), then X ~ Gamma(k/2, 2).
 /// So the PPF can use the Gamma PPF approximation.
-/// </remarks>let ppf (df: float) (p: float) : FowlResult<float> =
+/// </remarks>
+let ppf (df: float) (p: float) : FowlResult<float> =
     validateParams df
     |> Result.bind (fun () ->
         if p < 0.0 || p > 1.0 then
@@ -113,7 +115,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 
 /// <summary>Random variate sampling from Chi-square distribution.</summary>/// <param name="df">Degrees of freedom k > 0.</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses the Gamma relationship: Chi-square(k) = Gamma(k/2, 2).
-/// </remarks>let rvs (df: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (df: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams df
     |> Result.bind (fun () ->
         let n = Shape.numel shape
@@ -184,7 +187,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Entropy of Chi-square distribution.</summary>/// <param name="df">Degrees of freedom k > 0.</param>/// <returns>Entropy in nats.</returns>/// <remarks>
 /// H(X) = k/2 + log(2Γ(k/2)) + (1 - k/2)ψ(k/2)
 /// where ψ is the digamma function.
-/// </remarks>let entropy (df: float) : FowlResult<float> =
+/// </remarks>
+let entropy (df: float) : FowlResult<float> =
     validateParams df
     |> Result.bind (fun () ->
         result {

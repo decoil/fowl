@@ -117,7 +117,8 @@ type AnovaResult = {
     
     /// <summary>Interpret ANOVA result.
 /// Returns significance at α = 0.05 level.
-/// </summary>let interpret (result: AnovaResult) (alpha: float) : string =
+/// </summary>
+let interpret (result: AnovaResult) (alpha: float) : string =
         if result.PValue < alpha then
             sprintf "Reject H0: Significant difference between group means (F=%.4f, p=%.4f)" 
                 result.FStatistic result.PValue
@@ -127,12 +128,14 @@ type AnovaResult = {
     
     /// <summary>Effect size (eta-squared): proportion of variance explained.
 /// η² = SSBetween / SSTotal
-/// </summary>let etaSquared (result: AnovaResult) : float =
+/// </summary>
+let etaSquared (result: AnovaResult) : float =
         result.SSBetween / result.SSTotal
     
     /// <summary>Adjusted effect size (omega-squared).
 /// Less biased than eta-squared.
-/// </summary>let omegaSquared (result: AnovaResult) : float =
+/// </summary>
+let omegaSquared (result: AnovaResult) : float =
         let dfBetween = float result.DFBetween
         let dfWithin = float result.DFWithin
         let msWithin = result.MSWithin
@@ -143,7 +146,8 @@ type AnovaResult = {
     
     /// <summary>Post-hoc Tukey HSD test.
 /// Compare all pairs of groups after significant ANOVA.
-/// </summary>let tukeyHSD (groups: float[][]) (result: AnovaResult) 
+/// </summary>
+let tukeyHSD (groups: float[][]) (result: AnovaResult) 
                  (alpha: float) : FowlResult<(string * string * float * bool)[]> =
         result {
             let k = groups.Length

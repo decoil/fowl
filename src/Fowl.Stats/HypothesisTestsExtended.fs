@@ -127,7 +127,8 @@ type KruskalWallisResult = {
     /// <summary>Levene's test for equality of variances.
 /// Tests if multiple groups have equal variances.
 /// Robust to non-normality.
-/// </summary>type LeveneResult = {
+/// </summary>
+type LeveneResult = {
         /// W-statistic
         WStatistic: float
         /// P-value
@@ -140,7 +141,8 @@ type KruskalWallisResult = {
     
     /// <summary>Levene's test.
 /// Uses absolute deviations from group medians (Brown-Forsythe variant).
-/// </summary>let levene (groups: float[][]) : FowlResult<LeveneResult> =
+/// </summary>
+let levene (groups: float[][]) : FowlResult<LeveneResult> =
         result {
             let k = groups.Length
             if k < 2 then
@@ -177,7 +179,8 @@ type KruskalWallisResult = {
     
     /// <summary>Bartlett's test for equality of variances.
 /// More sensitive than Levene but assumes normality.
-/// </summary>type BartlettResult = {
+/// </summary>
+type BartlettResult = {
         /// T-statistic (chi-square)
         TStatistic: float
         /// P-value
@@ -188,7 +191,8 @@ type KruskalWallisResult = {
     
     /// <summary>Bartlett's test.
 /// Tests homogeneity of variances.
-/// </summary>let bartlett (groups: float[][]) : FowlResult<BartlettResult> =
+/// </summary>
+let bartlett (groups: float[][]) : FowlResult<BartlettResult> =
         result {
             let k = groups.Length
             if k < 2 then
@@ -246,7 +250,8 @@ type KruskalWallisResult = {
     /// <summary>Friedman test.
 /// Non-parametric repeated measures ANOVA.
 /// For comparing 3+ related samples.
-/// </summary>type FriedmanResult = {
+/// </summary>
+type FriedmanResult = {
         /// Chi-square statistic
         ChiSquare: float
         /// P-value
@@ -256,7 +261,8 @@ type KruskalWallisResult = {
     }
     
     /// <summary>Friedman test for repeated measures.
-/// </summary>let friedman (data: float[][]) : FowlResult<FriedmanResult> =
+/// </summary>
+let friedman (data: float[][]) : FowlResult<FriedmanResult> =
         result {
             let k = data.Length  // Number of treatments
             

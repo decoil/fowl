@@ -64,7 +64,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// Uses the relationship between t-distribution CDF and incomplete beta function:
 /// For x >= 0: CDF(x) = 1 - 0.5 * I_{ν/(ν+x²)}(ν/2, 1/2)
 /// For x < 0: CDF(x) = 1 - CDF(-x)
-/// </remarks>let cdf (df: float) (x: float) : FowlResult<float> =
+/// </remarks>
+let cdf (df: float) (x: float) : FowlResult<float> =
     validateParams df
     |> Result.bind (fun () ->
         if x = 0.0 then
@@ -86,7 +87,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Percent point function (inverse CDF) for Student's t-distribution.</summary>/// <param name="df">Degrees of freedom ν > 0.</param>/// <param name="p">Probability (0 <= p <= 1).</param>/// <returns>Value x such that CDF(x) = p.</returns>/// <remarks>
 /// Uses Newton-Raphson iteration to find the inverse.
 /// Initial guess uses Cornish-Fisher expansion approximation.
-/// </remarks>let ppf (df: float) (p: float) : FowlResult<float> =
+/// </remarks>
+let ppf (df: float) (p: float) : FowlResult<float> =
     validateParams df
     |> Result.bind (fun () ->
         if p < 0.0 || p > 1.0 then
@@ -133,7 +135,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Random variate sampling from Student's t-distribution.</summary>/// <param name="df">Degrees of freedom ν > 0.</param>/// <param name="shape">Shape of output array.</param>/// <returns>Array of random samples.</returns>/// <remarks>
 /// Uses the relationship: if Z ~ N(0,1) and V ~ χ²(ν) are independent,
 /// then Z / √(V/ν) ~ t(ν).
-/// </remarks>let rvs (df: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
+/// </remarks>
+let rvs (df: float) (shape: Shape) : FowlResult<Ndarray<Float64, float>> =
     validateParams df
     |> Result.bind (fun () ->
         let n = Shape.numel shape
@@ -210,7 +213,8 @@ let pdf (df: float) (x: float) : FowlResult<float> =
 /// <summary>Entropy of Student's t-distribution.</summary>/// <param name="df">Degrees of freedom ν > 0.</param>/// <returns>Entropy in nats.</returns>/// <remarks>
 /// H(X) = (ν+1)/2 * [ψ((ν+1)/2) - ψ(ν/2)] + log(√ν * B(ν/2, 1/2))
 /// where ψ is the digamma function.
-/// </remarks>let entropy (df: float) : FowlResult<float> =
+/// </remarks>
+let entropy (df: float) : FowlResult<float> =
     validateParams df
     |> Result.bind (fun () ->
         result {

@@ -27,32 +27,44 @@ open System.Runtime.CompilerServices
 
 /// <summary>Typical L1 cache size per core (32KB).</summary>let l1CacheSize = 32 * 1024
 
-/// <summary>Typical L2 cache size per core (256KB).</summary>let l2CacheSize = 256 * 1024
+/// <summary>Typical L2 cache size per core (256KB).</summary>
+let l2CacheSize = 256 * 1024
 
-/// <summary>Typical L3 cache size (shared, 8MB).</summary>let l3CacheSize = 8 * 1024 * 1024
+/// <summary>Typical L3 cache size (shared, 8MB).</summary>
+let l3CacheSize = 8 * 1024 * 1024
 
-/// <summary>Block size for tiling (tuned for double precision).</summary>/// <remarks>
+/// <summary>Block size for tiling (tuned for double precision).</summary>
+/// <remarks>
 /// 64 doubles = 512 bytes, fits in L1 cache with room for 3 arrays.
-/// </remarks>let tileSize = 64
+/// </remarks>
+let tileSize = 64
 
-/// <summary>Small block size for L1 cache.</summary>let smallBlockSize = 32
+/// <summary>Small block size for L1 cache.</summary>
+let smallBlockSize = 32
 
-/// <summary>Medium block size for L2 cache.</summary>let mediumBlockSize = 128
+/// <summary>Medium block size for L2 cache.</summary>
+let mediumBlockSize = 128
 
-/// <summary>Large block size for L3 cache.</summary>let largeBlockSize = 512
+/// <summary>Large block size for L3 cache.</summary>
+let largeBlockSize = 512
 
 // ============================================================================
 // Prefetching
 // ============================================================================
 
-/// <summary>Prefetch hint for hardware.</summary>/// <remarks>
+/// <summary>Prefetch hint for hardware.</summary>
+/// <remarks>
 /// Uses System.Runtime.CompilerServices.Unsafe.Prefetch when available.
 /// Falls back gracefully on platforms without prefetch support.
-/// </remarks>type PrefetchHint =
+/// </remarks>
+type PrefetchHint =
     | Read = 0
     | Write = 1
 
-/// <summary>Prefetch data into cache.</summary>/// <param name="address">Memory address to prefetch.</param>/// <param name="hint">Read or write hint.</param>let inline prefetch (address: nativeint) (hint: PrefetchHint) : unit =
+/// <summary>Prefetch data into cache.</summary>
+/// <param name="address">Memory address to prefetch.</param>
+/// <param name="hint">Read or write hint.</param>
+let inline prefetch (address: nativeint) (hint: PrefetchHint) : unit =
     // Note: In .NET, prefetch is not directly exposed
     // This is a placeholder for future hardware intrinsics
     // For now, we rely on the CPU's automatic prefetcher
@@ -64,10 +76,16 @@ open System.Runtime.CompilerServices
 // Tiled Matrix Operations
 // ============================================================================
 
-/// <summary>Module for cache-optimized matrix operations.</summary>module CacheMatrixOps =
-    /// <summary>Matrix multiplication with cache tiling.</summary>    /// <param name="a">Left matrix (m x n).</param>    /// <param name="b">Right matrix (n x p).</param>    /// <returns>Result matrix (m x p).</returns>    /// <remarks>
+/// <summary>Module for cache-optimized matrix operations.</summary>
+module CacheMatrixOps =
+    /// <summary>Matrix multiplication with cache tiling.</summary>
+    /// <param name="a">Left matrix (m x n).</param>
+    /// <param name="b">Right matrix (n x p).</param>
+    /// <returns>Result matrix (m x p).</returns>
+    /// <remarks>
     /// Uses three-level tiling for L1, L2, L3 cache hierarchy.
-    /// </remarks>    let matmulTiled (a: double[,]) (b: double[,]) : double[,] =
+    /// </remarks>
+    let matmulTiled (a: double[,]) (b: double[,]) : double[,] =
         let m = a.GetLength(0)
         let n = a.GetLength(1)
         let p = b.GetLength(1)
@@ -175,7 +193,8 @@ open System.Runtime.CompilerServices
 /// <summary>Module for loop reordering optimizations.</summary>/// <remarks>
 /// Loop order affects cache performance significantly.
 /// Row-major access is cache-friendly, column-major is not.
-/// </remarks>module LoopReorderOps =
+/// </remarks>
+module LoopReorderOps =
     /// <summary>Sum matrix elements with cache-friendly row-major order.</summary>    /// <param name="matrix">Input matrix.</param>    /// <returns>Sum of all elements.</returns>    /// <remarks>
     /// Outer loop over rows (contiguous), inner over columns.
     /// </remarks>    let sumRowMajor (matrix: double[,]) : double =
