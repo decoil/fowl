@@ -7,13 +7,13 @@
 ///
 /// Example:
 /// <code>
-/// open Fowl.Parallel
+/// open Fowl.ThreadSafeRandom
 ///
 /// // Thread-safe random generation
 /// let values = Array.init 1000 (fun _ -> ThreadSafeRandom.nextDouble())
 /// </code>
 /// </remarks>
-module Fowl.Parallel.ThreadSafeRandom
+module Fowl.ThreadSafeRandom
 
 open System
 open System.Threading
