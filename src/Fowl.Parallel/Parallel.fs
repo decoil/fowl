@@ -373,7 +373,7 @@ module ParallelReductions =
             
             Parallel.For(0, numChunks, fun chunkIdx ->
                 let start = chunkIdx * chunkSize
-                let end' = min (start + chunkSize) a.Length
+                let end' = System.Math.Min(start + chunkSize, a.Length)
                 let mutable s = 0.0
                 for i = start to end' - 1 do
                     s <- s + a.[i]
@@ -414,7 +414,7 @@ module ParallelReductions =
             
             Parallel.For(0, numChunks, fun chunkIdx ->
                 let start = chunkIdx * chunkSize
-                let end' = min (start + chunkSize) a.Length
+                let end' = System.Math.Min(start + chunkSize, a.Length)
                 let mutable s = 0.0
                 for i = start to end' - 1 do
                     s <- s + a.[i] * b.[i]
@@ -444,7 +444,7 @@ module ParallelReductions =
             
             Parallel.For(0, numChunks, fun chunkIdx ->
                 let start = chunkIdx * chunkSize
-                let end' = min (start + chunkSize) a.Length
+                let end' = System.Math.Min(start + chunkSize, a.Length)
                 let mutable m = a.[start]
                 for i = start + 1 to end' - 1 do
                     if a.[i] < m then m <- a.[i]
@@ -477,7 +477,7 @@ module ParallelReductions =
             
             Parallel.For(0, numChunks, fun chunkIdx ->
                 let start = chunkIdx * chunkSize
-                let end' = min (start + chunkSize) a.Length
+                let end' = System.Math.Min(start + chunkSize, a.Length)
                 let mutable m = a.[start]
                 for i = start + 1 to end' - 1 do
                     if a.[i] > m then m <- a.[i]
