@@ -1,4 +1,7 @@
-/// <summary>Fowl Cache Optimization Module</summary>/// <remarks>
+/// <summary>
+/// Fowl Cache Optimization Module
+/// </summary>
+/// <remarks>
 /// Provides cache-optimized algorithms for better memory locality.
 /// 
 /// Key techniques:
@@ -23,36 +26,56 @@ open System.Runtime.CompilerServices
 // Cache Configuration
 // ============================================================================
 
-/// <summary>Cache line size in bytes (typically 64 on x86/x64).</summary>let cacheLineSize = 64
+/// <summary>
+/// Cache line size in bytes (typically 64 on x86/x64).
+/// </summary>
+let cacheLineSize = 64
 
-/// <summary>Typical L1 cache size per core (32KB).</summary>let l1CacheSize = 32 * 1024
+/// <summary>
+/// Typical L1 cache size per core (32KB).
+/// </summary>
+let l1CacheSize = 32 * 1024
 
-/// <summary>Typical L2 cache size per core (256KB).</summary>
+/// <summary>
+/// Typical L2 cache size per core (256KB).
+/// </summary>
 let l2CacheSize = 256 * 1024
 
-/// <summary>Typical L3 cache size (shared, 8MB).</summary>
+/// <summary>
+/// Typical L3 cache size (shared, 8MB).
+/// </summary>
 let l3CacheSize = 8 * 1024 * 1024
 
-/// <summary>Block size for tiling (tuned for double precision).</summary>
+/// <summary>
+/// Block size for tiling (tuned for double precision).
+/// </summary>
 /// <remarks>
 /// 64 doubles = 512 bytes, fits in L1 cache with room for 3 arrays.
 /// </remarks>
 let tileSize = 64
 
-/// <summary>Small block size for L1 cache.</summary>
+/// <summary>
+/// Small block size for L1 cache.
+/// </summary>
 let smallBlockSize = 32
 
-/// <summary>Medium block size for L2 cache.</summary>
+/// <summary>
+/// Medium block size for L2 cache.
+/// </summary>
 let mediumBlockSize = 128
 
-/// <summary>Large block size for L3 cache.</summary>
+/// <summary>
+/// Large block size for L3 cache.
+/// </summary>
 let largeBlockSize = 512
 
 // ============================================================================
 // Prefetching
 // ============================================================================
 
-/// <summary>Prefetch hint for hardware.</summary>
+/// <summary>
+/// Prefetch hint for hardware.
+/// </summary>
 /// <remarks>
 /// Uses System.Runtime.CompilerServices.Unsafe.Prefetch when available.
 /// Falls back gracefully on platforms without prefetch support.
@@ -61,7 +84,9 @@ type PrefetchHint =
     | Read = 0
     | Write = 1
 
-/// <summary>Prefetch data into cache.</summary>
+/// <summary>
+/// Prefetch data into cache.
+/// </summary>
 /// <param name="address">Memory address to prefetch.</param>
 /// <param name="hint">Read or write hint.</param>
 let inline prefetch (address: nativeint) (hint: PrefetchHint) : unit =
@@ -76,9 +101,13 @@ let inline prefetch (address: nativeint) (hint: PrefetchHint) : unit =
 // Tiled Matrix Operations
 // ============================================================================
 
-/// <summary>Module for cache-optimized matrix operations.</summary>
+/// <summary>
+/// Module for cache-optimized matrix operations.
+/// </summary>
 module CacheMatrixOps =
-    /// <summary>Matrix multiplication with cache tiling.</summary>
+    /// <summary>
+    /// Matrix multiplication with cache tiling.
+    /// </summary>
     /// <param name="a">Left matrix (m x n).</param>
     /// <param name="b">Right matrix (n x p).</param>
     /// <returns>Result matrix (m x p).</returns>
@@ -117,7 +146,13 @@ module CacheMatrixOps =
         
         result
     
-    /// <summary>Matrix multiplication with L2 cache blocking.</summary>    /// <param name="a">Left matrix.</param>    /// <param name="b">Right matrix.</param>    /// <returns>Result matrix.</returns>    let matmulBlocked (a: double[,]) (b: double[,]) : double[,] =
+    /// <summary>
+    /// Matrix multiplication with L2 cache blocking.
+    /// </summary>
+    /// <param name="a">Left matrix.</param>
+    /// <param name="b">Right matrix.</param>
+    /// <returns>Result matrix.</returns>
+    let matmulBlocked (a: double[,]) (b: double[,]) : double[,] =
         let m = a.GetLength(0)
         let n = a.GetLength(1)
         let p = b.GetLength(1)
@@ -148,9 +183,15 @@ module CacheMatrixOps =
         
         result
     
-    /// <summary>Cache-optimized matrix transpose.</summary>    /// <param name="a">Input matrix.</param>    /// <returns>Transposed matrix.</returns>    /// <remarks>
+    /// <summary>
+    /// Cache-optimized matrix transpose.
+    /// </summary>
+    /// <param name="a">Input matrix.</param>
+    /// <returns>Transposed matrix.</returns>
+    /// <remarks>
     /// Uses blocking to improve cache locality.
-    /// </remarks>    let transposeBlocked (a: double[,]) : double[,] =
+    /// </remarks>
+    let transposeBlocked (a: double[,]) : double[,] =
         let m = a.GetLength(0)
         let n = a.GetLength(1)
         let result = Array2D.zeroCreate n m
@@ -166,7 +207,13 @@ module CacheMatrixOps =
         
         result
     
-    /// <summary>Matrix-vector multiplication with cache optimization.</summary>    /// <param name="a">Matrix (m x n).</param>    /// <param name="v">Vector (n).</param>    /// <returns>Result vector (m).</returns>    let matvecTiled (a: double[,]) (v: double[]) : double[] =
+    /// <summary>
+    /// Matrix-vector multiplication with cache optimization.
+    /// </summary>
+    /// <param name="a">Matrix (m x n).</param>
+    /// <param name="v">Vector (n).</param>
+    /// <returns>Result vector (m).</returns>
+    let matvecTiled (a: double[,]) (v: double[]) : double[] =
         let m = a.GetLength(0)
         let n = a.GetLength(1)
         
@@ -190,14 +237,23 @@ module CacheMatrixOps =
 // Loop Reordering
 // ============================================================================
 
-/// <summary>Module for loop reordering optimizations.</summary>/// <remarks>
+/// <summary>
+/// Module for loop reordering optimizations.
+/// </summary>
+/// <remarks>
 /// Loop order affects cache performance significantly.
 /// Row-major access is cache-friendly, column-major is not.
 /// </remarks>
 module LoopReorderOps =
-    /// <summary>Sum matrix elements with cache-friendly row-major order.</summary>    /// <param name="matrix">Input matrix.</param>    /// <returns>Sum of all elements.</returns>    /// <remarks>
+    /// <summary>
+    /// Sum matrix elements with cache-friendly row-major order.
+    /// </summary>
+    /// <param name="matrix">Input matrix.</param>
+    /// <returns>Sum of all elements.</returns>
+    /// <remarks>
     /// Outer loop over rows (contiguous), inner over columns.
-    /// </remarks>    let sumRowMajor (matrix: double[,]) : double =
+    /// </remarks>
+    let sumRowMajor (matrix: double[,]) : double =
         let rows = matrix.GetLength(0)
         let cols = matrix.GetLength(1)
         let mutable sum = 0.0
@@ -208,10 +264,16 @@ module LoopReorderOps =
         
         sum
     
-    /// <summary>Sum matrix elements with cache-unfriendly column-major order.</summary>    /// <param name="matrix">Input matrix.</param>    /// <returns>Sum of all elements.</returns>    /// <remarks>
+    /// <summary>
+    /// Sum matrix elements with cache-unfriendly column-major order.
+    /// </summary>
+    /// <param name="matrix">Input matrix.</param>
+    /// <returns>Sum of all elements.</returns>
+    /// <remarks>
     /// Outer loop over columns, inner over rows (strided access).
     /// Demonstrates poor performance.
-    /// </remarks>    let sumColumnMajor (matrix: double[,]) : double =
+    /// </remarks>
+    let sumColumnMajor (matrix: double[,]) : double =
         let rows = matrix.GetLength(0)
         let cols = matrix.GetLength(1)
         let mutable sum = 0.0
@@ -222,7 +284,12 @@ module LoopReorderOps =
         
         sum
     
-    /// <summary>Copy matrix with cache-friendly blocking.</summary>    /// <param name="source">Source matrix.</param>    /// <returns>Copied matrix.</returns>    let copyBlocked (source: double[,]) : double[,] =
+    /// <summary>
+    /// Copy matrix with cache-friendly blocking.
+    /// </summary>
+    /// <param name="source">Source matrix.</param>
+    /// <returns>Copied matrix.</returns>
+    let copyBlocked (source: double[,]) : double[,] =
         let rows = source.GetLength(0)
         let cols = source.GetLength(1)
         let result = Array2D.zeroCreate rows cols
@@ -242,35 +309,72 @@ module LoopReorderOps =
 // Spatial Locality
 // ============================================================================
 
-/// <summary>Module for spatial locality optimizations.</summary>module SpatialLocalityOps =
-    /// <summary>Process array with sequential access (cache-friendly).</summary>    /// <param name="processor">Processing function.</param>    /// <param name="array">Input array.</param>    let processSequential (processor: double -> unit) (array: double[]) : unit =
+/// <summary>
+/// Module for spatial locality optimizations.
+/// </summary>
+module SpatialLocalityOps =
+    /// <summary>
+    /// Process array with sequential access (cache-friendly).
+    /// </summary>
+    /// <param name="processor">Processing function.</param>
+    /// <param name="array">Input array.</param>
+    let processSequential (processor: double -> unit) (array: double[]) : unit =
         for i = 0 to array.Length - 1 do
             processor array.[i]
     
-    /// <summary>Process array with strided access (cache-unfriendly).</summary>    /// <param name="processor">Processing function.</param>    /// <param name="array">Input array.</param>    /// <param name="stride">Stride for access.</param>    let processStrided (processor: double -> unit) (array: double[]) (stride: int) : unit =
+    /// <summary>
+    /// Process array with strided access (cache-unfriendly).
+    /// </summary>
+    /// <param name="processor">Processing function.</param>
+    /// <param name="array">Input array.</param>
+    /// <param name="stride">Stride for access.</param>
+    let processStrided (processor: double -> unit) (array: double[]) (stride: int) : unit =
         for i in 0..stride..array.Length-1 do
             processor array.[i]
     
-    /// <summary>Align array size to cache line boundary.</summary>    /// <param name="size">Requested size.</param>    /// <returns>Size padded to cache line boundary.</returns>    let padToCacheLine (size: int) : int =
+    /// <summary>
+    /// Align array size to cache line boundary.
+    /// </summary>
+    /// <param name="size">Requested size.</param>
+    /// <returns>Size padded to cache line boundary.</returns>
+    let padToCacheLine (size: int) : int =
         let doublesPerCacheLine = cacheLineSize / sizeof<double>
         ((size + doublesPerCacheLine - 1) / doublesPerCacheLine) * doublesPerCacheLine
     
-    /// <summary>Create array with cache-line alignment padding.</summary>    /// <param name="size">Minimum size.</param>    /// <returns>Array with padded size.</returns>    let createPadded (size: int) : double[] =
+    /// <summary>
+    /// Create array with cache-line alignment padding.
+    /// </summary>
+    /// <param name="size">Minimum size.</param>
+    /// <returns>Array with padded size.</returns>
+    let createPadded (size: int) : double[] =
         Array.zeroCreate (padToCacheLine size)
 
 // ============================================================================
 // Benchmarking Helpers
 // ============================================================================
 
-/// <summary>Module for cache performance measurement.</summary>module CacheBenchmark =
-    /// <summary>Measure cache performance of an operation.</summary>    /// <param name="operation">Operation to measure.</param>    /// <returns>Execution time.</returns>    let measureTime (operation: unit -> 'T) : TimeSpan =
+/// <summary>
+/// Module for cache performance measurement.
+/// </summary>
+module CacheBenchmark =
+    /// <summary>
+    /// Measure cache performance of an operation.
+    /// </summary>
+    /// <param name="operation">Operation to measure.</param>
+    /// <returns>Execution time.</returns>
+    let measureTime (operation: unit -> 'T) : TimeSpan =
         let stopwatch = Diagnostics.Stopwatch()
         stopwatch.Start()
         operation() |> ignore
         stopwatch.Stop()
         stopwatch.Elapsed
     
-    /// <summary>Compare row-major vs column-major performance.</summary>    /// <param name="matrix">Test matrix.</param>    /// <returns>Tuple of (rowTime, colTime, speedup).</returns>    let compareRowVsColumn (matrix: double[,]) : (TimeSpan * TimeSpan * double) =
+    /// <summary>
+    /// Compare row-major vs column-major performance.
+    /// </summary>
+    /// <param name="matrix">Test matrix.</param>
+    /// <returns>Tuple of (rowTime, colTime, speedup).</returns>
+    let compareRowVsColumn (matrix: double[,]) : (TimeSpan * TimeSpan * double) =
         // Warmup
         LoopReorderOps.sumRowMajor matrix |> ignore
         LoopReorderOps.sumColumnMajor matrix |> ignore
@@ -284,7 +388,11 @@ module LoopReorderOps =
         let speedup = colTime.TotalMilliseconds / rowTime.TotalMilliseconds
         (rowTime, colTime, speedup)
     
-    /// <summary>Print cache comparison results.</summary>    /// <param name="matrix">Test matrix.</param>    let printComparison (matrix: double[,]) : unit =
+    /// <summary>
+    /// Print cache comparison results.
+    /// </summary>
+    /// <param name="matrix">Test matrix.</param>
+    let printComparison (matrix: double[,]) : unit =
         let rows = matrix.GetLength(0)
         let cols = matrix.GetLength(1)
         let rowTime, colTime, speedup = compareRowVsColumn matrix
