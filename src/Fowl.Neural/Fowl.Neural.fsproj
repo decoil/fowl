@@ -9,8 +9,10 @@
     <Compile Include="Graph.fs" />
     <Compile Include="Forward.fs" />
     <Compile Include="Backward.fs" />
+    <Compile Include="RecurrentLayers.fs" />
     <Compile Include="ConvLayers.fs" />
     <Compile Include="Layers.fs" />
+    <Compile Include="AdvancedOptimizers.fs" />
     <Compile Include="Training.fs" />
   </ItemGroup>
 
