@@ -1,19 +1,21 @@
 /// <summary>Fowl Thread-Safe Random Module</summary>
 /// <remarks>
 /// Provides thread-safe random number generation for parallel operations.
-/// 
+///
 /// Uses ThreadLocal to ensure each thread has its own Random instance,
 /// avoiding contention and correlation issues.
-/// 
+///
 /// Example:
 /// <code>
-/// open Fowl.Parallel.Random
-/// 
+/// open Fowl.Parallel
+///
 /// // Thread-safe random generation
 /// let values = Array.init 1000 (fun _ -> ThreadSafeRandom.nextDouble())
 /// </code>
 /// </remarks>
-module Fowl.Parallel.ThreadSafeRandom
+namespace Fowl.Parallel
+
+module ThreadSafeRandom =
 
 open System
 open System.Threading
