@@ -22,7 +22,7 @@ module NdarrayOps =
     /// </summary>
     let sortAxis (arr: Ndarray<float>) (axis: int) : FowlResult<Ndarray<float>> =
         result {
-            let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
+            let shape = Ndarray.shape arr
             let rank = shape.Length
             
             if axis < 0 || axis >= rank then
@@ -71,7 +71,7 @@ module NdarrayOps =
     /// </summary>
     let tile (arr: Ndarray<float>) (reps: int[]) : FowlResult<Ndarray<float>> =
         result {
-            let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
+            let shape = Ndarray.shape arr
             
             if reps.Length < shape.Length then
                 return! Error.invalidArgument "tile: reps length must be >= array rank"
@@ -122,7 +122,7 @@ module NdarrayOps =
                 return! Error.invalidArgument "repeat: repeats must be non-negative"
             
             let data = Ndarray.toArray arr
-            let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
+            let shape = Ndarray.shape arr
             
             if repeats = 0 then
                 return! Ndarray.zeros shape
@@ -153,7 +153,7 @@ module NdarrayOps =
     /// </summary>
     let flipAxis (arr: Ndarray<float>) (axis: int) : FowlResult<Ndarray<float>> =
         result {
-            let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
+            let shape = Ndarray.shape arr
             let rank = shape.Length
             
             if axis < 0 || axis >= rank then
@@ -188,7 +188,7 @@ module NdarrayOps =
     /// </summary>
     let argmax (arr: Ndarray<float>) : FowlResult<int[]> =
         result {
-            let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
+            let shape = Ndarray.shape arr
             let data = Ndarray.toArray arr
             
             if shape.Length = 1 then
@@ -217,7 +217,7 @@ module NdarrayOps =
     /// </summary>
     let argmin (arr: Ndarray<float>) : FowlResult<int[]> =
         result {
-            let! shape = Ndarray.shape arr |> Result.ofOption (Error.invalidState "Cannot get shape")
+            let shape = Ndarray.shape arr
             let data = Ndarray.toArray arr
             
             if shape.Length = 1 then

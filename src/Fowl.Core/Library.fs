@@ -175,7 +175,13 @@ module Ndarray =
         match arr with
         | Dense d ->
             let newData = Array.map f d.Data
-            Dense { d with Data = newData }
+            Dense {
+                Data = newData
+                Shape = d.Shape
+                Strides = d.Strides
+                Offset = d.Offset
+                Layout = d.Layout
+            }
         | Sparse _ -> failwith "map not implemented for sparse arrays"
 
     /// <summary>Generate linearly spaced values.</summary>

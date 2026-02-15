@@ -195,12 +195,28 @@ Status: ⏳ Pending comprehensive review
 7. ⏳ Performance benchmarking
 8. ⏳ Property-based testing
 
+#### Issue C11: Library.fs Duplicate Type Definitions
+- **File:** `src/Fowl.Core/Library.fs`
+- **Severity:** CRITICAL - Build failure
+- **Problem:** Library.fs defined the same types as Types.fs (Shape, Layout, Ndarray, etc.)
+- **Fix:** Rewrote Library.fs to only contain functions, using types from Types.fs
+- **Status:** ✅ Fixed in commit 5afdce5
+
+#### Issue C12: Missing Library.fs in fsproj
+- **File:** `src/Fowl.Core/Fowl.Core.fsproj`
+- **Severity:** CRITICAL - Missing functions
+- **Problem:** Library.fs not included in project file, causing missing function errors
+- **Fix:** Added Library.fs to fsproj
+- **Status:** ✅ Fixed in commit 5afdce5
+
 ---
 
 ## Commit Log
 
 | Commit | Description |
 |--------|-------------|
+| 5afdce5 | fix: rewrite Library.fs to remove duplicate type defs, use Types.fs; add back to fsproj |
+| a4bd499 | fix: add For method to ResultBuilder; escape XML tags; fix Slice.fs type errors and opens |
 | 787956c | fix: correct OCaml-style ~axis syntax to proper F# optional parameter syntax |
 | 754cbda | fix: escape parallel keyword in Optimized.fs |
 | bb2935b | fix: Config.fs XML documentation formatting; escape parallel keyword with backticks |

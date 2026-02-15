@@ -120,7 +120,7 @@ let slice (arr: Ndarray<'K, 'T>) (specs: SliceSpec array) : FowlResult<Ndarray<'
                         let srcIdx = Ndarray.flatIndex d.Strides inputIndices d.Offset
                         d.Data.[srcIdx])
 
-                return! Ndarray.ofArray outData' outShape
+                return! Ok (Ndarray.ofArray outData' outShape)
             }
     | Sparse _ -> Error.notImplemented "slice not implemented for sparse arrays"
 
@@ -210,6 +210,6 @@ let broadcastTo (targetShape: Shape) (arr: Ndarray<'K, 'T>) : FowlResult<Ndarray
                             |> (+) d.Offset
                         d.Data.[inFlatIdx])
 
-                return! Ndarray.ofArray outData' targetShape
+                return! Ok (Ndarray.ofArray outData' targetShape)
             }
         | Sparse _ -> Error.notImplemented "broadcastTo not implemented for sparse arrays"
