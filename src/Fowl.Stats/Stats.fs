@@ -4,6 +4,26 @@ namespace Fowl
 
 open System
 
+/// <summary>Error function.
+/// </summary>
+module Special =
+    let erf (x: float) : float =
+        // Abramowitz & Stegun approximation
+        let a1 =  0.254829592
+        let a2 = -0.284496736
+        let a3 =  1.421413741
+        let a4 = -1.453152027
+        let a5 =  1.061405429
+        let p  =  0.3275911
+        
+        let sign = if x < 0.0 then -1.0 else 1.0
+        let x = abs x
+        
+        let t = 1.0 / (1.0 + p * x)
+        let y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * exp (-x * x)
+        
+        sign * y
+
 /// <summary>Probability distributions.
 /// </summary>
 module Distributions =
@@ -16,7 +36,7 @@ module Distributions =
             exp (-0.5 * z * z) / (sigma * sqrt (2.0 * Math.PI))
         
         let cdf (mu: float) (sigma: float) (x: float) : float =
-            0.5 * (1.0 + erf ((x - mu) / (sigma * sqrt 2.0)))
+            0.5 * (1.0 + Special.erf ((x - mu) / (sigma * sqrt 2.0)))
         
         let rvs (mu: float) (sigma: float) (rng: Random) : float =
             let u1 = 1.0 - rng.NextDouble()
