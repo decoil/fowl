@@ -55,7 +55,7 @@ module Special =
     /// </summary>
     /// <param name="x">Input value.</param>
     /// <returns>Gamma of x.</returns>
-    let gamma (x: float) : float =
+    let rec gamma (x: float) : float =
         if x > 0.0 then exp (gammaln x)
         else Math.PI / (sin (Math.PI * x) * gamma (1.0 - x))
     
